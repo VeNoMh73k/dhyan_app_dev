@@ -5,7 +5,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/foundation.dart';
 import 'package:meditationapp/main.dart';
 
-Future<bool> apicAll(String filePath, String url) async {
+Future<bool> callDownloadMethod(String filePath, String url) async {
   if (await AppUtils.checkInterAvailability()) {
     debugPrint('baseUrl--$filePath');
     final response = await Dio().download(url, filePath);
@@ -17,6 +17,21 @@ Future<bool> apicAll(String filePath, String url) async {
   } else {
     noInterNetPopUp();
     return false;
+  }
+}
+
+Future<dynamic> callGetMethod(String url) async {
+  Map<String, String> header = {
+    'Content-type': 'application/json',
+    'Accept': 'application/json',
+  };
+  if (await AppUtils.checkInterAvailability()) {
+    final response = await Dio().get(url, options: Options(headers: header));
+
+    return response;
+  } else {
+    noInterNetPopUp();
+    return null;
   }
 }
 

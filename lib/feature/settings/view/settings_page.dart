@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:meditationapp/core/app_utils.dart';
 import 'package:meditationapp/core/storage/preference_helper.dart';
+import 'package:meditationapp/feature/payment/view/payment_page.dart';
 import 'package:meditationapp/service/notifi_service.dart';
 
 class SettingsPage extends StatefulWidget {
@@ -95,7 +96,13 @@ class _SettingsPageState extends State<SettingsPage> {
             Text('Support'),
             const SizedBox(height: 20),
             ListTile(
-              onTap: () {},
+              onTap: () {
+                Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => PaymentPage(),
+                    ));
+              },
               title: Text('Donate'),
               subtitle: Text('Help the app touch another million lives'),
             ),

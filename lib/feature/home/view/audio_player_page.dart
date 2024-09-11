@@ -1,15 +1,16 @@
 import 'package:flutter/material.dart';
 import 'package:just_audio/just_audio.dart';
+import 'package:meditationapp/core/app_utils.dart';
 
 class AudioPlayerPage extends StatefulWidget {
+  final String imgUrl;
   final String filePath;
-  final String audioId;
   final String audioTitle;
 
   const AudioPlayerPage(
       {super.key,
+      required this.imgUrl,
       required this.filePath,
-      required this.audioId,
       required this.audioTitle});
 
   @override
@@ -81,12 +82,8 @@ class _AudioPlayerPageState extends State<AudioPlayerPage> {
               decoration: BoxDecoration(
                 shape: BoxShape.rectangle,
                 borderRadius: BorderRadius.circular(10),
-                image: DecorationImage(
-                  image: NetworkImage(
-                      'https://images.pexels.com/photos/220118/pexels-photo-220118.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=1'),
-                  fit: BoxFit.cover,
-                ),
               ),
+              child: AppUtils.cacheImage(widget.imgUrl),
             ),
             Column(
               children: [

@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:meditationapp/core/storage/preference_helper.dart';
-import 'package:meditationapp/feature/home/home.dart';
-import 'package:meditationapp/feature/home/home_provider.dart';
+import 'package:meditationapp/feature/home/view/home.dart';
+import 'package:meditationapp/feature/home/provider/home_provider.dart';
 import 'package:meditationapp/service/notifi_service.dart';
 import 'package:provider/provider.dart';
 import 'package:provider/single_child_widget.dart';

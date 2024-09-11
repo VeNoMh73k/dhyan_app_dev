@@ -1,4 +1,5 @@
 import 'dart:io';
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:internet_connection_checker/internet_connection_checker.dart';
 import 'package:path_provider/path_provider.dart';
@@ -47,5 +48,18 @@ class AppUtils {
     )) {
       throw Exception('Could not launch $url');
     }
+  }
+  static cacheImage(imageUrl){
+    return CachedNetworkImage(
+      imageUrl: imageUrl,
+      placeholder: (context, url) =>
+      const Center(
+          child: CircularProgressIndicator(
+              strokeWidth: 2, strokeAlign: -0.5)),
+      fit: BoxFit.cover,
+      errorWidget: (context, url, error) => Image.asset(
+          "assets/ic_placeholder.jpeg",
+          fit: BoxFit.cover),
+    );
   }
 }
