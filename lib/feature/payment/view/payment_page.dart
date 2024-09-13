@@ -1,8 +1,13 @@
+import 'dart:async';
 import 'dart:io';
 
 import 'package:flutter/material.dart';
-import 'package:meditationapp/service/payment_configurations.dart';
-import 'package:pay/pay.dart';
+import 'package:in_app_purchase/in_app_purchase.dart';
+
+InAppPurchase _inAppPurchase = InAppPurchase.instance;
+late StreamSubscription<dynamic> _streamSubscription;
+List<ProductDetails> _products = [];
+const _variant = {"meditationapp", "meditation pro"};
 
 class PaymentPage extends StatefulWidget {
   const PaymentPage({super.key});
@@ -86,6 +91,48 @@ class PaymentDialog extends StatefulWidget {
 }
 
 class _PaymentDialogState extends State<PaymentDialog> {
+
+  @override
+  void initState() {
+    // TODO: implement initState
+    super.initState();
+    Stream purchaseUpdated = InAppPurchase.instance.purchaseStream;
+    _streamSubscription = purchaseUpdated.listen((purchaseList) {
+      _listenToPurchase(purchaseList, context);
+    }, onDone: (){
+      _streamSubscription.cancel();
+    }, onError: (error){
+      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text("Error")));
+    });
+    initStore();
+  }
+
+  initStore() async{
+    ProductDetailsResponse productDetailsResponse =
+    await _inAppPurchase.queryProductDetails(_variant);
+    if(productDetailsResponse.error==null){
+      setState(() {
+        _products = productDetailsResponse.productDetails;
+      });
+    }
+  }
+
+  _listenToPurchase(List<PurchaseDetails> purchaseDetailsList, BuildContext context) {
+    purchaseDetailsList.forEach((PurchaseDetails purchaseDetails) async {
+      if (purchaseDetails.status == PurchaseStatus.pending) {
+        ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text("Pending")));
+      } else if (purchaseDetails.status == PurchaseStatus.error) {
+        ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text("Error")));
+      } else if (purchaseDetails.status == PurchaseStatus.purchased) {
+        ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text("Purchased")));
+      }
+    });
+  }
+  _buy(){
+    final PurchaseParam param = PurchaseParam(productDetails: _products[0]);
+    _inAppPurchase.buyConsumable(purchaseParam: param);
+  }
+
   @override
   Widget build(BuildContext context) {
     return AlertDialog(
@@ -102,14 +149,15 @@ class _PaymentDialogState extends State<PaymentDialog> {
                   (amount) => ListTile(
                     onTap: () {
                       Navigator.pop(context);
-                      showDialog(
-                        context: context,
-                        builder: (context) {
-                          return PaymentBtnDialog(
-                            amount: amount,
-                          );
-                        },
-                      );
+                      _buy();
+                      // showDialog(
+                      //   context: context,
+                      //   builder: (context) {
+                      //     return PaymentBtnDialog(
+                      //       amount: amount,
+                      //     );
+                      //   },
+                      // );
                     },
                     minLeadingWidth: 5,
                     title: Text('₹$amount'),
@@ -129,92 +177,93 @@ class _PaymentDialogState extends State<PaymentDialog> {
   }
 }
 
-class PaymentBtnDialog extends StatefulWidget {
-  final String amount;
 
-  const PaymentBtnDialog({super.key, required this.amount});
-
-  @override
-  State<PaymentBtnDialog> createState() => _PaymentBtnDialogState();
-}
-
-class _PaymentBtnDialogState extends State<PaymentBtnDialog> {
-  late ApplePayButton applePayButton;
-  late GooglePayButton googlePayButton;
-
-  @override
-  void initState() {
-    initGooglePay();
-    if (Platform.isIOS) {
-      initAppleAay();
-    }
-    super.initState();
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return AlertDialog(
-      content: Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          const Text('Payment Method',
-              style: TextStyle(fontSize: 18, fontWeight: FontWeight.w700)),
-          const SizedBox(height: 20),
-          googlePayButton,
-          if (Platform.isIOS) applePayButton
-        ],
-      ),
-    );
-  }
-
-  initGooglePay() {
-    googlePayButton = GooglePayButton(
-      paymentConfiguration:
-          PaymentConfiguration.fromJsonString(defaultGooglePay),
-      paymentItems: [
-        PaymentItem(
-            amount: widget.amount,
-            label: 'Payment',
-            status: PaymentItemStatus.final_price,
-            type: PaymentItemType.total),
-      ],
-      type: GooglePayButtonType.buy,
-      margin: const EdgeInsets.only(top: 15.0),
-      onPaymentResult: onGooglePayResult,
-      loadingIndicator: const Center(
-        child: CircularProgressIndicator(),
-      ),
-    );
-  }
-
-  initAppleAay() {
-    applePayButton = ApplePayButton(
-      paymentConfiguration:
-          PaymentConfiguration.fromJsonString(defaultApplePay),
-      paymentItems: [
-        PaymentItem(
-            amount: widget.amount,
-            label: 'Payment',
-            status: PaymentItemStatus.final_price,
-            type: PaymentItemType.total),
-      ],
-      style: ApplePayButtonStyle.black,
-      type: ApplePayButtonType.buy,
-      margin: const EdgeInsets.only(top: 15.0),
-      onPaymentResult: onApplePayResult,
-      loadingIndicator: const Center(
-        child: CircularProgressIndicator(),
-      ),
-    );
-  }
-
-  static void onApplePayResult(paymentResult) {
-    // Send the resulting Apple Pay token to your server / PSP
-    debugPrint(paymentResult.toString());
-  }
-
-  static void onGooglePayResult(paymentResult) {
-    // Send the resulting Google Pay token to your server / PSP
-    debugPrint(paymentResult.toString());
-  }
-}
+// class PaymentBtnDialog extends StatefulWidget {
+//   final String amount;
+//
+//   const PaymentBtnDialog({super.key, required this.amount});
+//
+//   @override
+//   State<PaymentBtnDialog> createState() => _PaymentBtnDialogState();
+// }
+//
+// class _PaymentBtnDialogState extends State<PaymentBtnDialog> {
+//   // late ApplePayButton applePayButton;
+//   // late GooglePayButton googlePayButton;
+//
+//   // @override
+//   // void initState() {
+//   //   initGooglePay();
+//   //   if (Platform.isIOS) {
+//   //     initAppleAay();
+//   //   }
+//   //   super.initState();
+//   // }
+//
+//   @override
+//   Widget build(BuildContext context) {
+//     return AlertDialog(
+//       content: Column(
+//         mainAxisSize: MainAxisSize.min,
+//         children: [
+//           const Text('Payment Method',
+//               style: TextStyle(fontSize: 18, fontWeight: FontWeight.w700)),
+//           const SizedBox(height: 20),
+//           // googlePayButton,
+//           // if (Platform.isIOS) applePayButton
+//         ],
+//       ),
+//     );
+//   }
+//
+//   // initGooglePay() {
+//   //   googlePayButton = GooglePayButton(
+//   //     paymentConfiguration:
+//   //         PaymentConfiguration.fromJsonString(defaultGooglePay),
+//   //     paymentItems: [
+//   //       PaymentItem(
+//   //           amount: widget.amount,
+//   //           label: 'Payment',
+//   //           status: PaymentItemStatus.final_price,
+//   //           type: PaymentItemType.total),
+//   //     ],
+//   //     type: GooglePayButtonType.buy,
+//   //     margin: const EdgeInsets.only(top: 15.0),
+//   //     onPaymentResult: onGooglePayResult,
+//   //     loadingIndicator: const Center(
+//   //       child: CircularProgressIndicator(),
+//   //     ),
+//   //   );
+//   // }
+//   //
+//   // initAppleAay() {
+//   //   applePayButton = ApplePayButton(
+//   //     paymentConfiguration:
+//   //         PaymentConfiguration.fromJsonString(defaultApplePay),
+//   //     paymentItems: [
+//   //       PaymentItem(
+//   //           amount: widget.amount,
+//   //           label: 'Payment',
+//   //           status: PaymentItemStatus.final_price,
+//   //           type: PaymentItemType.total),
+//   //     ],
+//   //     style: ApplePayButtonStyle.black,
+//   //     type: ApplePayButtonType.buy,
+//   //     margin: const EdgeInsets.only(top: 15.0),
+//   //     onPaymentResult: onApplePayResult,
+//   //     loadingIndicator: const Center(
+//   //       child: CircularProgressIndicator(),
+//   //     ),
+//   //   );
+//   // }
+//   //
+//   // static void onApplePayResult(paymentResult) {
+//   //   // Send the resulting Apple Pay token to your server / PSP
+//   //   debugPrint(paymentResult.toString());
+//   // }
+//   //
+//   // static void onGooglePayResult(paymentResult) {
+//   //   // Send the resulting Google Pay token to your server / PSP
+//   //   debugPrint(paymentResult.toString());
+//   // }
+// }
