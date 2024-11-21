@@ -6,10 +6,12 @@ import 'package:meditationapp/core/app_utils.dart';
 import 'package:meditationapp/core/network/api_constants.dart';
 import 'package:meditationapp/core/network/network_repository.dart';
 import 'package:meditationapp/feature/home/models/audio_list_model.dart';
+import 'package:video_player/video_player.dart';
 
 class HomeProvider with ChangeNotifier {
   List<AudioListModel>? audioListModel;
   bool isLoading = true;
+  late VideoPlayerController videoPlayerController;
 
   Future<bool> downloadAudio(BuildContext context, url, filePath) async {
     try {

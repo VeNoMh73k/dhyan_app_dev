@@ -2,6 +2,7 @@ import 'dart:io';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:internet_connection_checker/internet_connection_checker.dart';
+import 'package:meditationapp/core/app_colors.dart';
 import 'package:meditationapp/core/theme/theme_manager.dart';
 import 'package:meditationapp/main.dart';
 import 'package:path_provider/path_provider.dart';
@@ -40,9 +41,11 @@ class AppUtils {
       {Color? color, double? strokeAlign, double? strokeWidth}) {
     return Center(
         child: CircularProgressIndicator(
-          color: Colors.deepPurple,
-          strokeWidth: strokeWidth ?? 4,
+          color: AppColors.blackColor,
+          strokeWidth: strokeWidth ?? 2,
           strokeAlign: strokeAlign ?? 0,
+
+          strokeCap: StrokeCap.round,
         ));
   }
 
@@ -66,6 +69,49 @@ class AppUtils {
       errorWidget: (context, url, error) => Image.asset(
           "assets/ic_placeholder.jpeg",
           fit: BoxFit.cover),
+    );
+  }
+
+
+  static Widget commonContainer({
+    double? height,
+    double? width,
+    Alignment? alignment,
+    BoxDecoration? decoration,
+    EdgeInsets? margin,
+    EdgeInsets? padding,
+    Widget? child,
+    Color? color,
+  }) {
+    return Container(
+      height: height,
+      width: width,
+      alignment: alignment,
+      decoration: decoration,
+      margin: margin,
+      padding: padding,
+      color: color,
+      child: child,
+    );
+  }
+
+  static BoxDecoration commonBoxDecoration(
+      {Color? color,
+        BoxBorder? border,
+        Gradient? gradient,
+        BoxShape? shape,
+        List<BoxShadow>? boxShadow,
+        DecorationImage? image,
+        BorderRadiusGeometry? borderRadius}) {
+    return BoxDecoration(
+      image: image,
+      shape: shape ?? BoxShape.rectangle,
+
+      color: color,
+      boxShadow: boxShadow,
+      border: border,
+      gradient: gradient,
+      borderRadius: borderRadius,
     );
   }
 

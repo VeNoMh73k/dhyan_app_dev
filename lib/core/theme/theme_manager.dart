@@ -15,9 +15,9 @@ import 'package:meditationapp/main.dart';
 
     getScaffoldColor() {
     if (currentTheme == ThemeData.dark()) {
-      return AppColors.blackColor; // Dark theme text color
+      return AppColors.blackThemeBackgroundColor; // Dark theme text color
     } else if (currentTheme == ThemeData.light()) {
-      return AppColors.whiteColor; // Light theme text color
+      return AppColors.whiteThemeBackgroundColor; // Light theme text color
     }
     // Default text color if theme is not specified or invalid
     return AppColors.blackColor;
@@ -32,6 +32,16 @@ import 'package:meditationapp/main.dart';
     // Default text color if theme is not specified or invalid
     return AppColors.blackColor;
   }
+
+getPrimaryColor() {
+  if (currentTheme == ThemeData.dark()) {
+    return AppColors.secondaryColor; // Dark theme text color
+  } else if (currentTheme == ThemeData.light()) {
+    return AppColors.primaryColor; // Light theme text color
+  }
+  // Default text color if theme is not specified or invalid
+  return AppColors.blackColor;
+}
 
   getBottomRowContainerColor() {
     print("ThemeData${ThemeMode.system.toString()}");
@@ -66,3 +76,26 @@ import 'package:meditationapp/main.dart';
     // Default text color if theme is not specified or invalid
     return AppColors.blackColor;
   }
+
+  getMusicListTileColor(){
+    if (currentTheme == ThemeData.dark()) {
+      return AppColors.lightBlackColor; // Dark theme text color
+    } else if (currentTheme == ThemeData.light()) {
+      return AppColors.whiteColor;
+      return AppColors.primaryColor; // Light theme text color
+    }
+    // Default text color if theme is not specified or invalid
+    return AppColors.blackColor;
+  }
+  
+getMusicTileColorWithOpacity(){
+  if (currentTheme == ThemeData.dark()) {
+    return AppColors.whiteColor.withOpacity(0.05);
+  } else if (currentTheme == ThemeData.light()) {
+    return AppColors.lightBlackColor.withOpacity(0.1);
+
+    return AppColors.primaryColor; // Light theme text color
+  }
+  // Default text color if theme is not specified or invalid
+  return AppColors.blackColor;
+}
