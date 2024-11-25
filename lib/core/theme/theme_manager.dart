@@ -99,3 +99,13 @@ getMusicTileColorWithOpacity(){
   // Default text color if theme is not specified or invalid
   return AppColors.blackColor;
 }
+
+getPopUpColor() {
+  if (currentTheme == ThemeData.dark()) {
+    return AppColors.blackThemeBackgroundColor; // Dark theme text color
+  } else if (currentTheme == ThemeData.light()) {
+    return AppColors.whiteThemeBackgroundColor; // Light theme text color
+  }
+  // Default text color if theme is not specified or invalid
+  return AppColors.blackColor;
+}

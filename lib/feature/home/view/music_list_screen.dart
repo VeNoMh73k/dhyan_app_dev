@@ -125,13 +125,18 @@ class _MusicListScreenState extends State<MusicListScreen> {
                         ? Row(
                             mainAxisAlignment: MainAxisAlignment.spaceBetween,
                             children: [
-                              Container(
-                                margin: const EdgeInsets.only(
-                                    left: 12, bottom: 0, right: 0),
-                                padding: const EdgeInsets.all(4),
-                                child: Icon(
-                                  Icons.arrow_back,
-                                  color: AppColors.whiteColor,
+                              GestureDetector(
+                                onTap: () {
+                                  Navigator.pop(context);
+                                },
+                                child: Container(
+                                  margin: const EdgeInsets.only(
+                                      left: 12, bottom: 0, right: 0),
+                                  padding: const EdgeInsets.all(4),
+                                  child: Icon(
+                                    Icons.arrow_back,
+                                    color: AppColors.whiteColor,
+                                  ),
                                 ),
                               ),
                               AppUtils.commonTextWidget(
@@ -177,14 +182,19 @@ class _MusicListScreenState extends State<MusicListScreen> {
                               ? SizedBox()
                               : Align(
                                   alignment: Alignment.topLeft,
-                                  child: Container(
-                                    margin: const EdgeInsets.only(
-                                        top: 32, left: 12),
-                                    // Adjust as needed for spacing
-                                    padding: const EdgeInsets.all(8),
-                                    child: Icon(
-                                      Icons.arrow_back,
-                                      color: AppColors.whiteColor,
+                                  child: GestureDetector(
+                                    onTap: () {
+                                      Navigator.pop(context);
+                                    },
+                                    child: Container(
+                                      margin: const EdgeInsets.only(
+                                          top: 32, left: 12),
+                                      // Adjust as needed for spacing
+                                      padding: const EdgeInsets.all(8),
+                                      child: Icon(
+                                        Icons.arrow_back,
+                                        color: AppColors.whiteColor,
+                                      ),
                                     ),
                                   ),
                                 ),

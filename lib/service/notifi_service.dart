@@ -36,24 +36,46 @@ class NotificationService {
         id, title, body, await notificationDetails());
   }
 
-  Future scheduleNotification(
-      {int id = 0,
-      String? payLoad,
-      required DateTime scheduledNotificationDateTime}) async {
-    return notificationsPlugin.zonedSchedule(
-        id,
-        'Reminder',
-        'It\'s time for your meditation',
-        tz.TZDateTime.from(
-          scheduledNotificationDateTime,
+  Future<void> scheduleNotification({
+    int id = 0,
+    String? payLoad,
+    required DateTime selectedTime, // The time user selected
+    required List<bool> selectedDays, // Array of days (Mon-Sun)
+  }) async {
+    final now = DateTime.now();
+    final tz.TZDateTime tzNow = tz.TZDateTime.now(tz.local);
+
+    // Loop through all days of the week and schedule notifications for the selected days
+    for (int i = 0; i < 7; i++) {
+      if (selectedDays[i]) {
+        // Calculate the difference between today and the selected day (i)
+        int dayDifference = (i - tzNow.weekday + 7) % 7;
+        tz.TZDateTime scheduledDate = tzNow.add(Duration(days: dayDifference));
+
+        // Set the correct time on the scheduled date
+        scheduledDate = tz.TZDateTime(
           tz.local,
-        ),
-        await notificationDetails(),
-        // androidAllowWhileIdle: true,
-        matchDateTimeComponents: DateTimeComponents.time,
-        androidScheduleMode: AndroidScheduleMode.exactAllowWhileIdle,
-        uiLocalNotificationDateInterpretation:
-            UILocalNotificationDateInterpretation.absoluteTime);
+          scheduledDate.year,
+          scheduledDate.month,
+          scheduledDate.day,
+          selectedTime.hour,
+          selectedTime.minute,
+        );
+
+        // Schedule the notification for the calculated date and time
+        await notificationsPlugin.zonedSchedule(
+          id,
+          'Reminder',
+          'It\'s time for your meditation!',
+          scheduledDate,
+          await notificationDetails(),
+          matchDateTimeComponents: DateTimeComponents.time,
+          androidScheduleMode: AndroidScheduleMode.exactAllowWhileIdle,
+          uiLocalNotificationDateInterpretation:
+          UILocalNotificationDateInterpretation.absoluteTime,
+        );
+      }
+    }
   }
 
   // Cancel daily notifications

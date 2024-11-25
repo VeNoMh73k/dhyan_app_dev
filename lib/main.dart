@@ -30,9 +30,9 @@ Future<void> main() async {
           value?.containsKey(PreferenceHelper.reminderHour) == false) {
         value?.setString(PreferenceHelper.reminderHour, '08');
         value?.setString(PreferenceHelper.reminderMin, '30');
-        NotificationService().scheduleNotification(
-            scheduledNotificationDateTime: DateTime(DateTime.now().year,
-                DateTime.now().month, DateTime.now().day, 08, 30));
+        // NotificationService().scheduleNotification(
+        //     scheduledNotificationDateTime: DateTime(DateTime.now().year,
+        //         DateTime.now().month, DateTime.now().day, 08, 30), selectedTime: null);
       }
     },
   );

@@ -6,7 +6,7 @@ class PreferenceHelper {
   static const String isReminderOn = 'isReminderOn';
   static const String reminderHour = 'reminderHour';
   static const String reminderMin = 'reminderMin';
-
+  static const String isSubscribe = 'subscribe';
   static SharedPreferences? _prefs;
 
   static Future<SharedPreferences?> load() async {
@@ -92,5 +92,16 @@ class PreferenceHelper {
 
   static Future<void> reload() async {
     await _prefs?.reload();
+  }
+
+  static Future<void> setStringList(String key, List<String> value) async {
+    await _prefs?.setStringList(key, value);
+  }
+
+  static List<String> getStringList(String key, {List<String>? def}) {
+    List<String>? val;
+    val ??= _prefs?.getStringList(key);
+    val ??= def ?? [];
+    return val;
   }
 }
