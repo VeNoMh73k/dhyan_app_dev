@@ -4,6 +4,7 @@ import 'package:meditationapp/core/app_colors.dart';
 import 'package:meditationapp/core/app_utils.dart';
 import 'package:meditationapp/core/theme/theme_manager.dart';
 import 'package:meditationapp/feature/feedback/view/thankyou_for_tip_screen.dart';
+import 'package:meditationapp/feature/home/view/home_screen.dart';
 import 'package:meditationapp/feature/home/view/music_list_screen.dart';
 import 'package:meditationapp/feature/subscription/view/subscription_screen.dart';
 
@@ -27,14 +28,14 @@ class _FeedbackScreenState extends State<FeedbackScreen> {
         backgroundColor: getScaffoldColor(),
         leading: GestureDetector(
           onTap: () {
-            Navigator.push(
+            Navigator.pushReplacement(
                 context,
                 MaterialPageRoute(
-                  builder: (context) => const MusicListScreen(),
+                  builder: (context) => const HomeScreen(),
                 ));
           },
           child: Container(
-            margin: const EdgeInsets.only(left: 12, bottom: 0, right: 0),
+            margin: const EdgeInsets.only(left: 0, bottom: 0, right: 0),
             padding: const EdgeInsets.all(4),
             child: Icon(
               Icons.arrow_back,
@@ -224,6 +225,7 @@ class _FeedbackScreenState extends State<FeedbackScreen> {
               Navigator.of(context).pop();
             },
           )
-        ]);
+        ]
+    );
   }
 }

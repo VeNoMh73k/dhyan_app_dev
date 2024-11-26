@@ -28,7 +28,9 @@ class _ReminderScreenState extends State<ReminderScreen> {
     return savedReminders.map((reminder) {
       Map<String, dynamic> reminderMap = jsonDecode(reminder);
 
-      List<bool> selectedDays = reminderMap['selectedDays'].map<bool>((day) => day == 'true').toList();
+      List<bool> selectedDays = reminderMap['selectedDays']
+          .map<bool>((day) => day == 'true')
+          .toList();
       List<String> timeParts = reminderMap['selectedTime'].split(':');
 
       DateTime selectedTime = DateTime(
@@ -42,6 +44,7 @@ class _ReminderScreenState extends State<ReminderScreen> {
       return {
         'selectedDays': selectedDays,
         'selectedTime': selectedTime,
+        'isReminderOn': reminderMap['isReminderOn'] ?? true, // Default to true if missing
       };
     }).toList();
   }
@@ -53,6 +56,23 @@ class _ReminderScreenState extends State<ReminderScreen> {
       reminders = loadedReminders;
     });
   }
+
+
+  Future<void> toggleReminder(int index, bool value) async {
+    reminders[index]['isReminderOn'] = value;
+
+    // Serialize DateTime as a string before saving
+    List<String> serializedReminders = reminders.map((r) {
+      return jsonEncode({
+        'selectedDays': r['selectedDays'],
+        'selectedTime': (r['selectedTime'] as DateTime).toIso8601String(),
+        'isReminderOn': r['isReminderOn'],
+      });
+    }).toList();
+
+    await PreferenceHelper.setStringList('reminders', serializedReminders);
+  }
+
 
   @override
   void initState() {
@@ -95,7 +115,7 @@ class _ReminderScreenState extends State<ReminderScreen> {
               Navigator.push(
                   context,
                   MaterialPageRoute(
-                    builder: (context) => const SetReminderScreen(),
+                    builder: (context) =>  SetReminderScreen(index: null,),
                   )).then((value) {
                 _loadReminders();
                   },);
@@ -133,77 +153,91 @@ class _ReminderScreenState extends State<ReminderScreen> {
                 DateTime reminderTime = reminder['selectedTime'];
                 List<bool> reminderDays =
                     List<bool>.from(reminder['selectedDays']);
+                bool isReminderOn = reminder['isReminderOn'] ?? true;
 
-                return AppUtils.commonContainer(
-                  width: double.infinity,
-                  padding:
-                      EdgeInsets.only(left: 16, top: 8, bottom: 8, right: 16),
-                  margin: EdgeInsets.only(bottom: 10 ),
-                  decoration: AppUtils.commonBoxDecoration(
-                    borderRadius: BorderRadius.circular(8),
-                    color: AppColors.whiteColor,
-                    boxShadow: [
-                      BoxShadow(
-                        color: AppColors.blackColor.withOpacity(0.1),
-                        blurRadius: 6,
-                      ),
-                    ],
-                  ),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          AppUtils.commonTextWidget(
-                              text: AppUtils.getDate(
-                                  date: reminderTime.toString(),
-                                  format: "HH:mm a"),
-                              textColor: AppColors.blackColor,
-                              letterSpacing: 0,
-                              fontSize: 20,
-                              fontWeight: FontWeight.w700),
-                          CupertinoSwitch(
-
-                            activeColor: getPrimaryColor(),
-                            value: true,
-                            onChanged: (value) {
-
-                            },
-                          )
-                        ],
-                      ),
-                      SizedBox(height: 8),
-                      Align(
-                        alignment: Alignment.center,
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          children: List.generate(days.length, (index) {
-                            bool isSelected = reminderDays[index];
-
-                            return AppUtils.commonContainer(
-                              height: 30,
-                              width: 40,
-                              alignment: Alignment.center,
-                              margin:
-                                  const EdgeInsets.symmetric(horizontal: 0),
-                              decoration: AppUtils.commonBoxDecoration(
-                                color: isSelected
-                                    ? getPrimaryColor()
-                                    : AppColors.greyColor,
-                                borderRadius: BorderRadius.circular(8),
-                              ),
-                              child: AppUtils.commonTextWidget(
-                                text: days[index],
-                                fontSize: 14,
-                                fontWeight: FontWeight.w400,
-                                textColor: AppColors.blackColor,
-                              ),
-                            );
-                          }),
+                return GestureDetector(
+                  onTap: () {
+                    Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) =>  SetReminderScreen(index: index,),
+                        )).then((value) {
+                      _loadReminders();
+                    },);
+                  },
+                  child: AppUtils.commonContainer(
+                    width: double.infinity,
+                    padding:
+                        EdgeInsets.only(left: 16, top: 8, bottom: 8, right: 16),
+                    margin: EdgeInsets.only(bottom: 10 ),
+                    decoration: AppUtils.commonBoxDecoration(
+                      borderRadius: BorderRadius.circular(8),
+                      color: AppColors.whiteColor,
+                      boxShadow: [
+                        BoxShadow(
+                          color: AppColors.blackColor.withOpacity(0.1),
+                          blurRadius: 6,
                         ),
-                      ),
-                    ],
+                      ],
+                    ),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            AppUtils.commonTextWidget(
+                                text: AppUtils.getDate(
+                                    date: reminderTime.toString(),
+                                    format: "HH:mm a"),
+                                textColor: AppColors.blackColor,
+                                letterSpacing: 0,
+                                fontSize: 20,
+                                fontWeight: FontWeight.w700),
+                            CupertinoSwitch(
+                              activeColor: getPrimaryColor(),
+                              value: isReminderOn,
+                              onChanged: (value) async {
+                                setState(() {
+                                  isReminderOn = value;
+                                });
+                                await toggleReminder(index, value);
+                              },
+                            ),
+                          ],
+                        ),
+                        SizedBox(height: 8),
+                        Align(
+                          alignment: Alignment.center,
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: List.generate(days.length, (index) {
+                              bool isSelected = reminderDays[index];
+
+                              return AppUtils.commonContainer(
+                                height: 30,
+                                width: 40,
+                                alignment: Alignment.center,
+                                margin:
+                                    const EdgeInsets.symmetric(horizontal: 0),
+                                decoration: AppUtils.commonBoxDecoration(
+                                  color: isSelected
+                                      ? getPrimaryColor()
+                                      : AppColors.greyColor,
+                                  borderRadius: BorderRadius.circular(8),
+                                ),
+                                child: AppUtils.commonTextWidget(
+                                  text: days[index],
+                                  fontSize: 14,
+                                  fontWeight: FontWeight.w400,
+                                  textColor: AppColors.blackColor,
+                                ),
+                              );
+                            }),
+                          ),
+                        ),
+                      ],
+                    ),
                   ),
                 );
               },

@@ -270,6 +270,158 @@ class AppUtils {
     );
   }
 
+  static Future<void> showTipPop({
+    required BuildContext context,
+    String? title,
+    String? subTitle,
+     List<Widget>? widgetList,
+  }) {
+    return showDialog(
+      context: context,
+      builder: (context) {
+        return StatefulBuilder(
+          builder: (context,setState) {
+            int selectedValue = 1;
+            return AlertDialog(
+              backgroundColor: getPopUpColor(),
+              insetPadding: const EdgeInsets.symmetric(horizontal: 16),
+              contentPadding: EdgeInsets.zero,
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(8),
+              ),
+              content: SingleChildScrollView(
+                child: Column(
+                  mainAxisSize: MainAxisSize.min, // Dynamically adjusts height
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  children: [
+                    Column(
+                      children: [
+                        Align(
+                          alignment: Alignment.topRight,
+                          child: GestureDetector(
+                            onTap: () => Navigator.of(context).pop(), // Close on tap
+                            child: AppUtils.commonContainer(
+                              margin: const EdgeInsets.only(right: 12, top: 12),
+                              height: 30,
+                              width: 30,
+                              decoration: AppUtils.commonBoxDecoration(
+                                shape: BoxShape.circle,
+                                color: AppColors.blackColor,
+                              ),
+                              child:  Icon(
+                                Icons.close_rounded,
+                                color: AppColors.whiteColor,
+                              ),
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                    Padding(
+                      padding: const EdgeInsets.only(left: 32,right: 32),
+                      child: Column(
+                        children: [
+                          AppUtils.commonTextWidget(
+                            text: title,
+                            fontSize: 24,
+                            fontWeight: FontWeight.w700,
+                          ),
+                          const SizedBox(height: 14),
+                          AppUtils.commonTextWidget(
+                            text: subTitle,
+                            fontSize: 14,
+                            fontWeight: FontWeight.w400,
+                            maxLines: 2,
+                            textAlign: TextAlign.center
+                          ),
+                          const SizedBox(height: 16),
+                          Column(
+                            children: [
+                              RadioListTile<int>(
+                                tileColor: AppColors.greyColor,
+                                shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(8),
+                                    side: BorderSide(color: AppColors.greyColor)),
+                                title: Text("\₹100"),
+                                value: 1,
+                                groupValue: selectedValue,
+                                activeColor: getPrimaryColor(),
+                                onChanged: (value) {
+                                  setState(() {
+                                    selectedValue = value!;
+                                  });
+                                },
+                              ),
+                              SizedBox(height: 10,),
+                              RadioListTile<int>(
+                                tileColor: AppColors.greyColor,
+                                shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(8),
+                                    side: BorderSide(color: AppColors.greyColor)),
+                                title: Text("\₹500"),
+                                value: 2,
+                                groupValue: selectedValue,
+                                activeColor: getPrimaryColor(),
+                                onChanged: (value) {
+                                  setState(() {
+                                    selectedValue = value!;
+                                  });
+                                },
+                              ),
+                              SizedBox(height: 10,),
+                              RadioListTile<int>(
+
+                                tileColor: AppColors.greyColor,
+                                shape: RoundedRectangleBorder(
+
+
+                                    borderRadius: BorderRadius.circular(8),
+                                    side: BorderSide(color: AppColors.greyColor)),
+                                title: Text("\₹1000"),
+                                value: 3,
+                                groupValue: selectedValue,
+                                activeColor: getPrimaryColor(),
+                                onChanged: (value) {
+                                  print(value);
+                                  setState(() {
+                                    selectedValue = value!;
+                                  });
+                                  print(selectedValue);
+                                },
+                              ),
+                              SizedBox(height: 10,),
+                              AppUtils.commonElevatedButton(
+                                bottomMargin: 30,
+                                leftPadding: 25,
+                                rightPadding: 25,
+                                buttonWidth: 170,
+                                text: "Provide Tip",
+                                onPressed: () {
+                                  // Close pop-up after submission
+                                  Navigator.of(context).pop();
+                                },
+                              )
+                            ],
+                          ),
+                        ],
+
+                      ),
+                    )
+
+
+
+
+                  ],
+                ),
+              ),
+            );
+          }
+        );
+      },
+    );
+  }
+
+
   static successImage(
   {
     double? height,
