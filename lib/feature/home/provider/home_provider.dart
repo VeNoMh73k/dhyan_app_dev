@@ -5,13 +5,16 @@ import 'package:flutter/material.dart';
 import 'package:meditationapp/core/app_utils.dart';
 import 'package:meditationapp/core/network/api_constants.dart';
 import 'package:meditationapp/core/network/network_repository.dart';
-import 'package:meditationapp/feature/home/models/audio_list_model.dart';
+import 'package:meditationapp/feature/home/models/get_all_category_and_track.dart';
 import 'package:video_player/video_player.dart';
 
 class HomeProvider with ChangeNotifier {
-  List<AudioListModel>? audioListModel;
+  // List<Get>? audioListModel;
   bool isLoading = true;
   late VideoPlayerController videoPlayerController;
+  GetAllCategoryAndTracks? getAllCategoryAndTracks;
+  List<Categories> categories = [];
+  List<Tracks> tracks = [];
 
   Future<bool> downloadAudio(BuildContext context, url, filePath) async {
     try {
@@ -26,23 +29,43 @@ class HomeProvider with ChangeNotifier {
 
     return false;
   }
+  Future<GetAllCategoryAndTracks?> callGetAllCategoryAndTrack()async{
+    isLoading =true;
+    notifyListeners();
+     categories = [];
+     tracks = [];
+    try{
+      Response<dynamic>  response = await callPostMethodApi(getAudioListApi);
+      if (response.statusCode == 200) {
+        getAllCategoryAndTracks = GetAllCategoryAndTracks.fromJson(response.data);
+        categories.addAll(getAllCategoryAndTracks?.categories ?? []);
+        tracks.addAll(getAllCategoryAndTracks?.tracks ?? []);
 
-  Future<List<AudioListModel>?> callGetAudioListApi(
-      BuildContext context) async {
-    // try {
-    isLoading = true;
-    notifyListeners();
-    Response<dynamic> response = await callGetMethod(getAudioListApi);
-    if (response.statusCode == 200) {
-      audioListModel = (response.data as List)
-          .map((item) => AudioListModel.fromJson(item))
-          .toList();
+
+
+      }
+    }catch(e){
+      print("catch at homeProvider");
     }
-    // } catch (e) {
-    //   debugPrint('catch at callGetAudioListApi $e');
-    // }
-    isLoading = false;
+    isLoading =false;
     notifyListeners();
-    return audioListModel;
+    return getAllCategoryAndTracks;
+  }
+
+
+  Future<List<Tracks>> findTracksFromCategoryId(int? categoryId) async{
+    List<Tracks> filteredTracks = [];
+
+    // Iterate through each track in the homeProvider
+    for (var track in tracks) {
+      // Check if the track's categoryIds contains the targetCategoryId
+      if(track.categoryIds != null){
+        if (track.categoryIds!.contains(categoryId)) {
+          filteredTracks.add(track);
+        }
+      }
+
+    }
+    return filteredTracks;
   }
 }

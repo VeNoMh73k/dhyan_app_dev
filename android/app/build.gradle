@@ -10,6 +10,7 @@ android {
     compileSdk = 34
     ndkVersion = flutter.ndkVersion
 
+
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_1_8
         targetCompatibility = JavaVersion.VERSION_1_8
@@ -29,6 +30,7 @@ android {
         versionCode = flutter.versionCode
         versionName = flutter.versionName
         multiDexEnabled true
+        minSdkVersion flutter.minSdkVersion
     }
 
     buildTypes {

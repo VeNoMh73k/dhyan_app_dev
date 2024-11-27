@@ -3,6 +3,7 @@ import 'package:dio/dio.dart';
 import 'package:meditationapp/core/app_utils.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/foundation.dart';
+import 'package:meditationapp/core/constants.dart';
 import 'package:meditationapp/main.dart';
 
 Future<bool> callDownloadMethod(String filePath, String url) async {
@@ -20,13 +21,10 @@ Future<bool> callDownloadMethod(String filePath, String url) async {
   }
 }
 
-Future<dynamic> callGetMethod(String url) async {
-  Map<String, String> header = {
-    'Content-type': 'application/json',
-    'Accept': 'application/json',
-  };
+Future<dynamic> callPostMethodApi(String url) async {
+
   if (await AppUtils.checkInterAvailability()) {
-    final response = await Dio().get(url, options: Options(headers: header));
+    final response = await Dio().post(url, options: Options(headers: header));
 
     return response;
   } else {

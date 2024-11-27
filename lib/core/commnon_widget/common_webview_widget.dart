@@ -1,57 +1,57 @@
 import 'package:flutter/material.dart';
-import 'package:meditationapp/core/app_colors.dart';
-import 'package:meditationapp/core/app_utils.dart';
-import 'package:meditationapp/core/theme/theme_manager.dart';
-import 'package:webview_flutter/webview_flutter.dart';
-import 'package:webview_flutter_android/webview_flutter_android.dart';
-import 'package:webview_flutter_platform_interface/webview_flutter_platform_interface.dart';
+import 'package:flutter_inappwebview/flutter_inappwebview.dart';
 
 class CommonWebViewWidget extends StatefulWidget {
-  String? url;
-  String? title;
+  final String? url;
+  final String? title;
 
-  CommonWebViewWidget({Key? key, this.url, this.title})
-      : super(
-          key: key,
-        );
+  const CommonWebViewWidget({
+    Key? key,
+    required this.url,
+    this.title,
+  }) : super(key: key);
 
   @override
   State<CommonWebViewWidget> createState() => _CommonWebViewWidgetState();
 }
 
 class _CommonWebViewWidgetState extends State<CommonWebViewWidget> {
-  late final PlatformWebViewController controller;
-  bool? isInternetAvailable;
-
-  @override
-  void initState() {
-    // TODO: implement initState
-    super.initState();
-
-    // checkInternetConnectivity();
-    controller = PlatformWebViewController(
-      AndroidWebViewControllerCreationParams(),
-    )..loadRequest(LoadRequestParams(uri: Uri.parse(widget.url ?? "")));
-  }
-
+  late InAppWebViewController _webViewController;
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        backgroundColor: getScaffoldColor(),
-        automaticallyImplyLeading: true,
+        backgroundColor: Colors.white,
+        elevation: 1,
         centerTitle: true,
-        title: AppUtils.commonTextWidget(
-          text: widget.title,
-          textColor: AppColors.blackColor,
-          fontSize: 20,
-          fontWeight: FontWeight.w600,
+        title: Text(
+          widget.title ?? "WebView",
+          style: const TextStyle(
+            color: Colors.black,
+            fontSize: 18,
+            fontWeight: FontWeight.w600,
+          ),
+        ),
+        iconTheme: const IconThemeData(color: Colors.black),
+      ),
+      body: widget.url != null
+          ? InAppWebView(
+        initialUrlRequest: URLRequest(url: WebUri.uri(Uri.parse(widget.url ?? ""))),
+        onWebViewCreated: (controller) {
+          _webViewController = controller;
+        },
+        initialSettings: InAppWebViewSettings(
+          javaScriptEnabled: true,
+          clearCache: true,
+        ),
+      )
+          : const Center(
+        child: Text(
+          "Invalid URL",
+          style: TextStyle(fontSize: 16, color: Colors.red),
         ),
       ),
-      body: PlatformWebViewWidget(
-              PlatformWebViewWidgetCreationParams(controller: controller),
-            ).build(context),
     );
   }
 }

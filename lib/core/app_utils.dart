@@ -193,6 +193,51 @@ class AppUtils {
     );
   }
 
+  static Widget networkImage({
+    required String imageUrl,
+    double? height,
+    double? width,
+    BoxFit fit = BoxFit.cover,
+    BorderRadius borderRadius = const BorderRadius.all(Radius.circular(12)),
+  }) {
+    return Container(
+      height: height,
+      width: width,
+      decoration: BoxDecoration(
+        borderRadius: borderRadius,
+        color: Colors.grey,
+      ),
+      child: ClipRRect(
+        borderRadius: borderRadius,
+        child: Image.network(
+          imageUrl,
+          fit: fit,
+          loadingBuilder: (context, child, loadingProgress) {
+            if (loadingProgress == null) {
+              return child;
+            }
+            return Center(
+              child: CircularProgressIndicator(
+                value: loadingProgress.expectedTotalBytes != null
+                    ? loadingProgress.cumulativeBytesLoaded /
+                    loadingProgress.expectedTotalBytes!
+                    : null,
+              ),
+            );
+          },
+          errorBuilder: (context, error, stackTrace) {
+            return const Center(
+              child: Icon(
+                Icons.broken_image,
+                color: Colors.red,
+              ),
+            );
+          },
+        ),
+      ),
+    );
+  }
+
   static Future<void> showFeedBackPopUp({
     required BuildContext context,
     String? title,

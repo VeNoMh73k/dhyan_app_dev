@@ -29,36 +29,45 @@ import 'package:meditationapp/feature/feedback/view/feedback_screen.dart';
       late VideoPlayerController _controller;
       final sliderValueNotifier = ValueNotifier<double>(0.0);
       Duration? audioDuration;
+      VideoPlayerOptions videoPlayerOptions = VideoPlayerOptions(
+          mixWithOthers: true,
+          allowBackgroundPlayback: true
+      );
 
       @override
       void initState() {
         super.initState();
+
         _controller = VideoPlayerController.asset("assets/video/background.mp4")
           ..initialize().then((_) {
-            _controller.play();
+            // Set video options after initialization
             _controller.setLooping(true);
+            _controller.play();
+
+
             setState(() {});
           });
 
+        // Audio player setup
+        audioPlayer.setAllowsExternalPlayback(true);
         audioPlayer.setFilePath(widget.filePath).then((_) {
           audioDuration = audioPlayer.duration;
         });
 
-        // Listen to audio position
+        // Listen to audio position changes
         audioPlayer.positionStream.listen((position) {
           sliderValueNotifier.value = position.inSeconds.toDouble();
         });
       }
 
       Future<void> playAudio() async {
-        await audioPlayer.setFilePath(widget.filePath);
-        _controller.play(); // Keep video playing
-        await audioPlayer.play();
+        audioPlayer.setFilePath(widget.filePath);
+        audioPlayer.play();
       }
 
       Future<void> pauseAudio() async {
-        await audioPlayer.pause();
-        _controller.pause(); // Pause video if needed
+        audioPlayer.pause();
+        // _controller.pause(); // Pause video if needed
       }
       void seekAudio(double value) {
         audioPlayer.seek(Duration(seconds: value.toInt()));
@@ -139,7 +148,7 @@ import 'package:meditationapp/feature/feedback/view/feedback_screen.dart';
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
                           AppUtils.commonTextWidget(
-                            text: "Breath & Relax",
+                            text: widget.audioTitle ?? "Breath & Relax",
                             fontWeight: FontWeight.w700,
                             fontSize: 24,
                             textColor: AppColors.whiteColor,
