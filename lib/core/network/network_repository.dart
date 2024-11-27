@@ -8,7 +8,8 @@ import 'package:meditationapp/main.dart';
 
 Future<bool> callDownloadMethod(String filePath, String url) async {
   if (await AppUtils.checkInterAvailability()) {
-    debugPrint('baseUrl--$filePath');
+    debugPrint('baseUrl--$url');
+    debugPrint('filePath--$filePath');
     final response = await Dio().download(url, filePath);
     if (response.statusCode == 200) {
       return true;

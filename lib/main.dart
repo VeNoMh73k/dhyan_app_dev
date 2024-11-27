@@ -53,8 +53,8 @@ class _MyAppState extends State<MyApp> with WidgetsBindingObserver {
   void initState() {
     super.initState();
         var brightness = SchedulerBinding.instance.platformDispatcher.platformBrightness;
-    currentTheme =
-    brightness == Brightness.dark ? ThemeData.dark() : ThemeData.light();
+    currentTheme =/*
+    brightness == Brightness.dark ? ThemeData.dark() : */ThemeData.light();
     var dispatcher = SchedulerBinding.instance.platformDispatcher;
 
     // This callback is called every time the brightness changes.
@@ -64,9 +64,9 @@ class _MyAppState extends State<MyApp> with WidgetsBindingObserver {
 
       // currentTheme =
       //     brightness == Brightness.dark ? ThemeData.dark() : ThemeData.light();
-      brightness == Brightness.dark
+      /*brightness == Brightness.dark
               ? currentTheme = ThemeData.dark()
-              : currentTheme = ThemeData.light();
+              :*/ currentTheme = ThemeData.light();
       print("currentTheme${currentTheme}");
       print("currentTheme${ThemeData.dark()}");
       print("currentTheme${currentTheme == ThemeData.dark()}");

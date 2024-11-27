@@ -407,7 +407,6 @@ class _MusicListScreenState extends State<MusicListScreen> {
                                           if (filteredList[index]
                                                   .isDownloaded ??
                                               false) {
-
                                             Navigator.push(
                                                 context,
                                                 MaterialPageRoute(
@@ -465,15 +464,13 @@ class _MusicListScreenState extends State<MusicListScreen> {
                                     ],
                                   ),
                                   const SizedBox(height: 30),
-
                                   // Description Row
                                   Row(
                                     mainAxisAlignment:
                                         MainAxisAlignment.spaceBetween,
                                     children: [
                                       // Description text
-                                      Container(
-                                        width: 180,
+                                      Expanded(
                                         child: Text(
                                           filteredList[index].description ?? '',
                                           style: TextStyle(

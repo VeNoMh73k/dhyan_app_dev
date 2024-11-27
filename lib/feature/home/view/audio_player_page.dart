@@ -31,14 +31,13 @@ import 'package:meditationapp/feature/feedback/view/feedback_screen.dart';
       Duration? audioDuration;
       VideoPlayerOptions videoPlayerOptions = VideoPlayerOptions(
           mixWithOthers: true,
-          allowBackgroundPlayback: true
       );
 
       @override
       void initState() {
         super.initState();
 
-        _controller = VideoPlayerController.asset("assets/video/background.mp4")
+        _controller = VideoPlayerController.asset("assets/video/background.mp4",videoPlayerOptions: videoPlayerOptions)
           ..initialize().then((_) {
             // Set video options after initialization
             _controller.setLooping(true);
@@ -63,11 +62,17 @@ import 'package:meditationapp/feature/feedback/view/feedback_screen.dart';
       Future<void> playAudio() async {
         audioPlayer.setFilePath(widget.filePath);
         audioPlayer.play();
+        setState(() {
+
+        });
       }
 
       Future<void> pauseAudio() async {
         audioPlayer.pause();
         // _controller.pause(); // Pause video if needed
+        setState(() {
+
+        });
       }
       void seekAudio(double value) {
         audioPlayer.seek(Duration(seconds: value.toInt()));
@@ -172,41 +177,42 @@ import 'package:meditationapp/feature/feedback/view/feedback_screen.dart';
                         ValueListenableBuilder<double>(
                           valueListenable: sliderValueNotifier,
                           builder: (_, sliderValue, __) {
-                            return Container(
-                              margin: EdgeInsets.only(bottom: 30),
-                              width: 320 ,
-                              child: SfSliderTheme(
-                                data: SfSliderThemeData(
-                                  activeTrackHeight: 10,
-                                  inactiveTrackHeight: 10,
-                                  activeLabelStyle: TextStyle(
-                                      color: Colors.white,
-                                      fontSize: 12,
-                                      fontWeight: FontWeight.w400),
-                                  inactiveLabelStyle: TextStyle(
-                                      color: Colors.white,
-                                      fontSize: 12,
-                                      fontWeight: FontWeight.w400),
-                                ),
-                                child: SfSlider(
-                                  inactiveColor: Colors.white,
-                                  activeColor: getPrimaryColor(),
-                                  edgeLabelPlacement: EdgeLabelPlacement.inside,
-                                  min: 0.0,
-                                  max: audioDuration?.inSeconds.toDouble() ?? 1.0,
-                                  value: sliderValue,
-                                  showLabels: true,
-                                  labelFormatterCallback:
-                                      (dynamic value, String formattedText) {
-                                    if (value == 0) return '0:00';
-                                    if (value == audioDuration?.inSeconds) {
-                                      return _formatDuration(audioDuration!);
-                                    }
-                                    return formattedText;
-                                  },
-                                  onChanged: (value) {
-                                    seekAudio(value);
-                                  },
+                            return Expanded(
+                              child: Container(
+                                margin: EdgeInsets.only(bottom: 30),
+                                child: SfSliderTheme(
+                                  data: SfSliderThemeData(
+                                    activeTrackHeight: 10,
+                                    inactiveTrackHeight: 10,
+                                    activeLabelStyle: TextStyle(
+                                        color: Colors.white,
+                                        fontSize: 12,
+                                        fontWeight: FontWeight.w400),
+                                    inactiveLabelStyle: TextStyle(
+                                        color: Colors.white,
+                                        fontSize: 12,
+                                        fontWeight: FontWeight.w400),
+                                  ),
+                                  child: SfSlider(
+                                    inactiveColor: Colors.white,
+                                    activeColor: getPrimaryColor(),
+                                    edgeLabelPlacement: EdgeLabelPlacement.inside,
+                                    min: 0.0,
+                                    max: audioDuration?.inSeconds.toDouble() ?? 1.0,
+                                    value: sliderValue,
+                                    showLabels: true,
+                                    labelFormatterCallback:
+                                        (dynamic value, String formattedText) {
+                                      if (value == 0) return '0:00';
+                                      if (value == audioDuration?.inSeconds) {
+                                        return _formatDuration(audioDuration!);
+                                      }
+                                      return formattedText;
+                                    },
+                                    onChanged: (value) {
+                                      seekAudio(value);
+                                    },
+                                  ),
                                 ),
                               ),
                             );
