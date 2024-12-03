@@ -10,6 +10,8 @@ class ThankYouForTipScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final height = MediaQuery.of(context).size.height;
+    final width = MediaQuery.of(context).size.width;
     return Scaffold(
       backgroundColor: getScaffoldColor(),
       body: Center(
@@ -56,8 +58,8 @@ class ThankYouForTipScreen extends StatelessWidget {
               const SizedBox(height: 30,),
               AppUtils.commonElevatedButton(
                 buttonWidth: double.infinity,
-                leftMargin: 90,
-                rightMargin: 90,
+                leftMargin: width * 0.2,
+                rightMargin: width * 0.2,
                 text: "Continue Meditation",
                 onPressed: () {
                   //move to list Screen

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:meditationapp/core/storage/preference_helper.dart';
+import 'package:meditationapp/core/theme/theme_manager.dart';
 import 'package:meditationapp/feature/home/view/home_screen.dart';
 
 class SplashScreen extends StatefulWidget {
@@ -39,6 +40,7 @@ class _SplashScreenState extends State<SplashScreen> {
   @override
   Widget build(BuildContext context) {
     return  Scaffold(
+      backgroundColor:  getSplashScreenBackground(),
       body: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         crossAxisAlignment: CrossAxisAlignment.center,

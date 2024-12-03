@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
 import 'package:flutter/services.dart';
+import 'package:in_app_purchase/in_app_purchase.dart';
 import 'package:meditationapp/core/app_colors.dart';
 import 'package:meditationapp/core/storage/preference_helper.dart';
 import 'package:meditationapp/feature/home/view/home.dart';
@@ -53,7 +54,9 @@ class _MyAppState extends State<MyApp> with WidgetsBindingObserver {
   @override
   void initState() {
     super.initState();
-        var brightness = SchedulerBinding.instance.platformDispatcher.platformBrightness;
+
+    check();
+    var brightness = SchedulerBinding.instance.platformDispatcher.platformBrightness;
     currentTheme =/*
     brightness == Brightness.dark ? ThemeData.dark() : */ThemeData.light();
     var dispatcher = SchedulerBinding.instance.platformDispatcher;
@@ -75,6 +78,17 @@ class _MyAppState extends State<MyApp> with WidgetsBindingObserver {
 
       });
     };
+
+  }
+
+  check()async{
+    final bool available = await InAppPurchase.instance.isAvailable();
+    if (!available) {
+      print("not_Available");
+      // The store cannot be reached or accessed. Update the UI accordingly.
+    }else{
+      print("Available");
+    }
 
   }
 

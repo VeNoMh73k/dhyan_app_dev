@@ -9,6 +9,8 @@ class ThankYouSubscriptionScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final height = MediaQuery.of(context).size.height;
+    final width = MediaQuery.of(context).size.width;
     return Scaffold(
       backgroundColor: getScaffoldColor(),
       body: Center(
@@ -23,11 +25,13 @@ class ThankYouSubscriptionScreen extends StatelessWidget {
                 height: 24,
               ),
               AppUtils.commonTextWidget(
-                  text: "Subscription Subscribed Successfully!",
+                  text: "Subscription Subscribed\n Successfully!",
                   fontWeight: FontWeight.w700,
                   fontSize: 20,
                   textColor: AppColors.blackColor,
-                  maxLines: 2
+                  maxLines: 2,
+                textAlign: TextAlign.center
+
               ),
               const SizedBox(
                 height: 10,
@@ -48,8 +52,8 @@ class ThankYouSubscriptionScreen extends StatelessWidget {
 
               AppUtils.commonElevatedButton(
                 buttonWidth: double.infinity,
-                leftMargin: 90,
-                rightMargin: 90,
+                leftMargin: width * 0.2,
+                rightMargin: width * 0.2,
                 text: "Continue Meditation",
                 onPressed: () {
                   //move to list Screen

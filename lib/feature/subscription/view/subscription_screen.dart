@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:in_app_purchase/in_app_purchase.dart';
 import 'package:meditationapp/core/app_colors.dart';
 import 'package:meditationapp/core/app_utils.dart';
 import 'package:meditationapp/core/storage/preference_helper.dart';
@@ -16,12 +17,93 @@ class SubscriptionScreen extends StatefulWidget {
 class _SubscriptionScreenState extends State<SubscriptionScreen> {
   bool? isSubscribe;
 
+  final InAppPurchase _iap = InAppPurchase.instance;
+  static const String _subscriptionProductId = 'com.dhyanlife.app.subscription';
+  // static const String _subscriptionProductId = 'com.dhyanlife.app.subscription.monthly';
+  // static const String _subscriptionProductId = 'com.dhyanlife.app.subscription.yearly';
+  ProductDetails? _subscriptionProduct;
+
   @override
   void initState() {
     // TODO: implement initState
     super.initState();
     isSubscribe = PreferenceHelper.getBool(PreferenceHelper.isSubscribe);
+    _initializePurchaseUpdates();
+    _getSubscriptionProduct();
   }
+
+
+  Future<void> _getSubscriptionProduct() async {
+    final ProductDetailsResponse response =
+    await _iap.queryProductDetails({_subscriptionProductId});
+
+    if (response.notFoundIDs.isNotEmpty) {
+      // Handle product not found
+      print('Product not found: ${response.notFoundIDs}');
+      return;
+    }
+
+    print("response${response.productDetails}");
+    setState(() {
+      _subscriptionProduct = response.productDetails.last;
+      print("_subscriptionProduct${_subscriptionProduct?.id}");
+    });
+  }
+
+  void _initializePurchaseUpdates() {
+    _iap.purchaseStream.listen((purchaseDetailsList) {
+      for (var purchase in purchaseDetailsList) {
+        if (purchase.productID == _subscriptionProductId &&
+            purchase.status == PurchaseStatus.purchased) {
+          _verifyAndApplySubscription(purchase);
+        } else if (purchase.status == PurchaseStatus.error) {
+          // Handle errors
+          print('Purchase error: ${purchase.error}');
+        }
+      }
+    });
+  }
+
+
+  Future<void> _verifyAndApplySubscription(PurchaseDetails purchase) async {
+    // Verify purchase with backend (optional)
+    // Apply subscription status locally
+    if (purchase.status == PurchaseStatus.purchased) {
+      // Save subscription status in your app state
+      setState(() {
+        isSubscribe = true;
+        PreferenceHelper.setBool(PreferenceHelper.isSubscribe, true);
+      });
+
+      // Complete the purchase
+      await _iap.completePurchase(purchase);
+    }
+  }
+
+  // Future<void> _checkSubscriptionStatus() async {
+  //   final QueryPurchaseDetailsResponse response = await _iap.queryPastPurchases();
+  //
+  //   for (var purchase in response.pastPurchases) {
+  //     if (purchase.productID == _subscriptionProductId &&
+  //         purchase.status == PurchaseStatus.purchased) {
+  //       setState(() {
+  //         isSubscribe = true;
+  //         PreferenceHelper.setBool(PreferenceHelper.isSubscribe, true);
+  //       });
+  //     }
+  //   }
+  // }
+
+
+  void _subscribe() {
+    if (_subscriptionProduct == null) return;
+
+    final PurchaseParam purchaseParam = PurchaseParam(productDetails: _subscriptionProduct!);
+    print("purchaseParam${purchaseParam.productDetails.id}");
+    _iap.buyNonConsumable(purchaseParam: purchaseParam);
+  }
+
+
 
   @override
   Widget build(BuildContext context) {
@@ -74,6 +156,8 @@ class _SubscriptionScreenState extends State<SubscriptionScreen> {
               children: [
                 Image.asset(
                   "assets/subscription_icon.png",
+                  width: 25,
+                  height: 25,
                 ),
                 const SizedBox(
                   width: 5,
@@ -130,7 +214,7 @@ class _SubscriptionScreenState extends State<SubscriptionScreen> {
                 fontSize: 18,
                 textColor: AppColors.blackColor),
             const SizedBox(
-              height: 8,
+              height: 10,
             ),
             AppUtils.commonContainer(
                 padding: const EdgeInsets.only(
@@ -196,14 +280,15 @@ class _SubscriptionScreenState extends State<SubscriptionScreen> {
                             text: "Subscribe Now",
                             onPressed: () {
                               print("testttttt");
-                              PreferenceHelper.setBool(
-                                  PreferenceHelper.isSubscribe, true);
-                              Navigator.push(
-                                  context,
-                                  MaterialPageRoute(
-                                    builder: (context) =>
-                                        const ThankYouSubscriptionScreen(),
-                                  ));
+                              _subscribe();
+                              // PreferenceHelper.setBool(
+                              //     PreferenceHelper.isSubscribe, true);
+                              // Navigator.push(
+                              //     context,
+                              //     MaterialPageRoute(
+                              //       builder: (context) =>
+                              //           const ThankYouSubscriptionScreen(),
+                              //     ));
                             },
                             buttonWidth: double.infinity,
                             leftMargin: 80,

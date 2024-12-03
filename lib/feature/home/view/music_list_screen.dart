@@ -246,20 +246,32 @@ class _MusicListScreenState extends State<MusicListScreen> {
                                         fontSize: 22,
                                         fontWeight: FontWeight.w700,
                                         textColor: AppColors.whiteColor),
-                                    Container(
-                                      margin: const EdgeInsets.only(
-                                          left: 0, bottom: 0, right: 12),
-                                      decoration: BoxDecoration(
-                                        color: Colors.transparent,
-                                        border: Border.all(
-                                            color: AppColors.whiteColor),
-                                        borderRadius: const BorderRadius.all(
-                                            Radius.circular(4)),
-                                      ),
-                                      padding: const EdgeInsets.all(4),
-                                      child: Icon(
-                                        Icons.sort,
-                                        color: AppColors.whiteColor,
+                                    GestureDetector(
+                                      onTap: () {
+                                        showSortMenu(context, selectedOption,
+                                            (String newSelection) {
+                                          setState(() {
+                                            selectedOption = newSelection;
+                                          });
+                                          print(
+                                              'Selected option: $selectedOption');
+                                        }, true);
+                                      },
+                                      child: AppUtils.commonContainer(
+                                        margin: const EdgeInsets.only(
+                                            left: 0, bottom: 0, right: 12),
+                                        decoration: BoxDecoration(
+                                          color: Colors.transparent,
+                                          border: Border.all(
+                                              color: AppColors.whiteColor),
+                                          borderRadius: const BorderRadius.all(
+                                              Radius.circular(4)),
+                                        ),
+                                        padding: const EdgeInsets.all(4),
+                                        child: Icon(
+                                          Icons.sort,
+                                          color: AppColors.whiteColor,
+                                        ),
                                       ),
                                     ),
                                   ],
@@ -321,16 +333,14 @@ class _MusicListScreenState extends State<MusicListScreen> {
                                         GestureDetector(
                                           onTap: () {
                                             showSortMenu(
-                                              context,
-                                              selectedOption,
-                                              (String newSelection) {
-                                                setState(() {
-                                                  selectedOption = newSelection;
-                                                });
-                                                print(
-                                                    'Selected option: $selectedOption');
-                                              },
-                                            );
+                                                context, selectedOption,
+                                                (String newSelection) {
+                                              setState(() {
+                                                selectedOption = newSelection;
+                                              });
+                                              print(
+                                                  'Selected option: $selectedOption');
+                                            }, false);
                                           },
                                           child: Container(
                                             decoration: BoxDecoration(
@@ -455,7 +465,7 @@ class _MusicListScreenState extends State<MusicListScreen> {
                                                     color: getTipIconColor(),
                                                   ),
                                                 ),
-                                                SizedBox(width: 5),
+                                                const SizedBox(width: 5),
                                                 AppUtils.commonTextWidget(
                                                   text: filteredList[index].tag,
                                                   textColor: getTipIconColor(),
@@ -482,9 +492,11 @@ class _MusicListScreenState extends State<MusicListScreen> {
                                                       AudioPlayerPage(
                                                     audioDescription:
                                                         filteredList[index]
-                                                            .description ?? '',
+                                                                .description ??
+                                                            '',
                                                     trackId: filteredList[index]
-                                                        .id.toString(),
+                                                        .id
+                                                        .toString(),
                                                     minutes: int.parse(
                                                         filteredList[index]
                                                             .duration
@@ -564,12 +576,12 @@ class _MusicListScreenState extends State<MusicListScreen> {
                                     children: [
                                       // Description text
                                       Expanded(
-                                        child: Text(
-                                          filteredList[index].description ?? '',
-                                          style: TextStyle(
-                                            fontSize: 14,
-                                            color: getTextColor(),
-                                          ),
+                                        child: AppUtils.commonTextWidget(
+                                          text:
+                                              filteredList[index].description ??
+                                                  '',
+                                          fontSize: 14,
+                                          textColor: getTextColor(),
                                           maxLines: 2,
                                           overflow: TextOverflow.ellipsis,
                                         ),
@@ -614,18 +626,24 @@ class _MusicListScreenState extends State<MusicListScreen> {
   ];
 
   void showSortMenu(BuildContext context, String? selectedOption,
-      Function(String) onOptionSelected) {
+      Function(String) onOptionSelected, bool? isFromTopAppBar) {
     showMenu<String>(
       context: context,
-      position: const RelativeRect.fromLTRB(200, 315, 15, 0),
-      color: getScaffoldColor(),
+      position: isFromTopAppBar ?? false
+          ? const RelativeRect.fromLTRB(200, 80, 15, 0)
+          : const RelativeRect.fromLTRB(200, 315, 15, 0),
+      color: AppColors.whiteColor,
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
       items: options.map((option) {
         return PopupMenuItem<String>(
           value: option,
           child: RadioListTile<String>(
             contentPadding: EdgeInsets.zero,
-            title: Text(option),
+            title: AppUtils.commonTextWidget(
+                text: option,
+                textColor: getTextColor(),
+                fontSize: 16,
+                fontWeight: FontWeight.w400),
             value: option,
             groupValue: selectedOption,
             activeColor: getPrimaryColor(),
@@ -650,8 +668,8 @@ class _MusicListScreenState extends State<MusicListScreen> {
       } else if (selectedOption == 'Shortest First') {
         filteredList.sort((a, b) => a.duration!.compareTo(b.duration!));
       } else if (selectedOption == 'Downloaded First') {
-        filteredList.sort((a, b) =>
-            (b.isDownloaded! ? 1 : 0).compareTo(a.isDownloaded! ? 1 : 0));
+        filteredList.sort((a, b) => (b.isDownloaded ?? false ? 1 : 0)
+            .compareTo(a.isDownloaded ?? false ? 1 : 0));
       } else if (selectedOption == 'Favorites First') {
         filteredList
             .sort((a, b) => (b.isFav! ? 1 : 0).compareTo(a.isFav! ? 1 : 0));

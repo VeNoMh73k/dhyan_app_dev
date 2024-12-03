@@ -3,6 +3,19 @@ import 'package:meditationapp/core/app_colors.dart';
 import 'package:meditationapp/main.dart';
 
   // This method returns the appropriate text color based on the selected theme
+
+
+   //Splash Screen
+    getSplashScreenBackground(){
+      if (currentTheme == ThemeData.dark()) {
+        return AppColors.blackThemeBackgroundColor; // Dark theme text color
+      } else if (currentTheme == ThemeData.light()) {
+        return AppColors.whiteThemeBackgroundColor; // Light theme text color
+      }
+      // Default text color if theme is not specified or invalid
+      return AppColors.blackColor;
+    }
+
     getTextColor() {
     if (currentTheme == ThemeData.dark()) {
       return AppColors.whiteColor; // Dark theme text color

@@ -28,14 +28,14 @@ class _HomeScreenState extends State<HomeScreen> {
   final _advancedDrawerController = AdvancedDrawerController();
   late HomeProvider homeProvider;
   int savedMinutes = 0;
-  int daysOfMeditation =0;
+  int daysOfMeditation = 0;
 
   @override
   void initState() {
     // TODO: implement initState
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback(
-          (timeStamp) {
+      (timeStamp) {
         homeProvider = Provider.of<HomeProvider>(context, listen: false);
         callHomeApi(homeProvider);
       },
@@ -63,51 +63,14 @@ class _HomeScreenState extends State<HomeScreen> {
       backdropColor: AppColors.whiteThemeBackgroundColor,
       backdrop: AppUtils.commonContainer(
           child: Image.asset(
-            drawerBackground,
-          )),
+        drawerBackground,
+      )),
       drawer: CommonDrawerWidget(
         advancedDrawerController: _advancedDrawerController,
       ),
       child: Scaffold(
         backgroundColor: getScaffoldColor(),
-        appBar: AppBar(
-          surfaceTintColor: getScaffoldColor(),
-          backgroundColor: getScaffoldColor(),
-          centerTitle: true,
-          leading: GestureDetector(
-            onTap: () {
-              _advancedDrawerController.showDrawer();
-            },
-            child: AppUtils.commonContainer(
-              color: getScaffoldColor(),
-
-              child: Icon(
-                Icons.menu,
-                color: getTextColor(),
-              ),
-            ),
-          ),
-          title: Image.asset(
-            dhyanLogoLight,
-            height: 32,
-            width: 32,
-            color: getLogoColor(),
-          ),
-          actions: [
-            GestureDetector(
-              onTap: () {
-                showTipDialogBox();
-              },
-              child: AppUtils.commonContainer(
-                padding: EdgeInsets.all(8),
-                color: getScaffoldColor(),
-                margin: const EdgeInsets.only(right: 16),
-                child: Image.asset(tipIcon,
-                    width: 26, height: 26, color: getTipIconColor()),
-              ),
-            ),
-          ],
-        ),
+        appBar: customAppBarWithRoundedCorners(context),
         body: Column(
           children: [
             // ListView for images
@@ -115,77 +78,87 @@ class _HomeScreenState extends State<HomeScreen> {
               child: homeProvider.isLoading
                   ? AppUtils.loaderWidget()
                   : homeProvider.getAllCategoryAndTracks == null
-                  ? AppUtils.commonTextWidget(text: "No Data Found")
-                  : ListView.builder(
-                itemCount: homeProvider.categories.length,
-                padding: const EdgeInsets.symmetric(vertical: 16),
-                itemBuilder: (context, index) {
-                  return GestureDetector(
-                    onTap: () {
-                      Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                            builder: (context) => MusicListScreen(
-                              bannerImageUrl: homeProvider
-                                  .getAllCategoryAndTracks
-                                  ?.categories?[index]
-                                  .bannerImageUrl,
-                              trackId: homeProvider
-                                  .getAllCategoryAndTracks
-                                  ?.categories?[index]
-                                  .trackIds,
-                              categoryName: homeProvider
-                                  .getAllCategoryAndTracks
-                                  ?.categories?[index]
-                                  .title,
-                              categoryId: homeProvider
-                                  .getAllCategoryAndTracks
-                                  ?.categories?[index]
-                                  .id,
-                            ),
-                          ));
-                    },
-                    child: Container(
-                      height: 120,
-                      width: double.infinity,
-                      margin: const EdgeInsets.only(
-                          bottom: 16,
-                          left: 12,
-                          right: 12),
-                      decoration: BoxDecoration(
-                        borderRadius:
-                        const BorderRadius.all(Radius.circular(12)),
-                        color: AppColors.darkGreyColor,
-                      ),
-                      child: ClipRRect(
-                          borderRadius:
-                          const BorderRadius.all(Radius.circular(12)),
-                          child: AppUtils.networkImage(
-                              imageUrl: homeProvider.categories[index]
-                                  .imageUrl ??
-                                  "",
-                              height: 120,
-                              width: double.infinity)),
-                    ),
-                  );
-                },
-              ),
+                      ? AppUtils.commonTextWidget(text: "No Data Found")
+                      : ListView.builder(
+                          itemCount: homeProvider.categories.length,
+                          padding: const EdgeInsets.symmetric(vertical: 16),
+                          itemBuilder: (context, index) {
+                            return GestureDetector(
+                              onTap: () {
+                                Navigator.push(
+                                    context,
+                                    MaterialPageRoute(
+                                      builder: (context) => MusicListScreen(
+                                        bannerImageUrl: homeProvider
+                                            .getAllCategoryAndTracks
+                                            ?.categories?[index]
+                                            .bannerImageUrl,
+                                        trackId: homeProvider
+                                            .getAllCategoryAndTracks
+                                            ?.categories?[index]
+                                            .trackIds,
+                                        categoryName: homeProvider
+                                            .getAllCategoryAndTracks
+                                            ?.categories?[index]
+                                            .title,
+                                        categoryId: homeProvider
+                                            .getAllCategoryAndTracks
+                                            ?.categories?[index]
+                                            .id,
+                                      ),
+                                    ));
+                              },
+                              child: Container(
+                                height: 120,
+                                width: double.infinity,
+                                margin: const EdgeInsets.only(
+                                    bottom: 16, left: 12, right: 12),
+                                decoration: BoxDecoration(
+                                  borderRadius: const BorderRadius.all(
+                                      Radius.circular(12)),
+                                  color: AppColors.darkGreyColor,
+                                ),
+                                child: ClipRRect(
+                                    borderRadius: const BorderRadius.all(
+                                        Radius.circular(12)),
+                                    child: AppUtils.networkImage(
+                                        imageUrl: homeProvider
+                                                .categories[index].imageUrl ??
+                                            "",
+                                        height: 120,
+                                        width: double.infinity)),
+                              ),
+                            );
+                          },
+                        ),
             ),
 
             // Bottom container (fixed)
-            Container(
+            AppUtils.commonContainer(
               width: double.infinity,
               padding: const EdgeInsets.only(
                   top: 10, bottom: 10, left: 10, right: 10),
               decoration: BoxDecoration(
                 color: getBottomCountContainerColor(),
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.black.withOpacity(0.1),
+                    // Adjust opacity for shadow
+                    blurRadius: 10,
+                    // Blur radius for the shadow
+                    offset: const Offset(4, 0), // Position of the shadow
+                  ),
+                ],
               ),
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceAround,
                 children: [
-                  bottomCustomRow(savedMinutes.toString().padLeft(2,'0'), "Min of Meditation"),
-                  bottomCustomRow(0.toString().padLeft(2,'0'), "Session Completed"),
-                  bottomCustomRow(daysOfMeditation.toString().padLeft(2,'0'), "Days of Meditation"),
+                  bottomCustomRow(savedMinutes.toString().padLeft(2, '0'),
+                      "Min of Meditation"),
+                  bottomCustomRow(
+                      0.toString().padLeft(2, '0'), "Session Completed"),
+                  bottomCustomRow(daysOfMeditation.toString().padLeft(2, '0'),
+                      "Days of Meditation"),
                 ],
               ),
             ),
@@ -251,7 +224,7 @@ class _HomeScreenState extends State<HomeScreen> {
                         const SizedBox(height: 14),
                         AppUtils.commonTextWidget(
                             text:
-                            "Tip us to provide more free tracks. Select the amount you want to tip us.",
+                                "Tip us to provide more free tracks. Select the amount you want to tip us.",
                             fontSize: 14,
                             fontWeight: FontWeight.w400,
                             maxLines: 2,
@@ -261,11 +234,13 @@ class _HomeScreenState extends State<HomeScreen> {
                           children: [
                             Theme(
                               data: ThemeData(
-                                unselectedWidgetColor: AppColors.greyColor.withOpacity(0.2),
-                                disabledColor: AppColors.greyColor.withOpacity(0.2)
-                              ),
+                                  unselectedWidgetColor:
+                                      AppColors.greyColor.withOpacity(0.2),
+                                  disabledColor:
+                                      AppColors.greyColor.withOpacity(0.2)),
                               child: RadioListTile<int>(
-                                fillColor: MaterialStateProperty.resolveWith((states) {
+                                fillColor:
+                                    MaterialStateProperty.resolveWith((states) {
                                   // active
                                   if (states.contains(MaterialState.selected)) {
                                     return getPrimaryColor();
@@ -273,11 +248,12 @@ class _HomeScreenState extends State<HomeScreen> {
                                   // inactive
                                   return AppColors.greyColor;
                                 }),
-
                                 tileColor: AppColors.textFieldColor,
                                 shape: RoundedRectangleBorder(
                                     borderRadius: BorderRadius.circular(8)),
-                                title: Text("\₹100"),
+                                title: AppUtils.commonTextWidget(
+                                  text: "\₹100",
+                                ),
                                 value: 1,
                                 groupValue: selectedValue,
                                 activeColor: getPrimaryColor(),
@@ -292,7 +268,8 @@ class _HomeScreenState extends State<HomeScreen> {
                               height: 12,
                             ),
                             RadioListTile<int>(
-                              fillColor: MaterialStateProperty.resolveWith((states) {
+                              fillColor:
+                                  MaterialStateProperty.resolveWith((states) {
                                 // active
                                 if (states.contains(MaterialState.selected)) {
                                   return getPrimaryColor();
@@ -303,7 +280,9 @@ class _HomeScreenState extends State<HomeScreen> {
                               tileColor: AppColors.textFieldColor,
                               shape: RoundedRectangleBorder(
                                   borderRadius: BorderRadius.circular(8)),
-                              title: Text("\₹500"),
+                              title: AppUtils.commonTextWidget(
+                                text: "\₹500",
+                              ),
                               value: 2,
                               groupValue: selectedValue,
                               activeColor: getPrimaryColor(),
@@ -317,7 +296,8 @@ class _HomeScreenState extends State<HomeScreen> {
                               height: 12,
                             ),
                             RadioListTile<int>(
-                              fillColor: MaterialStateProperty.resolveWith((states) {
+                              fillColor:
+                                  MaterialStateProperty.resolveWith((states) {
                                 // active
                                 if (states.contains(MaterialState.selected)) {
                                   return getPrimaryColor();
@@ -328,11 +308,12 @@ class _HomeScreenState extends State<HomeScreen> {
                               tileColor: AppColors.textFieldColor,
                               shape: RoundedRectangleBorder(
                                   borderRadius: BorderRadius.circular(8)),
-                              title: Text("\₹1000"),
+                              title: AppUtils.commonTextWidget(
+                                text: "\₹1000",
+                              ),
                               value: 3,
                               groupValue: selectedValue,
                               activeColor: getPrimaryColor(),
-
                               onChanged: (value) {
                                 print(value);
                                 setState(() {
@@ -359,7 +340,7 @@ class _HomeScreenState extends State<HomeScreen> {
                                     context,
                                     MaterialPageRoute(
                                       builder: (context) =>
-                                      const ThankYouForTipScreen(),
+                                          const ThankYouForTipScreen(),
                                     ));
                               },
                             )
@@ -377,6 +358,78 @@ class _HomeScreenState extends State<HomeScreen> {
     );
   }
 
+  PreferredSizeWidget customAppBarWithRoundedCorners(BuildContext context) {
+    return PreferredSize(
+      preferredSize: const Size.fromHeight(60),
+      child: Container(
+        decoration: BoxDecoration(
+          color: AppColors.whiteColor,
+          borderRadius: const BorderRadius.only(
+            bottomLeft: Radius.circular(16),
+            bottomRight: Radius.circular(16),
+          ),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withOpacity(0.1), // Adjust opacity for shadow
+              blurRadius: 10, // Blur radius for the shadow
+              offset: const Offset(0, 4), // Position of the shadow
+            ),
+          ],
+        ),
+        child: AppBar(
+          surfaceTintColor: Colors.transparent,
+          backgroundColor: Colors.transparent,
+          // Make the AppBar background transparent
+          elevation: 0,
+          // Remove AppBar's default elevation
+          toolbarHeight: 60,
+          centerTitle: true,
+          leading: ClipRRect(
+            borderRadius:
+                const BorderRadius.only(bottomLeft: Radius.circular(16)),
+            child: GestureDetector(
+              onTap: () {
+                _advancedDrawerController.showDrawer();
+              },
+              child: AppUtils.commonContainer(
+                color: AppColors.whiteColor,
+                child: Icon(
+                  Icons.menu,
+                  size: 30,
+                  color: getTextColor(),
+                ),
+              ),
+            ),
+          ),
+          title: Image.asset(
+            dhyanLogoLight,
+            height: 32,
+            width: 32,
+            color: getLogoColor(),
+          ),
+          actions: [
+            GestureDetector(
+              onTap: () {
+                showTipDialogBox();
+              },
+              child: AppUtils.commonContainer(
+                padding: const EdgeInsets.all(8),
+                color: AppColors.whiteColor,
+                margin: const EdgeInsets.only(right: 16),
+                child: Image.asset(
+                  tipIcon,
+                  width: 26,
+                  height: 26,
+                  color: getTipIconColor(),
+                ),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
   Widget bottomCustomRow(String? number, String? text) {
     return Row(
       children: [
@@ -384,7 +437,7 @@ class _HomeScreenState extends State<HomeScreen> {
           padding: const EdgeInsets.only(top: 5, left: 8, right: 8, bottom: 5),
           decoration: BoxDecoration(
               color: getBottomRowContainerColor(),
-              borderRadius: BorderRadius.all(Radius.circular(4))),
+              borderRadius: const BorderRadius.all(Radius.circular(4))),
           child: AppUtils.commonTextWidget(
             text: number,
             fontWeight: FontWeight.bold,
@@ -393,10 +446,10 @@ class _HomeScreenState extends State<HomeScreen> {
           ),
         ),
         Container(
-          // height: 28,
+            // height: 28,
             width: 80,
             padding:
-            const EdgeInsets.only(top: 5, left: 8, right: 8, bottom: 5),
+                const EdgeInsets.only(top: 5, left: 8, right: 8, bottom: 5),
             child: AppUtils.commonTextWidget(
                 text: text,
                 fontWeight: FontWeight.w500,
@@ -406,43 +459,4 @@ class _HomeScreenState extends State<HomeScreen> {
       ],
     );
   }
-
-// commonRow(String? icon, String title, Function()? onTap) {
-//   return GestureDetector(
-//     onTap: onTap,
-//     child: Row(
-//       mainAxisAlignment: MainAxisAlignment.start,
-//       children: [
-//         Image.asset(
-//           icon ?? '',
-//         ),
-//         const SizedBox(
-//           width: 8,
-//         ),
-//         AppUtils.commonTextWidget(
-//             text: title ?? "",
-//             fontWeight: FontWeight.w400,
-//             fontSize: 16,
-//             textColor: AppColors.blackColor)
-//       ],
-//     ),
-//   );
-// }
-
-// commonRow(String? icon, String title, Function()? onTap) {
-//   return GestureDetector(
-//     onTap: onTap,
-//     child: ListTile(
-//       contentPadding: EdgeInsets.zero,
-//       leading: Image.asset(
-//         icon ?? '',
-//       ),
-//       title: AppUtils.commonTextWidget(
-//           text: title ?? "",
-//           fontWeight: FontWeight.w400,
-//           fontSize: 16,
-//           textColor: AppColors.blackColor),
-//     ),
-//   );
-// }
 }

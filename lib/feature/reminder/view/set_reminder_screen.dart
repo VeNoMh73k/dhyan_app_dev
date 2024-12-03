@@ -437,7 +437,7 @@ class _SetReminderScreenState extends State<SetReminderScreen> {
                                 selectedDays, selectedTime, selectedIntDays);
 
                             ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-                                content: Text(widget.index == null
+                                content: AppUtils.commonTextWidget(text : widget.index == null
                                     ? 'Reminder Added!'
                                     : 'Reminder Updated!')));
 

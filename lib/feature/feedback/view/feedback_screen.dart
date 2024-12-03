@@ -7,7 +7,6 @@ import 'package:meditationapp/core/storage/preference_helper.dart';
 import 'package:meditationapp/core/theme/theme_manager.dart';
 import 'package:meditationapp/feature/feedback/view/thankyou_for_tip_screen.dart';
 import 'package:meditationapp/feature/home/view/home_screen.dart';
-import 'package:meditationapp/feature/home/view/music_list_screen.dart';
 import 'package:meditationapp/feature/subscription/view/subscription_screen.dart';
 
 class FeedbackScreen extends StatefulWidget {
@@ -87,11 +86,14 @@ class _FeedbackScreenState extends State<FeedbackScreen> {
             children: [
               // Top banner
 
-              Image.asset(
-                adImage,
-                fit: BoxFit.cover,
-                width: size.width,
-                height: size.height * 0.2,
+              ClipRRect(
+                borderRadius: BorderRadius.circular(10),
+                child: Image.asset(
+                  adImage,
+                  fit: BoxFit.cover,
+                  width: size.width,
+                  height: size.height * 0.2,
+                ),
               ),
 
               const SizedBox(height: 20),
@@ -103,7 +105,8 @@ class _FeedbackScreenState extends State<FeedbackScreen> {
                     crossAxisAlignment: CrossAxisAlignment.center,
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
-                      AppUtils.successImage(),
+                      const SizedBox(height: 60),
+                      AppUtils.successImage(height: 70,width: 70,iconsSize: 40),
                       const SizedBox(height: 20),
                       AppUtils.commonTextWidget(
                         text: "You have completed meditation of",
@@ -345,3 +348,4 @@ class _FeedbackScreenState extends State<FeedbackScreen> {
         });
   }
 }
+

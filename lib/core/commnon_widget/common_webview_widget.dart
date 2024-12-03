@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_inappwebview/flutter_inappwebview.dart';
+import 'package:meditationapp/core/app_colors.dart';
+import 'package:meditationapp/core/app_utils.dart';
 import 'package:meditationapp/core/theme/theme_manager.dart';
 
 class CommonWebViewWidget extends StatefulWidget {
@@ -27,13 +29,11 @@ class _CommonWebViewWidgetState extends State<CommonWebViewWidget> {
         backgroundColor: getScaffoldColor(),
         elevation: 1,
         centerTitle: true,
-        title: Text(
-          widget.title ?? "WebView",
-          style: const TextStyle(
-            color: Colors.black,
-            fontSize: 18,
-            fontWeight: FontWeight.w600,
-          ),
+        title: AppUtils.commonTextWidget(
+          text : widget.title ?? "WebView",
+          textColor: getTextColor(),
+          fontWeight: FontWeight.w600,
+          fontSize: 18,
         ),
         iconTheme: const IconThemeData(color: Colors.black),
       ),

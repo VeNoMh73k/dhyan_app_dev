@@ -78,7 +78,7 @@ class HomeProvider with ChangeNotifier {
         tracks.addAll(getAllCategoryAndTracks?.tracks ?? []);
       }
     } catch (e) {
-      print("catch at homeProvider");
+      print("catch at homeProvider$e");
     }
     isLoading = false;
     notifyListeners();
