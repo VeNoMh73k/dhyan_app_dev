@@ -62,8 +62,7 @@ class ThankYouForTipScreen extends StatelessWidget {
                 rightMargin: width * 0.2,
                 text: "Continue Meditation",
                 onPressed: () {
-                  //move to list Screen
-                  Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => const HomeScreen(),));
+                 Navigator.pop(context);
                 },
 
               )

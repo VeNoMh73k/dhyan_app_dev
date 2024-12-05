@@ -1,20 +1,18 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_advanced_drawer/flutter_advanced_drawer.dart';
-import 'package:flutter_rating/flutter_rating.dart';
+import 'package:in_app_purchase/in_app_purchase.dart';
 import 'package:meditationapp/core/app_colors.dart';
 import 'package:meditationapp/core/app_utils.dart';
 import 'package:meditationapp/core/commnon_widget/common_drawer_widget.dart';
-import 'package:meditationapp/core/commnon_widget/common_webview_widget.dart';
-import 'package:meditationapp/core/image_path.dart';
 import 'package:meditationapp/core/storage/preference_helper.dart';
 import 'package:meditationapp/core/theme/icon_path.dart';
 import 'package:meditationapp/core/theme/theme_manager.dart';
 import 'package:meditationapp/feature/feedback/view/thankyou_for_tip_screen.dart';
 import 'package:meditationapp/feature/home/provider/home_provider.dart';
 import 'package:meditationapp/feature/home/view/music_list_screen.dart';
-import 'package:meditationapp/feature/information/view/about_us_screen.dart';
-import 'package:meditationapp/feature/reminder/view/reminder_screen.dart';
-import 'package:meditationapp/feature/subscription/view/subscription_screen.dart';
+import 'package:onepref/onepref.dart';
 import 'package:provider/provider.dart';
 
 class HomeScreen extends StatefulWidget {
@@ -26,26 +24,92 @@ class HomeScreen extends StatefulWidget {
 
 class _HomeScreenState extends State<HomeScreen> {
   final _advancedDrawerController = AdvancedDrawerController();
+  IApEngine iApEngine = IApEngine();
   late HomeProvider homeProvider;
   int savedMinutes = 0;
   int daysOfMeditation = 0;
+  late StreamSubscription _homeStream;
+
+  //Id
+  static const String tip1 = 'com.dhyanlife.app.product.tip1';
+  static const String tip2 = 'com.dhyanlife.app.product.tip2';
+  static const String tip3 = 'com.dhyanlife.app.product.tip3';
+
+  //ProductIdList
+  late final List<ProductId> productId = [
+    ProductId(id: tip1, isConsumable: true,isOneTimePurchase: false),
+    ProductId(id: tip2, isConsumable: true,isOneTimePurchase: false),
+    ProductId(id: tip3, isConsumable: true,isOneTimePurchase: false),
+  ];
+
+  //ProductListForBiding
+  List<ProductDetails> subscriptionList = [];
+
+  //initialValue
+  int? selectedValue;
+
+  //listener for homeScreen
+  listenPurchaseStream(List<PurchaseDetails> listenPurchaseDetails){
+    if(listenPurchaseDetails.isNotEmpty){
+      for(PurchaseDetails purchase in listenPurchaseDetails){
+            if(purchase.status == PurchaseStatus.purchased){
+              Navigator.push(context, MaterialPageRoute(builder: (context) => const ThankYouForTipScreen(),));
+              iApEngine.inAppPurchase.completePurchase(purchase);
+              _homeStream.cancel();
+
+            }else if(purchase.status == PurchaseStatus.canceled){
+              AppUtils.snackBarFnc(ctx: context,contentText: "Your Purchase has been canceled");
+            }else if(purchase.status == PurchaseStatus.pending){
+              AppUtils.snackBarFnc(ctx: context,contentText: "Your Purchase is pending");
+            }
+      }
+    }
+  }
+
+  getTipData(){
+    iApEngine.getIsAvailable().then((value) {
+      if(value){
+        iApEngine.queryProducts(productId).then((res) {
+          print("responseData${res.productDetails.length}");
+          setState(() {
+            subscriptionList = res.productDetails;
+          });
+        },);
+      }
+    },);
+  }
+
+  callHomeApi(HomeProvider homeProvider) {
+    savedMinutes = PreferenceHelper.getInt('totalPlayedTime') ?? 0;
+    daysOfMeditation = PreferenceHelper.getInt("daysOfMeditation") ?? 0;
+    homeProvider.callGetAllCategoryAndTrack().then((value) {
+      _homeStream = iApEngine.inAppPurchase.purchaseStream.listen((list) {
+        listenPurchaseStream(list);
+      },);
+      getTipData();
+    },);
+  }
+
 
   @override
   void initState() {
     // TODO: implement initState
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback(
-      (timeStamp) {
+          (timeStamp) {
         homeProvider = Provider.of<HomeProvider>(context, listen: false);
         callHomeApi(homeProvider);
       },
     );
   }
 
-  callHomeApi(HomeProvider homeProvider) {
-    savedMinutes = PreferenceHelper.getInt('totalPlayedTime') ?? 0;
-    daysOfMeditation = PreferenceHelper.getInt("daysOfMeditation") ?? 0;
-    homeProvider.callGetAllCategoryAndTrack();
+
+  @override
+  void dispose() {
+    // TODO: implement dispose
+    _homeStream.cancel();
+    super.dispose();
+
   }
 
   @override
@@ -168,195 +232,137 @@ class _HomeScreenState extends State<HomeScreen> {
     );
   }
 
-  int selectedValue = 1;
 
-  showTipDialogBox() {
+
+  showTipDialogBox(BuildContext context, List<ProductDetails> subscriptionList) {
+    int selectedIndex = 0; // Default to the first item being selected
+
     return showDialog(
       context: context,
       builder: (context) {
-        return StatefulBuilder(builder: (context, setState) {
-          return AlertDialog(
-            backgroundColor: getPopUpColor(),
-            insetPadding: const EdgeInsets.symmetric(horizontal: 16),
-            contentPadding: EdgeInsets.zero,
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(8),
-            ),
-            content: SingleChildScrollView(
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                // Dynamically adjusts height
-                crossAxisAlignment: CrossAxisAlignment.center,
-                children: [
-                  Column(
-                    children: [
-                      Align(
-                        alignment: Alignment.topRight,
-                        child: GestureDetector(
-                          onTap: () => Navigator.of(context).pop(),
-                          // Close on tap
-                          child: AppUtils.commonContainer(
-                            margin: const EdgeInsets.only(right: 12, top: 12),
-                            height: 30,
-                            width: 30,
-                            decoration: AppUtils.commonBoxDecoration(
-                              shape: BoxShape.circle,
-                              color: AppColors.blackColor,
-                            ),
-                            child: Icon(
-                              Icons.close_rounded,
-                              color: AppColors.whiteColor,
-                            ),
+        return StatefulBuilder(
+          builder: (context, setState) {
+            return AlertDialog(
+              backgroundColor: getPopUpColor(),
+              insetPadding: const EdgeInsets.symmetric(horizontal: 16),
+              contentPadding: EdgeInsets.zero,
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(8),
+              ),
+              content: SingleChildScrollView(
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  children: [
+                    // Close button
+                    Align(
+                      alignment: Alignment.topRight,
+                      child: GestureDetector(
+                        onTap: () => Navigator.of(context).pop(),
+                        child: AppUtils.commonContainer(
+                          margin: const EdgeInsets.only(right: 12, top: 12),
+                          height: 30,
+                          width: 30,
+                          decoration: AppUtils.commonBoxDecoration(
+                            shape: BoxShape.circle,
+                            color: AppColors.blackColor,
+                          ),
+                          child: Icon(
+                            Icons.close_rounded,
+                            color: AppColors.whiteColor,
                           ),
                         ),
                       ),
-                    ],
-                  ),
-                  Padding(
-                    padding: const EdgeInsets.only(left: 32, right: 32),
-                    child: Column(
-                      children: [
-                        AppUtils.commonTextWidget(
-                          text: "Tip Us",
-                          fontSize: 24,
-                          fontWeight: FontWeight.w700,
-                        ),
-                        const SizedBox(height: 14),
-                        AppUtils.commonTextWidget(
-                            text:
-                                "Tip us to provide more free tracks. Select the amount you want to tip us.",
+                    ),
+                    // Title and description
+                    Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 32),
+                      child: Column(
+                        children: [
+                          AppUtils.commonTextWidget(
+                            text: "Tip Us",
+                            fontSize: 24,
+                            fontWeight: FontWeight.w700,
+                          ),
+                          const SizedBox(height: 14),
+                          AppUtils.commonTextWidget(
+                            text: "Tip us to provide more free tracks. Select the amount you want to tip us.",
                             fontSize: 14,
                             fontWeight: FontWeight.w400,
                             maxLines: 2,
-                            textAlign: TextAlign.center),
-                        const SizedBox(height: 16),
-                        Column(
-                          children: [
-                            Theme(
-                              data: ThemeData(
-                                  unselectedWidgetColor:
-                                      AppColors.greyColor.withOpacity(0.2),
-                                  disabledColor:
-                                      AppColors.greyColor.withOpacity(0.2)),
-                              child: RadioListTile<int>(
-                                fillColor:
-                                    MaterialStateProperty.resolveWith((states) {
-                                  // active
-                                  if (states.contains(MaterialState.selected)) {
-                                    return getPrimaryColor();
-                                  }
-                                  // inactive
-                                  return AppColors.greyColor;
-                                }),
-                                tileColor: AppColors.textFieldColor,
-                                shape: RoundedRectangleBorder(
-                                    borderRadius: BorderRadius.circular(8)),
-                                title: AppUtils.commonTextWidget(
-                                  text: "\₹100",
+                            textAlign: TextAlign.center,
+                          ),
+                          const SizedBox(height: 16),
+                          // Dynamically generated tip options
+                          ...List.generate(subscriptionList.length, (index) {
+                            final subscription = subscriptionList[index];
+                            return Padding(
+                              padding: const EdgeInsets.only(bottom: 12),
+                              child: Theme(
+                                data: ThemeData(
+                                  unselectedWidgetColor: AppColors.textFieldColor,
                                 ),
-                                value: 1,
-                                groupValue: selectedValue,
-                                activeColor: getPrimaryColor(),
-                                onChanged: (value) {
-                                  setState(() {
-                                    selectedValue = value!;
-                                  });
-                                },
+                                child: RadioListTile<int>(
+                                  fillColor: MaterialStateProperty.resolveWith((states) {
+                                    if (states.contains(MaterialState.selected)) {
+                                      return getPrimaryColor();
+                                    }
+                                    return AppColors.greyColor;
+                                  }),
+                                  tileColor: AppColors.textFieldColor,
+                                  shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(8),
+                                  ),
+                                  title: AppUtils.commonTextWidget(
+                                    text: subscription.price,
+                                    textColor: AppColors.blackColor,
+                                    fontWeight: FontWeight.w400,
+                                    fontSize: 14,
+                                  ),
+                                  value: index,
+                                  groupValue: selectedIndex,
+                                  activeColor: getPrimaryColor(),
+                                  onChanged: (value) {
+                                    setState(() {
+                                      selectedIndex = value!;
+                                    });
+                                  },
+                                ),
                               ),
-                            ),
-                            const SizedBox(
-                              height: 12,
-                            ),
-                            RadioListTile<int>(
-                              fillColor:
-                                  MaterialStateProperty.resolveWith((states) {
-                                // active
-                                if (states.contains(MaterialState.selected)) {
-                                  return getPrimaryColor();
-                                }
-                                // inactive
-                                return AppColors.greyColor;
-                              }),
-                              tileColor: AppColors.textFieldColor,
-                              shape: RoundedRectangleBorder(
-                                  borderRadius: BorderRadius.circular(8)),
-                              title: AppUtils.commonTextWidget(
-                                text: "\₹500",
-                              ),
-                              value: 2,
-                              groupValue: selectedValue,
-                              activeColor: getPrimaryColor(),
-                              onChanged: (value) {
-                                setState(() {
-                                  selectedValue = value!;
-                                });
-                              },
-                            ),
-                            const SizedBox(
-                              height: 12,
-                            ),
-                            RadioListTile<int>(
-                              fillColor:
-                                  MaterialStateProperty.resolveWith((states) {
-                                // active
-                                if (states.contains(MaterialState.selected)) {
-                                  return getPrimaryColor();
-                                }
-                                // inactive
-                                return AppColors.greyColor;
-                              }),
-                              tileColor: AppColors.textFieldColor,
-                              shape: RoundedRectangleBorder(
-                                  borderRadius: BorderRadius.circular(8)),
-                              title: AppUtils.commonTextWidget(
-                                text: "\₹1000",
-                              ),
-                              value: 3,
-                              groupValue: selectedValue,
-                              activeColor: getPrimaryColor(),
-                              onChanged: (value) {
-                                print(value);
-                                setState(() {
-                                  selectedValue = value!;
-                                });
-                                print(selectedValue);
-                              },
-                            ),
-                            const SizedBox(
-                              height: 20,
-                            ),
-                            AppUtils.commonElevatedButton(
-                              bottomMargin: 30,
-                              leftPadding: 25,
-                              rightPadding: 25,
-                              buttonWidth: 170,
-                              text: "Provide Tip",
-                              fontWeight: FontWeight.w500,
-                              onPressed: () {
-                                // Close pop-up after submission
-                                Navigator.of(context).pop();
-                                //navigate to Thank you page
-                                Navigator.push(
-                                    context,
-                                    MaterialPageRoute(
-                                      builder: (context) =>
-                                          const ThankYouForTipScreen(),
-                                    ));
-                              },
-                            )
-                          ],
-                        ),
-                      ],
+                            );
+                          }),
+                          const SizedBox(height: 20),
+                          // Submit button
+                          AppUtils.commonElevatedButton(
+                            bottomMargin: 30,
+                            leftPadding: 25,
+                            rightPadding: 25,
+                            buttonWidth: 170,
+                            text: "Provide Tip",
+                            fontWeight: FontWeight.w500,
+                            onPressed: () {
+                              // Perform action with the selected index
+                              final selectedSubscription = subscriptionList[selectedIndex];
+                              iApEngine.handlePurchase(selectedSubscription, productId);
+                              Navigator.of(context).pop();
+
+                              print("Selected Tip Amount: ${selectedSubscription.price}");
+
+                            },
+                          ),
+                        ],
+                      ),
                     ),
-                  )
-                ],
+                  ],
+                ),
               ),
-            ),
-          );
-        });
+            );
+          },
+        );
       },
     );
   }
+
 
   PreferredSizeWidget customAppBarWithRoundedCorners(BuildContext context) {
     return PreferredSize(
@@ -410,7 +416,7 @@ class _HomeScreenState extends State<HomeScreen> {
           actions: [
             GestureDetector(
               onTap: () {
-                showTipDialogBox();
+                showTipDialogBox(context,subscriptionList);
               },
               child: AppUtils.commonContainer(
                 padding: const EdgeInsets.all(8),

@@ -1,7 +1,10 @@
+import 'dart:async'; // Needed for StreamSubscription
+
 import 'package:flutter/material.dart';
 import 'package:meditationapp/core/storage/preference_helper.dart';
 import 'package:meditationapp/core/theme/theme_manager.dart';
 import 'package:meditationapp/feature/home/view/home_screen.dart';
+import 'package:onepref/onepref.dart';
 
 class SplashScreen extends StatefulWidget {
   const SplashScreen({super.key});
@@ -10,37 +13,75 @@ class SplashScreen extends StatefulWidget {
   State<SplashScreen> createState() => _SplashScreenState();
 }
 
-
 class _SplashScreenState extends State<SplashScreen> {
-
+  IApEngine iApEngine = IApEngine();
+  late StreamSubscription splashStream;
 
   @override
   void initState() {
-    // TODO: implement initState
     super.initState();
+    print("returned");
     saveDate();
-    _navigateToHomeScreen();
+    restoreSubscription();
+
+    splashStream = iApEngine.inAppPurchase.purchaseStream.listen(
+          (list) {
+        if (list.isNotEmpty) {
+          // Restore the subscription
+          updateSubscriptionStatus(true);
+          print("SubscriptionData: ${list.first.verificationData.localVerificationData}");
+          _navigateToHomeScreen();
+        } else {
+          // Not subscribed
+          updateSubscriptionStatus(false);
+          PreferenceHelper.setDouble("rawPrice", 0.0);
+          print("NotSubscribed");
+          _navigateToHomeScreen();
+        }
+      },
+    );
   }
 
-  saveDate(){
-    DateTime todayDate =  DateTime.now();
-    print("todayDate${todayDate.toString()}");
+  // Save the current date to preferences
+  void saveDate() {
+    DateTime todayDate = DateTime.now();
+    print("todayDate: ${todayDate.toString()}");
     PreferenceHelper.setString("todayDate", todayDate.toString());
   }
 
+  // Restore subscriptions
+  Future<void> restoreSubscription() async {
+    await iApEngine.inAppPurchase.restorePurchases();
+  }
+
+  // Update subscription status in preferences
+  void updateSubscriptionStatus(bool isSubscribed) {
+    PreferenceHelper.setBool(PreferenceHelper.isSubscribe, isSubscribed);
+  }
+
+  // Navigate to the HomeScreen
   void _navigateToHomeScreen() {
     Future.delayed(const Duration(seconds: 3), () {
-      // After 3 seconds, navigate to the HomeScreen
       Navigator.pushReplacement(
         context,
         MaterialPageRoute(builder: (context) => const HomeScreen()),
       );
     });
+
+  }
+
+  @override
+  void dispose() {
+    // TODO: implement dispose
+    splashStream.cancel();
+    super.dispose();
+
+
   }
   @override
   Widget build(BuildContext context) {
-    return  Scaffold(
-      backgroundColor:  getSplashScreenBackground(),
+    return Scaffold(
+      backgroundColor: getSplashScreenBackground(),
       body: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         crossAxisAlignment: CrossAxisAlignment.center,

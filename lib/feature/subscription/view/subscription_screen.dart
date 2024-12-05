@@ -1,5 +1,8 @@
 import 'dart:async';
+import 'dart:convert';
+import 'dart:io';
 
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:in_app_purchase/in_app_purchase.dart';
 import 'package:meditationapp/core/app_colors.dart';
@@ -7,6 +10,9 @@ import 'package:meditationapp/core/app_utils.dart';
 import 'package:meditationapp/core/storage/preference_helper.dart';
 import 'package:meditationapp/core/theme/theme_manager.dart';
 import 'package:meditationapp/feature/home/view/home_screen.dart';
+import 'package:meditationapp/feature/subscription/view/thankyou_subscription_screen.dart';
+import 'package:onepref/onepref.dart';
+import 'package:in_app_purchase_android/in_app_purchase_android.dart';
 
 class SubscriptionScreen extends StatefulWidget {
   const SubscriptionScreen({super.key});
@@ -16,109 +22,146 @@ class SubscriptionScreen extends StatefulWidget {
 }
 
 class _SubscriptionScreenState extends State<SubscriptionScreen> {
+  //inAppPurchaseInstance
+  IApEngine iApEngine = IApEngine();
+
+  //isLoading
+  bool isLoading = false;
+
+  //Stream
+  late StreamSubscription _subscriptionStream;
+
+  //ProductList
+  List<ProductDetails> subscriptionList = [];
+
+  //ProductsId
+  static const String _subscriptionProductId = 'com.dhyanlife.app.subscription';
+  late final List<ProductId> productId = [
+    ProductId(id: _subscriptionProductId, isConsumable: false),
+  ];
+
+  //bool to ManageSubscription
   bool? isSubscribe;
 
-  final InAppPurchase _iap = InAppPurchase.instance;
-  static const String _subscriptionProductId = 'com.dhyanlife.app.subscription';
-  ProductDetails? _subscriptionProduct;
-  List<ProductDetails> subscriptionList = [];
-  StreamSubscription<List<PurchaseDetails>>? subscription;
+  //ManageLocalSubscribe
+  void updateSubscriptionStatus(bool isSubscribed) {
 
-  bool isSubscribedToPlan(String productId) {
-    return PreferenceHelper.getBool(productId);
-  }
-
-  void updateSubscriptionStatus(String productId, bool isSubscribed) {
-    PreferenceHelper.setBool(productId, isSubscribed);
+    setState(() {
+      isSubscribe = isSubscribed;
+      PreferenceHelper.setBool(PreferenceHelper.isSubscribe, isSubscribed);
+    });
   }
 
   @override
   void initState() {
     // TODO: implement initState
     super.initState();
-    _initializePurchaseUpdates();
-    _getSubscriptionProduct();
-    // _checkSubscriptionStatus();
+    //listen Purchase
+    _subscriptionStream = iApEngine.inAppPurchase.purchaseStream.listen(
+      (listenPurchaseDetails) {
+        //Listen Purchase Details
+        print("PurchaseStream");
+        listenPurchase(listenPurchaseDetails);
+      },
+    );
+
+    getSubscriptionList();
   }
 
-  Future<void> _getSubscriptionProduct() async {
-    await InAppPurchase.instance.restorePurchases();
-    final ProductDetailsResponse response = await _iap.queryProductDetails({_subscriptionProductId});
+  listenPurchase(List<PurchaseDetails> listenPurchaseDetails) async {
+    if (listenPurchaseDetails.isNotEmpty) {
+      getSubscriptionList();
+      for (PurchaseDetails purchase in listenPurchaseDetails) {
+        print("Purchase${purchase.purchaseID}");
+        if (purchase.status == PurchaseStatus.restored ||
+            purchase.status == PurchaseStatus.purchased) {
+            print(purchase.verificationData.localVerificationData);
 
-    // final QueryPurchaseDetailsResponse purchaseResponse = await InAppPurchase.instance.queryPastPurchases();/
+          Map purchaseData =
+          json.decode(purchase.verificationData.localVerificationData);
 
-    if (response.notFoundIDs.isNotEmpty) {
-      print('Product not found: ${response.notFoundIDs}');
-      return;
+
+          if (purchaseData['acknowledged']) {
+            print("restorePurchase");
+            updateSubscriptionStatus(true);
+          } else {
+            //its FirstTime Purchase
+            print("firsTimePurchase");
+            if (Platform.isAndroid) {
+              final InAppPurchaseAndroidPlatformAddition androidPlatformAddition =
+              iApEngine.inAppPurchase.getPlatformAddition<
+                  InAppPurchaseAndroidPlatformAddition>();
+
+              await androidPlatformAddition.consumePurchase(purchase).then((value) {
+                updateSubscriptionStatus(true,);
+              },);
+            }
+
+            if(purchase.pendingCompletePurchase){
+              await iApEngine.inAppPurchase.completePurchase(purchase).then((value) {
+                updateSubscriptionStatus(true,);
+                Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => const ThankYouSubscriptionScreen(),));
+              },);
+            }
+          }
+        }else if(purchase.status == PurchaseStatus.pending || purchase.status == PurchaseStatus.canceled){
+          _subscriptionStream.cancel();
+
+        }
+      }
+    } else {
+      //set Subscription false
+      updateSubscriptionStatus(false);
     }
+  }
 
-    print("response${response.productDetails.first}");
+  getSubscriptionList() async {
+
     setState(() {
-      subscriptionList = response.productDetails;
-      for (var product in subscriptionList) {
-        print("Product ID: ${product.id}");
-        print("Title: ${product.title}");
-        print("Description: ${product.description}");
-        print("Price: ${product.price}");
-        print("Subscription Period: ${product.currencySymbol }");
-      }
-      // print("_subscriptionProduct${_subscriptionProduct?.id}");
+      isLoading = true;
+    });
+    await iApEngine.getIsAvailable().then(
+      (value) {
+        if (value) {
+          //query for products
+          iApEngine.queryProducts(productId).then(
+            (res) {
+              subscriptionList.clear();
+              print("Response${res.productDetails.length}");
+              double rawPrice = PreferenceHelper.getDouble("rawPrice") ?? 0.0;
+              if(rawPrice != 0.0){
+
+                print("rowPrice$rawPrice");
+                setState(() {
+                  subscriptionList = res.productDetails.where((element) => element.rawPrice == rawPrice,).toList();
+                  isSubscribe = PreferenceHelper.getBool(PreferenceHelper.isSubscribe);
+                });
+                print("subscriptionList$subscriptionList");
+              }else{
+                print("responselength${res.productDetails.length}");
+
+                setState(() {
+                  subscriptionList = res.productDetails;
+                  isSubscribe = PreferenceHelper.getBool(PreferenceHelper.isSubscribe);
+                });
+                print("subscriptionList$subscriptionList");
+              }
+
+            },
+          );
+        }
+      },
+    );
+    setState(() {
+      isLoading = false;
     });
   }
 
-  void _initializePurchaseUpdates() async{
-    await InAppPurchase.instance.restorePurchases();
-    _iap.purchaseStream.listen((purchaseDetailsList) {
-      for (var purchase in purchaseDetailsList) {
-        if(purchase.productID == _subscriptionProductId && purchase.status == PurchaseStatus.restored){
-          print("restoredData${purchase.status}");
-          // updateSubscriptionStatus(purchase.productID , true);
-        }
-
-        if (purchase.productID == _subscriptionProductId && purchase.status == PurchaseStatus.purchased) {
-          _verifyAndApplySubscription(purchase);
-        } else if (purchase.status == PurchaseStatus.canceled) {
-
-          _verifyAndApplySubscription(purchase);
-        } else if (purchase.status == PurchaseStatus.error) {
-          print('Purchase error: ${purchase.error}');
-        }
-      }
-    });
-  }
-
-  Future<void> _verifyAndApplySubscription(PurchaseDetails purchase) async {
-    // Verify purchase with backend (optional)
-    // Apply subscription status locally
-    if (purchase.status == PurchaseStatus.purchased) {
-      // Save subscription status in your app state
-      setState(() {
-        isSubscribe = true;
-        PreferenceHelper.setBool(PreferenceHelper.isSubscribe, true);
-      });
-
-      // Complete the purchase
-      await _iap.completePurchase(purchase);
-    }
-
-    if (purchase.status == PurchaseStatus.canceled) {
-      // Save subscription status in your app state
-      setState(() {
-        isSubscribe = false;
-        PreferenceHelper.setBool(PreferenceHelper.isSubscribe, false);
-      });
-
-      // // Complete the purchase
-      // await _iap.completePurchase(purchase);
-    }
-  }
-
-  void _subscribe(ProductDetails product) {
-    if (product == null) return;
-
-    final PurchaseParam purchaseParam = PurchaseParam(productDetails: product);
-    print("purchaseParam${purchaseParam.productDetails.id}");
-    _iap.buyNonConsumable(purchaseParam: purchaseParam);
+  @override
+  void dispose() {
+    // TODO: implement dispose
+    _subscriptionStream.cancel();
+    super.dispose();
   }
 
   @override
@@ -130,11 +173,7 @@ class _SubscriptionScreenState extends State<SubscriptionScreen> {
         centerTitle: true,
         leading: GestureDetector(
           onTap: () {
-            Navigator.pushReplacement(
-                context,
-                MaterialPageRoute(
-                  builder: (context) => const HomeScreen(),
-                ));
+            Navigator.pop(context);
           },
           child: Container(
             margin: const EdgeInsets.only(left: 12, bottom: 0, right: 0),
@@ -152,7 +191,8 @@ class _SubscriptionScreenState extends State<SubscriptionScreen> {
           fontWeight: FontWeight.w600,
         ),
       ),
-      body: SingleChildScrollView(
+      body: isLoading == true  ? AppUtils.loaderWidget():  SingleChildScrollView(
+
         child: Padding(
           padding: const EdgeInsets.only(left: 16, right: 16),
           child: Column(
@@ -292,7 +332,7 @@ class _SubscriptionScreenState extends State<SubscriptionScreen> {
                           const SizedBox(
                             height: 8,
                           ),
-                          isSubscribe == true
+                          PreferenceHelper.getBool(PreferenceHelper.isSubscribe)
                               ? Center(
                                   child: OutlinedButton(
                                     style: OutlinedButton.styleFrom(
@@ -318,16 +358,8 @@ class _SubscriptionScreenState extends State<SubscriptionScreen> {
                               : AppUtils.commonElevatedButton(
                                   text: "Subscribe Now",
                                   onPressed: () {
-                                    print("testttttt");
-                                    _subscribe(subscriptionList[index]);
-                                    // PreferenceHelper.setBool(
-                                    //     PreferenceHelper.isSubscribe, true);
-                                    // Navigator.push(
-                                    //     context,
-                                    //     MaterialPageRoute(
-                                    //       builder: (context) =>
-                                    //           const ThankYouSubscriptionScreen(),
-                                    //     ));
+                                    iApEngine.handlePurchase(subscriptionList[index], productId);
+                                    PreferenceHelper.setDouble("rawPrice", subscriptionList[index].rawPrice);
                                   },
                                   buttonWidth: double.infinity,
                                   leftMargin: 80,
@@ -365,7 +397,7 @@ class _SubscriptionScreenState extends State<SubscriptionScreen> {
                       alignment: Alignment.topRight,
                       child: GestureDetector(
                         onTap: () {
-                           Navigator.of(context).pop();
+                          Navigator.of(context).pop();
                         },
                         // Close on tap
                         child: AppUtils.commonContainer(
@@ -419,13 +451,13 @@ class _SubscriptionScreenState extends State<SubscriptionScreen> {
                             textColor: AppColors.whiteColor,
                             buttonWidth: double.infinity,
                             onPressed: () {
-                              PreferenceHelper.setBool(
-                                  PreferenceHelper.isSubscribe, false);
-                              Navigator.pushReplacement(
-                                  context,
-                                  MaterialPageRoute(
-                                    builder: (context) => const HomeScreen(),
-                                  ));
+                              // PreferenceHelper.setBool(
+                              //     PreferenceHelper.isSubscribe, false);
+                              // Navigator.pushReplacement(
+                              //     context,
+                              //     MaterialPageRoute(
+                              //       builder: (context) => const HomeScreen(),
+                              //     ));
                             },
                           ),
                           const SizedBox(

@@ -57,7 +57,7 @@ class ThankYouSubscriptionScreen extends StatelessWidget {
                 text: "Continue Meditation",
                 onPressed: () {
                   //move to list Screen
-                  Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => const HomeScreen(),));
+                 Navigator.pop(context);
                 },
               )
             ],
