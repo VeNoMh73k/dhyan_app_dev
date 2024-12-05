@@ -21,42 +21,76 @@ class CommonWebViewWidget extends StatefulWidget {
 class _CommonWebViewWidgetState extends State<CommonWebViewWidget> {
   late InAppWebViewController _webViewController;
 
+  bool isLoading = true;
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: getScaffoldColor(),
-      appBar: AppBar(
         backgroundColor: getScaffoldColor(),
-        elevation: 1,
-        centerTitle: true,
-        title: AppUtils.commonTextWidget(
-          text : widget.title ?? "WebView",
-          textColor: getTextColor(),
-          fontWeight: FontWeight.w600,
-          fontSize: 18,
-        ),
-        iconTheme: const IconThemeData(color: Colors.black),
-      ),
-      body: widget.url != null
-          ? ClipRRect(
-        borderRadius: BorderRadius.circular(15), // Rounded corners
-        child: InAppWebView(
-          initialUrlRequest: URLRequest(url: WebUri.uri(Uri.parse(widget.url ?? ""))),
-          onWebViewCreated: (controller) {
-            _webViewController = controller;
-          },
-          initialSettings: InAppWebViewSettings(
-            javaScriptEnabled: true,
-            clearCache: true,
+        appBar: AppBar(
+          backgroundColor: getScaffoldColor(),
+          elevation: 1,
+          leading: AppUtils.backButton(
+              onTap: () {
+                Navigator.pop(context);
+              },
+              color: AppColors.blackColor),
+          centerTitle: true,
+          title: AppUtils.commonTextWidget(
+            text: widget.title ?? "WebView",
+            textColor: getTextColor(),
+            fontWeight: FontWeight.w600,
+            fontSize: 18,
           ),
+          iconTheme: const IconThemeData(color: Colors.black),
         ),
-      )
-          : const Center(
-        child: Text(
-          "Invalid URL",
-          style: TextStyle(fontSize: 16, color: Colors.red),
-        ),
-      ),
-    );
+        body: ClipRRect(
+          borderRadius: const BorderRadius.only(
+              topRight: Radius.circular(20), topLeft: Radius.circular(20)),
+          child: Stack(
+            children: [
+              widget.url != null
+                  ? ClipRRect(
+                      borderRadius:
+                          BorderRadius.circular(15), // Rounded corners
+                      child: InAppWebView(
+                        initialUrlRequest: URLRequest(
+                            url: WebUri.uri(Uri.parse(widget.url ?? ""))),
+                        onWebViewCreated: (controller) {
+                          _webViewController = controller;
+                        },
+                        onLoadStop: (controller, url) {
+                          setState(() {
+                            isLoading = false;
+                          });
+                        },
+                        onLoadStart: (controller, url) {
+                          setState(() {
+                            isLoading = true;
+                          });
+                        },
+                        initialSettings: InAppWebViewSettings(
+                            javaScriptEnabled: true,
+                            clearCache: true,
+                            transparentBackground: true),
+                      ),
+                    )
+                  : const Center(
+                      child: Text(
+                        "Invalid URL",
+                        style: TextStyle(fontSize: 16, color: Colors.red),
+                      ),
+                    ),
+              isLoading
+                  ? Container(
+                      width: MediaQuery.of(context).size.width,
+                      height: MediaQuery.of(context).size.height,
+                      color: Colors.grey.withOpacity(0.5),
+                      child: Center(child: AppUtils.loaderWidget()),
+                    )
+                  : const SizedBox(),
+            ],
+          ),
+        ));
   }
 }

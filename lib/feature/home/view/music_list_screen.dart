@@ -226,20 +226,29 @@ class _MusicListScreenState extends State<MusicListScreen> {
                                   mainAxisAlignment:
                                       MainAxisAlignment.spaceBetween,
                                   children: [
-                                    GestureDetector(
-                                      onTap: () {
-                                        Navigator.pop(context);
-                                      },
-                                      child: Container(
-                                        margin: const EdgeInsets.only(
-                                            left: 12, bottom: 0, right: 0),
-                                        padding: const EdgeInsets.all(4),
-                                        child: Icon(
-                                          Icons.arrow_back,
-                                          color: AppColors.whiteColor,
-                                        ),
+                                    Padding(
+                                      padding: const EdgeInsets.only(left: 12),
+                                      child: AppUtils.backButton(
+                                        onTap: () {
+                                          Navigator.pop(context);
+                                        },
                                       ),
                                     ),
+
+                                    // GestureDetector(
+                                    //   onTap: () {
+                                    //     Navigator.pop(context);
+                                    //   },
+                                    //   child: Container(
+                                    //     margin: const EdgeInsets.only(
+                                    //         left: 12, bottom: 0, right: 0),
+                                    //     padding: const EdgeInsets.all(4),
+                                    //     child: Icon(
+                                    //       Icons.arrow_back,
+                                    //       color: AppColors.whiteColor,
+                                    //     ),
+                                    //   ),
+                                    // ),
                                     AppUtils.commonTextWidget(
                                         text:
                                             widget.categoryName ?? "Spiritual",
@@ -286,7 +295,7 @@ class _MusicListScreenState extends State<MusicListScreen> {
                               children: [
                                 // Background image filling the entire area
                                 Positioned.fill(
-                                  child: AppUtils.networkImage(
+                                  child: AppUtils.cacheImage(
                                     imageUrl: widget.bannerImageUrl ?? "",
                                   ),
                                 ),
@@ -295,7 +304,14 @@ class _MusicListScreenState extends State<MusicListScreen> {
                                     ? SizedBox()
                                     : Align(
                                         alignment: Alignment.topLeft,
-                                        child: GestureDetector(
+                                        child: Padding(
+                                            padding: const EdgeInsets.only(
+                                                top: 32, left: 12),
+                                            child: AppUtils.backButton(
+                                              onTap: () {
+                                                Navigator.pop(context);
+                                              },
+                                            )), /*GestureDetector(
                                           onTap: () {
                                             Navigator.pop(context);
                                           },
@@ -309,7 +325,7 @@ class _MusicListScreenState extends State<MusicListScreen> {
                                               color: AppColors.whiteColor,
                                             ),
                                           ),
-                                        ),
+                                        ),*/
                                       ),
                                 // "Spiritual" text and sort icon at the bottom
                                 Align(
@@ -396,7 +412,7 @@ class _MusicListScreenState extends State<MusicListScreen> {
                             // Thumbnail Image
                             ClipRRect(
                                 borderRadius: BorderRadius.circular(6),
-                                child: AppUtils.networkImage(
+                                child: AppUtils.cacheImage(
                                   imageUrl: filteredList[index].imageUrl ?? "",
                                   width: 110,
                                   height: 125,

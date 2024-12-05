@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:internet_connection_checker/internet_connection_checker.dart';
 import 'package:intl/intl.dart';
 import 'package:meditationapp/core/app_colors.dart';
+import 'package:meditationapp/core/image_path.dart';
 import 'package:meditationapp/core/theme/theme_manager.dart';
 import 'package:meditationapp/main.dart';
 import 'package:path_provider/path_provider.dart';
@@ -56,14 +57,57 @@ class AppUtils {
     }
   }
 
-  static cacheImage(imageUrl) {
-    return CachedNetworkImage(
-      imageUrl: imageUrl,
-      placeholder: (context, url) => const Center(
-          child: CircularProgressIndicator(strokeWidth: 2, strokeAlign: -0.5)),
-      fit: BoxFit.cover,
-      errorWidget: (context, url, error) =>
-          Image.asset("assets/ic_placeholder.jpeg", fit: BoxFit.cover),
+  // static cacheImage(imageUrl) {
+  //   return CachedNetworkImage(
+  //     imageUrl: imageUrl,
+  //     placeholder: (context, url) => const Center(
+  //         child: CircularProgressIndicator(strokeWidth: 2, strokeAlign: -0.5)),
+  //     fit: BoxFit.cover,
+  //     errorWidget: (context, url, error) =>
+  //         Image.asset("assets/ic_placeholder.jpeg", fit: BoxFit.cover),
+  //   );
+  // }
+
+  static Widget cacheImage({
+    required String imageUrl,
+    double? height,
+    double? width,
+    BoxFit fit = BoxFit.cover,
+    BorderRadius borderRadius = const BorderRadius.all(Radius.circular(12)),
+  }) {
+    return Container(
+      height: height,
+      width: width,
+      decoration: BoxDecoration(
+        borderRadius: borderRadius,
+      ),
+      child: ClipRRect(
+        borderRadius: borderRadius,
+        child: CachedNetworkImage(
+          imageUrl: imageUrl,
+          fit: fit,
+          placeholder: (context, url) {
+            return Center(
+              child: Image.asset(
+                height: 75,
+                width: 75,
+                "assets/logo_light.png",
+                fit: BoxFit.scaleDown,
+              ),
+            );
+          },
+          errorWidget: (context, url, error) {
+            return Center(
+              child: Image.asset(
+                height: 75,
+                width: 75,
+                "assets/logo_light.png",
+                fit: BoxFit.scaleDown,
+              ),
+            );
+          },
+        ),
+      ),
     );
   }
 
@@ -329,5 +373,15 @@ class AppUtils {
         size: iconsSize ?? 60,
       ),
     );
+  }
+
+  static backButton({required VoidCallback onTap, Color? color}) {
+    return IconButton(
+        onPressed: onTap,
+        icon: Image.asset(
+          height: 16,
+          backIcon,
+          color: color ?? AppColors.whiteColor,
+        ));
   }
 }

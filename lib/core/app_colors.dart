@@ -15,4 +15,5 @@ class AppColors{
    static  Color cancelColor =  Color.fromRGBO(230, 57, 70, 1);
 
    static  Color cancelBtnColor =  Color.fromRGBO(168, 168, 168, 1);
+   static  Color feedBackTextFieldHintColor =  Color.fromRGBO(168, 168, 168, 1);
 }

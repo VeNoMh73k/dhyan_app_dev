@@ -185,7 +185,7 @@ class _HomeScreenState extends State<HomeScreen> {
                                 child: ClipRRect(
                                     borderRadius: const BorderRadius.all(
                                         Radius.circular(12)),
-                                    child: AppUtils.networkImage(
+                                    child: AppUtils.cacheImage(
                                         imageUrl: homeProvider
                                                 .categories[index].imageUrl ??
                                             "",
@@ -260,9 +260,9 @@ class _HomeScreenState extends State<HomeScreen> {
                       child: GestureDetector(
                         onTap: () => Navigator.of(context).pop(),
                         child: AppUtils.commonContainer(
-                          margin: const EdgeInsets.only(right: 12, top: 12),
-                          height: 30,
-                          width: 30,
+                          margin: const EdgeInsets.only(right: 15, top: 15),
+                          height: 28,
+                          width: 28,
                           decoration: AppUtils.commonBoxDecoration(
                             shape: BoxShape.circle,
                             color: AppColors.blackColor,
@@ -284,15 +284,15 @@ class _HomeScreenState extends State<HomeScreen> {
                             fontSize: 24,
                             fontWeight: FontWeight.w700,
                           ),
-                          const SizedBox(height: 14),
+                          const SizedBox(height: 12),
                           AppUtils.commonTextWidget(
-                            text: "Tip us to provide more free tracks. Select the amount you want to tip us.",
+                            text: "Tip us to provide more free track, Select amount you want to tip us.",
                             fontSize: 14,
                             fontWeight: FontWeight.w400,
                             maxLines: 2,
                             textAlign: TextAlign.center,
                           ),
-                          const SizedBox(height: 16),
+                          const SizedBox(height: 24),
                           // Dynamically generated tip options
                           ...List.generate(subscriptionList.length, (index) {
                             final subscription = subscriptionList[index];
@@ -331,13 +331,15 @@ class _HomeScreenState extends State<HomeScreen> {
                               ),
                             );
                           }),
-                          const SizedBox(height: 20),
+                          const SizedBox(height: 26),
                           // Submit button
                           AppUtils.commonElevatedButton(
                             bottomMargin: 30,
                             leftPadding: 25,
                             rightPadding: 25,
                             buttonWidth: 170,
+                            topPadding: 12,
+                            bottomPadding: 12,
                             text: "Provide Tip",
                             fontWeight: FontWeight.w500,
                             onPressed: () {

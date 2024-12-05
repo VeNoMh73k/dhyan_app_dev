@@ -1,11 +1,9 @@
 import 'dart:convert';
 
 import 'package:flutter/material.dart';
-import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:meditationapp/core/app_colors.dart';
 import 'package:meditationapp/core/app_utils.dart';
 import 'package:meditationapp/core/storage/preference_helper.dart';
-import 'package:meditationapp/core/theme/icon_path.dart';
 import 'package:meditationapp/core/theme/theme_manager.dart';
 import 'package:meditationapp/feature/reminder/model/reminder_model.dart';
 import 'package:meditationapp/service/notifi_service.dart';
@@ -160,7 +158,12 @@ class _SetReminderScreenState extends State<SetReminderScreen> {
         surfaceTintColor: getScaffoldColor(),
         automaticallyImplyLeading: false,
         centerTitle: true,
-        leading: GestureDetector(
+        leading: AppUtils.backButton(
+            onTap: () {
+              Navigator.pop(context);
+            },
+            color: AppColors.blackColor
+        ), /*GestureDetector(
           onTap: () {
             Navigator.pop(context);
           },
@@ -171,7 +174,7 @@ class _SetReminderScreenState extends State<SetReminderScreen> {
               color: AppColors.blackColor,
             ),
           ),
-        ),
+        ),*/
         title: AppUtils.commonTextWidget(
           text: "Set Reminder",
           textColor: AppColors.blackColor,

@@ -20,13 +20,13 @@ class FeedbackScreen extends StatefulWidget {
 }
 
 class _FeedbackScreenState extends State<FeedbackScreen> {
-
   @override
   void initState() {
     // TODO: implement initState
     super.initState();
     getInitialFav();
   }
+
   bool savedFavVar = false;
 
   getInitialFav() async {
@@ -43,7 +43,6 @@ class _FeedbackScreenState extends State<FeedbackScreen> {
     savedFavVar = newValue;
     setState(() {});
   }
-
 
   goBack() {
     Navigator.pushReplacement(
@@ -63,9 +62,14 @@ class _FeedbackScreenState extends State<FeedbackScreen> {
       child: Scaffold(
         backgroundColor: getScaffoldColor(),
         appBar: AppBar(
-          automaticallyImplyLeading: false,
-          backgroundColor: getScaffoldColor(),
-          leading: GestureDetector(
+            automaticallyImplyLeading: false,
+            backgroundColor: getScaffoldColor(),
+            leading: AppUtils.backButton(
+              color: getTextColor(),
+              onTap: () {
+                goBack();
+              },
+            ) /*GestureDetector(
             onTap: () {
               goBack();
             },
@@ -77,8 +81,8 @@ class _FeedbackScreenState extends State<FeedbackScreen> {
                 color: getTextColor(),
               ),
             ),
-          ),
-        ),
+          ),*/
+            ),
         body: Padding(
           padding: const EdgeInsets.all(16.0),
           child: Column(
@@ -105,8 +109,9 @@ class _FeedbackScreenState extends State<FeedbackScreen> {
                     crossAxisAlignment: CrossAxisAlignment.center,
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
-                      const SizedBox(height: 60),
-                      AppUtils.successImage(height: 70,width: 70,iconsSize: 40),
+                      const SizedBox(height: 50),
+                      AppUtils.successImage(
+                          height: 60, width: 60, iconsSize: 40),
                       const SizedBox(height: 20),
                       AppUtils.commonTextWidget(
                         text: "You have completed meditation of",
@@ -118,6 +123,7 @@ class _FeedbackScreenState extends State<FeedbackScreen> {
                       AppUtils.commonTextWidget(
                         text: widget.titleName ?? "",
                         fontWeight: FontWeight.w700,
+                        maxLines: 2,
                         fontSize: 24,
                         textColor: getTextColor(),
                       ),
@@ -145,11 +151,11 @@ class _FeedbackScreenState extends State<FeedbackScreen> {
                           shoFeedBackPopUpView();
                         },
                         child: Padding(
-                          padding: const EdgeInsets.all(4),
+                          padding: const EdgeInsets.only(top: 11,bottom: 11),
                           child: AppUtils.commonTextWidget(
                             text: "Provide Your Feedback",
                             textColor: getTextColor(),
-                            fontWeight: FontWeight.w400,
+                            fontWeight: FontWeight.w500,
                             fontSize: 16,
                           ),
                         ),
@@ -169,8 +175,9 @@ class _FeedbackScreenState extends State<FeedbackScreen> {
                       },
                       child: Icon(Icons.favorite,
                           size: 30,
-                          color:
-                          savedFavVar ? getPrimaryColor() : AppColors.greyColor)),
+                          color: savedFavVar
+                              ? getPrimaryColor()
+                              : AppColors.greyColor)),
                   const SizedBox(height: 4),
                   AppUtils.commonTextWidget(
                     text: "Favorites",
@@ -249,7 +256,7 @@ class _FeedbackScreenState extends State<FeedbackScreen> {
                             onTap: () => Navigator.of(context).pop(),
                             // Close on tap
                             child: AppUtils.commonContainer(
-                              margin: const EdgeInsets.only(right: 12, top: 12),
+                              margin: const EdgeInsets.only(right: 15, top: 15),
                               height: 30,
                               width: 30,
                               decoration: AppUtils.commonBoxDecoration(
@@ -274,13 +281,13 @@ class _FeedbackScreenState extends State<FeedbackScreen> {
                             fontSize: 24,
                             fontWeight: FontWeight.w700,
                           ),
-                          const SizedBox(height: 14),
+                          const SizedBox(height: 12),
                           AppUtils.commonTextWidget(
                             text: "Provide your feedback so we can improve it.",
                             fontSize: 14,
                             fontWeight: FontWeight.w400,
                           ),
-                          const SizedBox(height: 16),
+                          const SizedBox(height: 18),
                           StarRating(
                               rating: selectedRating,
                               size: 60,
@@ -300,7 +307,7 @@ class _FeedbackScreenState extends State<FeedbackScreen> {
                               }),
                           Padding(
                             padding: const EdgeInsets.only(
-                                left: 0, right: 0, top: 20, bottom: 20),
+                                left: 0, right: 0, top: 20, bottom: 24),
                             child: TextField(
                               maxLines: 4,
                               decoration: InputDecoration(
@@ -320,7 +327,12 @@ class _FeedbackScreenState extends State<FeedbackScreen> {
                                   borderSide:
                                       BorderSide.none, // No border on focus
                                 ),
-                                hintText: "Typing here..", // Optional hint text
+                                hintText: "Type here..",
+                                // Optional hint text
+                                hintStyle: TextStyle(
+                                    fontWeight: FontWeight.w400,
+                                    color:
+                                        AppColors.feedBackTextFieldHintColor),
                               ),
                             ),
                           ),
@@ -329,6 +341,8 @@ class _FeedbackScreenState extends State<FeedbackScreen> {
                             leftPadding: 25,
                             rightPadding: 25,
                             buttonWidth: 170,
+                            topPadding: 12,
+                            bottomPadding: 12,
                             text: "Submit",
                             onPressed: () {
                               //submit
@@ -348,4 +362,3 @@ class _FeedbackScreenState extends State<FeedbackScreen> {
         });
   }
 }
-

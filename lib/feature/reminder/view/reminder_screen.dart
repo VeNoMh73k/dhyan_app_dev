@@ -114,7 +114,12 @@ class _ReminderScreenState extends State<ReminderScreen> {
         surfaceTintColor: getScaffoldColor(),
         automaticallyImplyLeading: false,
         centerTitle: true,
-        leading: GestureDetector(
+        leading: AppUtils.backButton(
+            onTap: () {
+              Navigator.pop(context);
+            },
+            color: AppColors.blackColor
+        ), /*GestureDetector(
           onTap: () {
             Navigator.pop(context);
           },
@@ -125,7 +130,7 @@ class _ReminderScreenState extends State<ReminderScreen> {
               color: AppColors.blackColor,
             ),
           ),
-        ),
+        ),*/
         title: AppUtils.commonTextWidget(
           text: "Reminder",
           textColor: AppColors.blackColor,

@@ -175,7 +175,19 @@ class _AudioPlayerPageState extends State<AudioPlayerPage> {
         elevation: 0,
         forceMaterialTransparency: false,
         automaticallyImplyLeading: false,
-        leading: GestureDetector(
+        leading: AppUtils.backButton(
+          onTap: () {
+            pauseAudio();
+            Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => FeedbackScreen(
+                    titleName: widget.audioTitle,
+                    trackId: widget.trackId,
+                  ),
+                ));
+          },
+        ), /*GestureDetector(
           onTap: () {
             pauseAudio();
             Navigator.push(
@@ -195,7 +207,7 @@ class _AudioPlayerPageState extends State<AudioPlayerPage> {
               color: AppColors.whiteColor,
             ),
           ),
-        ),
+        ),*/
         actions: [
           GestureDetector(
             onTap: () {

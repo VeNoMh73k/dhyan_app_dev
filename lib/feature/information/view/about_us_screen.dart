@@ -12,7 +12,12 @@ class AboutUsScreen extends StatelessWidget {
       backgroundColor: getScaffoldColor(),
       appBar: AppBar(
         backgroundColor: getScaffoldColor(),
-        automaticallyImplyLeading: true,
+        leading: AppUtils.backButton(
+            onTap: () {
+              Navigator.pop(context);
+            },
+            color: AppColors.blackColor
+        ),
         centerTitle: true,
         title: AppUtils.commonTextWidget(
           text: "About Us",
