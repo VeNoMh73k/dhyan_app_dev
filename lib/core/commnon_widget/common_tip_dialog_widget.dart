@@ -101,7 +101,7 @@ class CommonDialog extends StatelessWidget {
                               ),
                               value: index,
                               groupValue: selectedIndex,
-                              activeColor: getPrimaryColor(),
+                              activeColor: AppColors.secondaryColor,
                               onChanged: (value) {
                                 setState(() {
                                   selectedIndex = value!;

@@ -15,6 +15,8 @@
 const String privacyLink = "https://dhyanlife.com/privacy-policy";
 const String tncLink = "https://dhyanlife.com/terms-and-conditions";
 
+const fontFamily = "Nunito Sans";
+
 const Map<String, String> header = {
   'Content-type': 'application/json',
   'apikey' : 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImJpaHBoZnNmeG10eWd3eWp5d3p5Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3MzIxMTAyNTIsImV4cCI6MjA0NzY4NjI1Mn0.EGPPEXTNVyn9kcnNc2FPgTEkDeFuNwITakwikGpbNMU',

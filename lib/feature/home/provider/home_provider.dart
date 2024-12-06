@@ -43,19 +43,23 @@ class HomeProvider with ChangeNotifier {
           },
         );
         if (response.statusCode == 200) {
+          freshProgress();
           // var responseInBool = await callDownloadMethod(filePath, url,);
           AppUtils.snackBarFnc(
               ctx: context, contentText: 'Downloaded Successfully');
           return true;
         } else {
+          freshProgress();
           notifyListeners();
           return false;
         }
       } else {
+        freshProgress();
         noInterNetPopUp();
         return false;
       }
     } catch (e) {
+      freshProgress();
       debugPrint('catch at downloadAudio $e');
     }
 

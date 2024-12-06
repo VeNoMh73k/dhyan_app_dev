@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:internet_connection_checker/internet_connection_checker.dart';
 import 'package:intl/intl.dart';
 import 'package:meditationapp/core/app_colors.dart';
+import 'package:meditationapp/core/constants.dart';
 import 'package:meditationapp/core/image_path.dart';
 import 'package:meditationapp/core/theme/theme_manager.dart';
 import 'package:meditationapp/main.dart';
@@ -32,6 +33,7 @@ class AppUtils {
         duration: const Duration(milliseconds: 1000),
         content: Text(
           contentText ?? '',
+          style: TextStyle(fontFamily: fontFamily),
         ),
       ));
     }
@@ -89,9 +91,9 @@ class AppUtils {
           placeholder: (context, url) {
             return Center(
               child: Image.asset(
+                "assets/logo_light.png",
                 height: 75,
                 width: 75,
-                "assets/logo_light.png",
                 fit: BoxFit.scaleDown,
               ),
             );
@@ -169,13 +171,14 @@ class AppUtils {
           fontSize: fontSize ?? 14,
           // Default font size
           fontWeight: fontWeight ?? FontWeight.normal,
+          fontFamily: fontFamily,
           // Default font weight
           color: textColor ?? getTextColor(),
           letterSpacing: letterSpacing ?? 0.1,
           decoration: decoration ?? TextDecoration.none),
       textAlign: textAlign ?? TextAlign.start, // Default alignment is start
       maxLines: maxLines, // Optional parameter for max lines
-      overflow: overflow ?? TextOverflow.visible, // Default overflow behavior
+      overflow: overflow, // Default overflow behavior
     );
   }
 

@@ -3,6 +3,7 @@ import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:in_app_purchase/in_app_purchase.dart';
+import 'package:meditationapp/core/constants.dart';
 
 InAppPurchase _inAppPurchase = InAppPurchase.instance;
 late StreamSubscription<dynamic> _streamSubscription;
@@ -21,7 +22,10 @@ class _PaymentPageState extends State<PaymentPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Make a donation'),
+        title: const Text(
+          'Make a donation',
+          style: TextStyle(fontFamily: fontFamily),
+        ),
       ),
       body: Padding(
         padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 20),
@@ -46,7 +50,7 @@ class _PaymentPageState extends State<PaymentPage> {
               padding: EdgeInsets.symmetric(horizontal: 5),
               child: Text(
                 'Contrary to popular belief, Lorem Ipsum is not simply random text. It has roots in a piece of classical Latin literature from 45 BC, making it over 2000 years old. Richard McClintock, a Latin professor at Hampden-Sydney College in Virginia. \n\nLooked up one of the more obscure Latin words, consectetur, from a Lorem Ipsum passage \n \n- Makers of Meditaion App',
-                style: TextStyle(fontSize: 15),
+                style: TextStyle(fontSize: 15, fontFamily: fontFamily),
               ),
             ),
             const SizedBox(height: 20),
@@ -57,14 +61,20 @@ class _PaymentPageState extends State<PaymentPage> {
                         onPressed: () {
                           openDialog();
                         },
-                        child: Text('Donate Once'))),
+                        child: Text(
+                          'Donate Once',
+                          style: TextStyle(fontFamily: fontFamily),
+                        ))),
                 const SizedBox(width: 10),
                 Expanded(
                     child: ElevatedButton(
                         onPressed: () {
                           openDialog();
                         },
-                        child: Text('Join the Circle'))),
+                        child: Text(
+                          'Join the Circle',
+                          style: TextStyle(fontFamily: fontFamily),
+                        ))),
               ],
             ),
           ],
@@ -91,7 +101,6 @@ class PaymentDialog extends StatefulWidget {
 }
 
 class _PaymentDialogState extends State<PaymentDialog> {
-
   @override
   void initState() {
     // TODO: implement initState
@@ -99,36 +108,45 @@ class _PaymentDialogState extends State<PaymentDialog> {
     Stream purchaseUpdated = InAppPurchase.instance.purchaseStream;
     _streamSubscription = purchaseUpdated.listen((purchaseList) {
       _listenToPurchase(purchaseList, context);
-    }, onDone: (){
+    }, onDone: () {
       _streamSubscription.cancel();
-    }, onError: (error){
-      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text("Error")));
+    }, onError: (error) {
+      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
+          content: Text(
+        "Error",
+        style: TextStyle(fontFamily: fontFamily),
+      )));
     });
     initStore();
   }
 
-  initStore() async{
+  initStore() async {
     ProductDetailsResponse productDetailsResponse =
-    await _inAppPurchase.queryProductDetails(_variant);
-    if(productDetailsResponse.error==null){
+        await _inAppPurchase.queryProductDetails(_variant);
+    if (productDetailsResponse.error == null) {
       setState(() {
         _products = productDetailsResponse.productDetails;
       });
     }
   }
 
-  _listenToPurchase(List<PurchaseDetails> purchaseDetailsList, BuildContext context) {
+  _listenToPurchase(
+      List<PurchaseDetails> purchaseDetailsList, BuildContext context) {
     purchaseDetailsList.forEach((PurchaseDetails purchaseDetails) async {
       if (purchaseDetails.status == PurchaseStatus.pending) {
-        ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text("Pending")));
+        ScaffoldMessenger.of(context)
+            .showSnackBar(const SnackBar(content: Text("Pending",style: TextStyle(fontFamily: fontFamily),)));
       } else if (purchaseDetails.status == PurchaseStatus.error) {
-        ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text("Error")));
+        ScaffoldMessenger.of(context)
+            .showSnackBar(const SnackBar(content: Text("Error",style: TextStyle(fontFamily: fontFamily),)));
       } else if (purchaseDetails.status == PurchaseStatus.purchased) {
-        ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text("Purchased")));
+        ScaffoldMessenger.of(context)
+            .showSnackBar(const SnackBar(content: Text("Purchased", style: TextStyle(fontFamily: fontFamily),)));
       }
     });
   }
-  _buy(){
+
+  _buy() {
     final PurchaseParam param = PurchaseParam(productDetails: _products[0]);
     _inAppPurchase.buyConsumable(purchaseParam: param);
   }
@@ -141,7 +159,7 @@ class _PaymentDialogState extends State<PaymentDialog> {
         mainAxisSize: MainAxisSize.min,
         children: [
           const Text('Donate',
-              style: TextStyle(fontSize: 18, fontWeight: FontWeight.w700)),
+              style: TextStyle(fontSize: 18, fontWeight: FontWeight.w700,fontFamily: fontFamily)),
           const SizedBox(height: 20),
           Column(
             children: ["40.00", "120.00", "400.00", "1000.00"]
@@ -160,7 +178,7 @@ class _PaymentDialogState extends State<PaymentDialog> {
                       // );
                     },
                     minLeadingWidth: 5,
-                    title: Text('₹$amount'),
+                    title: Text('₹$amount',style: TextStyle(fontFamily: fontFamily),),
                     leading: const Icon(Icons.circle_outlined, size: 20),
                   ),
                 )
@@ -169,14 +187,13 @@ class _PaymentDialogState extends State<PaymentDialog> {
           const SizedBox(height: 20),
           const Text(
             'We run entirely on donations, so every donation helps us keep the app running.',
-            style: TextStyle(fontSize: 14),
+            style: TextStyle(fontSize: 14,fontFamily: fontFamily),
           ),
         ],
       ),
     );
   }
 }
-
 
 // class PaymentBtnDialog extends StatefulWidget {
 //   final String amount;

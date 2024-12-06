@@ -35,12 +35,11 @@ class _HomeScreenState extends State<HomeScreen> {
 
   //Id
 
-
   //ProductIdList
   late final List<ProductId> productId = [
-    ProductId(id: tip1, isConsumable: true,isOneTimePurchase: false),
-    ProductId(id: tip2, isConsumable: true,isOneTimePurchase: false),
-    ProductId(id: tip3, isConsumable: true,isOneTimePurchase: false),
+    ProductId(id: tip1, isConsumable: true, isOneTimePurchase: false),
+    ProductId(id: tip2, isConsumable: true, isOneTimePurchase: false),
+    ProductId(id: tip3, isConsumable: true, isOneTimePurchase: false),
   ];
 
   //ProductListForBiding
@@ -50,43 +49,51 @@ class _HomeScreenState extends State<HomeScreen> {
   int? selectedValue;
 
   //listener for homeScreen
-  listenPurchaseStream(List<PurchaseDetails> listenPurchaseDetails){
-    if(listenPurchaseDetails.isNotEmpty){
-      for(PurchaseDetails purchase in listenPurchaseDetails){
-        for(var id in productId){
-          if(id.id == purchase.productID){
-            if(purchase.status == PurchaseStatus.purchased){
-
+  listenPurchaseStream(List<PurchaseDetails> listenPurchaseDetails) {
+    if (listenPurchaseDetails.isNotEmpty) {
+      for (PurchaseDetails purchase in listenPurchaseDetails) {
+        for (var id in productId) {
+          if (id.id == purchase.productID) {
+            if (purchase.status == PurchaseStatus.purchased) {
               iApEngine.inAppPurchase.completePurchase(purchase);
-              Navigator.push(context, MaterialPageRoute(builder: (context) =>  ThankYouForTipScreen(isFromHome: true,),));
+              Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => ThankYouForTipScreen(
+                      isFromHome: true,
+                    ),
+                  ));
               homeStream.cancel();
-
-            }else if(purchase.status == PurchaseStatus.canceled){
-              AppUtils.snackBarFnc(ctx: context,contentText: "Your Purchase has been canceled");
+            } else if (purchase.status == PurchaseStatus.canceled) {
+              AppUtils.snackBarFnc(
+                  ctx: context, contentText: "Your Purchase has been canceled");
               homeStream.cancel();
-            }else if(purchase.status == PurchaseStatus.pending){
-              AppUtils.snackBarFnc(ctx: context,contentText: "Your Purchase is pending");
+            } else if (purchase.status == PurchaseStatus.pending) {
+              AppUtils.snackBarFnc(
+                  ctx: context, contentText: "Your Purchase is pending");
               homeStream.cancel();
             }
           }
-
         }
-
       }
     }
   }
 
-  getTipData(){
-    iApEngine.getIsAvailable().then((value) {
-      if(value){
-        iApEngine.queryProducts(productId).then((res) {
-          print("responseData${res.productDetails.length}");
-          setState(() {
-            subscriptionList = res.productDetails;
-          });
-        },);
-      }
-    },);
+  getTipData() {
+    iApEngine.getIsAvailable().then(
+      (value) {
+        if (value) {
+          iApEngine.queryProducts(productId).then(
+            (res) {
+              print("responseData${res.productDetails.length}");
+              setState(() {
+                subscriptionList = res.productDetails;
+              });
+            },
+          );
+        }
+      },
+    );
   }
 
   callHomeApi(HomeProvider homeProvider) {
@@ -96,24 +103,23 @@ class _HomeScreenState extends State<HomeScreen> {
     homeProvider.callGetAllCategoryAndTrack();
   }
 
-
   @override
   void initState() {
     // TODO: implement initState
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback(
-          (timeStamp) {
+      (timeStamp) {
         homeProvider = Provider.of<HomeProvider>(context, listen: false);
         callHomeApi(homeProvider);
-
       },
     );
-    homeStream = iApEngine.inAppPurchase.purchaseStream.listen((list) {
-      if(_isActive){
-        listenPurchaseStream(list);
-      }
-
-    },);
+    homeStream = iApEngine.inAppPurchase.purchaseStream.listen(
+      (list) {
+        if (_isActive) {
+          listenPurchaseStream(list);
+        }
+      },
+    );
     getTipData();
   }
 
@@ -124,7 +130,6 @@ class _HomeScreenState extends State<HomeScreen> {
 
     _isActive = false;
     super.dispose();
-
   }
 
   @override
@@ -187,11 +192,20 @@ class _HomeScreenState extends State<HomeScreen> {
                                             ?.categories?[index]
                                             .id,
                                       ),
-                                    )).then((value) {
-                                  savedMinutes = PreferenceHelper.getInt('totalPlayedTime') ?? 0;
-                                  daysOfMeditation = PreferenceHelper.getInt("daysOfMeditation") ?? 0;
-                                  sessions = PreferenceHelper.getInt("sessionCount") ?? 0;
-                                    },);
+                                    )).then(
+                                  (value) {
+                                    savedMinutes = PreferenceHelper.getInt(
+                                            'totalPlayedTime') ??
+                                        0;
+                                    daysOfMeditation = PreferenceHelper.getInt(
+                                            "daysOfMeditation") ??
+                                        0;
+                                    sessions = PreferenceHelper.getInt(
+                                            "sessionCount") ??
+                                        0;
+                                    setState(() {});
+                                  },
+                                );
                               },
                               child: Container(
                                 height: 120,
@@ -253,9 +267,8 @@ class _HomeScreenState extends State<HomeScreen> {
     );
   }
 
-
-
-  showTipDialogBox(BuildContext context, List<ProductDetails> subscriptionList) {
+  showTipDialogBox(
+      BuildContext context, List<ProductDetails> subscriptionList) {
     int selectedIndex = 0; // Default to the first item being selected
 
     return showDialog(
@@ -307,7 +320,8 @@ class _HomeScreenState extends State<HomeScreen> {
                           ),
                           const SizedBox(height: 12),
                           AppUtils.commonTextWidget(
-                            text: "Tip us to provide more free track, Select amount you want to tip us.",
+                            text:
+                                "Tip us to provide more free track, Select amount you want to tip us.",
                             fontSize: 14,
                             fontWeight: FontWeight.w400,
                             maxLines: 2,
@@ -321,11 +335,14 @@ class _HomeScreenState extends State<HomeScreen> {
                               padding: const EdgeInsets.only(bottom: 12),
                               child: Theme(
                                 data: ThemeData(
-                                  unselectedWidgetColor: AppColors.textFieldColor,
+                                  unselectedWidgetColor:
+                                      AppColors.textFieldColor,
                                 ),
                                 child: RadioListTile<int>(
-                                  fillColor: MaterialStateProperty.resolveWith((states) {
-                                    if (states.contains(MaterialState.selected)) {
+                                  fillColor: MaterialStateProperty.resolveWith(
+                                      (states) {
+                                    if (states
+                                        .contains(MaterialState.selected)) {
                                       return getPrimaryColor();
                                     }
                                     return AppColors.greyColor;
@@ -342,7 +359,7 @@ class _HomeScreenState extends State<HomeScreen> {
                                   ),
                                   value: index,
                                   groupValue: selectedIndex,
-                                  activeColor: getPrimaryColor(),
+                                  activeColor: AppColors.secondaryColor,
                                   onChanged: (value) {
                                     setState(() {
                                       selectedIndex = value!;
@@ -365,12 +382,14 @@ class _HomeScreenState extends State<HomeScreen> {
                             fontWeight: FontWeight.w500,
                             onPressed: () {
                               // Perform action with the selected index
-                              final selectedSubscription = subscriptionList[selectedIndex];
-                              iApEngine.handlePurchase(selectedSubscription, productId);
+                              final selectedSubscription =
+                                  subscriptionList[selectedIndex];
+                              iApEngine.handlePurchase(
+                                  selectedSubscription, productId);
                               Navigator.of(context).pop();
 
-                              print("Selected Tip Amount: ${selectedSubscription.price}");
-
+                              print(
+                                  "Selected Tip Amount: ${selectedSubscription.price}");
                             },
                           ),
                         ],
@@ -385,7 +404,6 @@ class _HomeScreenState extends State<HomeScreen> {
       },
     );
   }
-
 
   PreferredSizeWidget customAppBarWithRoundedCorners(BuildContext context) {
     return PreferredSize(
@@ -439,7 +457,7 @@ class _HomeScreenState extends State<HomeScreen> {
           actions: [
             GestureDetector(
               onTap: () {
-                showTipDialogBox(context,subscriptionList);
+                showTipDialogBox(context, subscriptionList);
               },
               child: AppUtils.commonContainer(
                 padding: const EdgeInsets.all(8),

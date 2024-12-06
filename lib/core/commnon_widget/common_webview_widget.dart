@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_inappwebview/flutter_inappwebview.dart';
 import 'package:meditationapp/core/app_colors.dart';
 import 'package:meditationapp/core/app_utils.dart';
+import 'package:meditationapp/core/constants.dart';
 import 'package:meditationapp/core/theme/theme_manager.dart';
 
 class CommonWebViewWidget extends StatefulWidget {
@@ -78,7 +79,7 @@ class _CommonWebViewWidgetState extends State<CommonWebViewWidget> {
                   : const Center(
                       child: Text(
                         "Invalid URL",
-                        style: TextStyle(fontSize: 16, color: Colors.red),
+                        style: TextStyle(fontSize: 16, color: Colors.red,fontFamily: fontFamily),
                       ),
                     ),
               isLoading
