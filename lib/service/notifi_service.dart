@@ -30,26 +30,21 @@ class NotificationService {
             importance: Importance.max),
         iOS: DarwinNotificationDetails());
   }
-  //
-  // Future showNotification(
-  //     { int? id, String? title, String? body, String? payLoad}) async {
-  //   return notificationsPlugin.show(
-  //       id ?? 0, title, body, await notificationDetails());
-  // }
+
+  Future showNotification(
+      { int? id, String? title, String? body, String? payLoad}) async {
+    return notificationsPlugin.show(
+        id ?? 0, title, body, await notificationDetails());
+  }
 
   Future<void> scheduleWeeklyNotifications(List<int> weekdays,
       TimeOfDay time,
       int id) async {
-    print("notificationId$id");
-    print("weekdays$weekdays");
+
     for (var weekday in weekdays) {
-      print("week____$weekday");
       var scheduleDate = DateTime.now();
       scheduleDate = _getNextWeekday(scheduleDate, weekday,time);
-      print("schdeuleDates$scheduleDate");
       scheduleDate = DateTime(scheduleDate.year,scheduleDate.month,scheduleDate.day,time.hour, time.minute);
-      print("Local Date: ${scheduleDate.toString()}");
-      print("TZDateTime: ${tz.TZDateTime.from(scheduleDate, tz.local)}");
 
       var androidDetails = const AndroidNotificationDetails(
         'weekly_notification_channel',
@@ -82,7 +77,6 @@ class NotificationService {
     }
   }
 
-  // Helper function to get the next weekday date
   DateTime _getNextWeekday(DateTime currentDate, int weekday, TimeOfDay targetTime) {
     print("weekDay$weekday");
     int daysToAdd = (weekday - currentDate.weekday) % 7;

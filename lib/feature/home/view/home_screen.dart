@@ -6,6 +6,7 @@ import 'package:in_app_purchase/in_app_purchase.dart';
 import 'package:meditationapp/core/app_colors.dart';
 import 'package:meditationapp/core/app_utils.dart';
 import 'package:meditationapp/core/commnon_widget/common_drawer_widget.dart';
+import 'package:meditationapp/core/constants.dart';
 import 'package:meditationapp/core/storage/preference_helper.dart';
 import 'package:meditationapp/core/theme/icon_path.dart';
 import 'package:meditationapp/core/theme/theme_manager.dart';
@@ -28,12 +29,12 @@ class _HomeScreenState extends State<HomeScreen> {
   late HomeProvider homeProvider;
   int savedMinutes = 0;
   int daysOfMeditation = 0;
-  late StreamSubscription _homeStream;
+  int sessions = 0;
+  late StreamSubscription homeStream;
+  bool _isActive = true;
 
   //Id
-  static const String tip1 = 'com.dhyanlife.app.product.tip1';
-  static const String tip2 = 'com.dhyanlife.app.product.tip2';
-  static const String tip3 = 'com.dhyanlife.app.product.tip3';
+
 
   //ProductIdList
   late final List<ProductId> productId = [
@@ -52,16 +53,25 @@ class _HomeScreenState extends State<HomeScreen> {
   listenPurchaseStream(List<PurchaseDetails> listenPurchaseDetails){
     if(listenPurchaseDetails.isNotEmpty){
       for(PurchaseDetails purchase in listenPurchaseDetails){
+        for(var id in productId){
+          if(id.id == purchase.productID){
             if(purchase.status == PurchaseStatus.purchased){
-              Navigator.push(context, MaterialPageRoute(builder: (context) => const ThankYouForTipScreen(),));
+
               iApEngine.inAppPurchase.completePurchase(purchase);
-              _homeStream.cancel();
+              Navigator.push(context, MaterialPageRoute(builder: (context) =>  ThankYouForTipScreen(isFromHome: true,),));
+              homeStream.cancel();
 
             }else if(purchase.status == PurchaseStatus.canceled){
               AppUtils.snackBarFnc(ctx: context,contentText: "Your Purchase has been canceled");
+              homeStream.cancel();
             }else if(purchase.status == PurchaseStatus.pending){
               AppUtils.snackBarFnc(ctx: context,contentText: "Your Purchase is pending");
+              homeStream.cancel();
             }
+          }
+
+        }
+
       }
     }
   }
@@ -82,12 +92,8 @@ class _HomeScreenState extends State<HomeScreen> {
   callHomeApi(HomeProvider homeProvider) {
     savedMinutes = PreferenceHelper.getInt('totalPlayedTime') ?? 0;
     daysOfMeditation = PreferenceHelper.getInt("daysOfMeditation") ?? 0;
-    homeProvider.callGetAllCategoryAndTrack().then((value) {
-      _homeStream = iApEngine.inAppPurchase.purchaseStream.listen((list) {
-        listenPurchaseStream(list);
-      },);
-      getTipData();
-    },);
+    sessions = PreferenceHelper.getInt("sessionCount") ?? 0;
+    homeProvider.callGetAllCategoryAndTrack();
   }
 
 
@@ -99,15 +105,24 @@ class _HomeScreenState extends State<HomeScreen> {
           (timeStamp) {
         homeProvider = Provider.of<HomeProvider>(context, listen: false);
         callHomeApi(homeProvider);
+
       },
     );
-  }
+    homeStream = iApEngine.inAppPurchase.purchaseStream.listen((list) {
+      if(_isActive){
+        listenPurchaseStream(list);
+      }
 
+    },);
+    getTipData();
+  }
 
   @override
   void dispose() {
     // TODO: implement dispose
-    _homeStream.cancel();
+    homeStream.cancel();
+
+    _isActive = false;
     super.dispose();
 
   }
@@ -131,6 +146,7 @@ class _HomeScreenState extends State<HomeScreen> {
       )),
       drawer: CommonDrawerWidget(
         advancedDrawerController: _advancedDrawerController,
+        streamSubscription: homeStream,
       ),
       child: Scaffold(
         backgroundColor: getScaffoldColor(),
@@ -149,6 +165,7 @@ class _HomeScreenState extends State<HomeScreen> {
                           itemBuilder: (context, index) {
                             return GestureDetector(
                               onTap: () {
+                                homeStream.cancel();
                                 Navigator.push(
                                     context,
                                     MaterialPageRoute(
@@ -170,7 +187,11 @@ class _HomeScreenState extends State<HomeScreen> {
                                             ?.categories?[index]
                                             .id,
                                       ),
-                                    ));
+                                    )).then((value) {
+                                  savedMinutes = PreferenceHelper.getInt('totalPlayedTime') ?? 0;
+                                  daysOfMeditation = PreferenceHelper.getInt("daysOfMeditation") ?? 0;
+                                  sessions = PreferenceHelper.getInt("sessionCount") ?? 0;
+                                    },);
                               },
                               child: Container(
                                 height: 120,
@@ -220,7 +241,7 @@ class _HomeScreenState extends State<HomeScreen> {
                   bottomCustomRow(savedMinutes.toString().padLeft(2, '0'),
                       "Min of Meditation"),
                   bottomCustomRow(
-                      0.toString().padLeft(2, '0'), "Session Completed"),
+                      sessions.toString().padLeft(2, '0'), "Session Completed"),
                   bottomCustomRow(daysOfMeditation.toString().padLeft(2, '0'),
                       "Days of Meditation"),
                 ],

@@ -16,18 +16,16 @@ class HomeProvider with ChangeNotifier {
   List<Categories> categories = [];
   List<Tracks> tracks = [];
 
-  double _progress = 0.0;
+  ValueNotifier<double> progress = ValueNotifier(0.0);
 
-  double get progress => _progress;
+
 
   void freshProgress(){
-    _progress = 0.0;
-    notifyListeners();
+    progress.value = 0.0;
   }
 
   void updateProgress(double value) {
-    _progress = value;
-    notifyListeners();
+    progress.value = value;
   }
 
   Future<bool> downloadAudio(BuildContext context, url, filePath) async {

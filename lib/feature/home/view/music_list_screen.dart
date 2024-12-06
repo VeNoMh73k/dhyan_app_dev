@@ -8,6 +8,7 @@ import 'package:meditationapp/core/theme/theme_manager.dart';
 import 'package:meditationapp/feature/home/models/get_all_category_and_track.dart';
 import 'package:meditationapp/feature/home/provider/home_provider.dart';
 import 'package:meditationapp/feature/home/view/audio_player_page.dart';
+import 'package:meditationapp/main.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:provider/provider.dart';
 
@@ -87,8 +88,7 @@ class _MusicListScreenState extends State<MusicListScreen> {
     provider.downloadAudio(context, audioUrl, filePath).then((value) async {
       setState(() {
         if (value) {
-          final track = filteredList
-              .firstWhere((element) => element.trackUrl == audioUrl);
+          final track = filteredList.firstWhere((element) => element.trackUrl == audioUrl);
           track.isDownloaded = true;
           track.filePath = filePath;
           saveDownloadedData(audioUrl, filePath); // Save to SharedPreferences
@@ -223,11 +223,11 @@ class _MusicListScreenState extends State<MusicListScreen> {
                           // centerTitle: _showAppBarTitle ?  true : false,
                           title: _showAppBarTitle.value
                               ? Row(
-                                  mainAxisAlignment:
-                                      MainAxisAlignment.spaceBetween,
+                                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                  crossAxisAlignment: CrossAxisAlignment.center,
                                   children: [
                                     Padding(
-                                      padding: const EdgeInsets.only(left: 12),
+                                      padding: const EdgeInsets.only(left: 10),
                                       child: AppUtils.backButton(
                                         onTap: () {
                                           Navigator.pop(context);
@@ -235,23 +235,10 @@ class _MusicListScreenState extends State<MusicListScreen> {
                                       ),
                                     ),
 
-                                    // GestureDetector(
-                                    //   onTap: () {
-                                    //     Navigator.pop(context);
-                                    //   },
-                                    //   child: Container(
-                                    //     margin: const EdgeInsets.only(
-                                    //         left: 12, bottom: 0, right: 0),
-                                    //     padding: const EdgeInsets.all(4),
-                                    //     child: Icon(
-                                    //       Icons.arrow_back,
-                                    //       color: AppColors.whiteColor,
-                                    //     ),
-                                    //   ),
-                                    // ),
+
                                     AppUtils.commonTextWidget(
                                         text:
-                                            widget.categoryName ?? "Spiritual",
+                                            widget.categoryName ?? "",
                                         fontSize: 22,
                                         fontWeight: FontWeight.w700,
                                         textColor: AppColors.whiteColor),
@@ -311,21 +298,7 @@ class _MusicListScreenState extends State<MusicListScreen> {
                                               onTap: () {
                                                 Navigator.pop(context);
                                               },
-                                            )), /*GestureDetector(
-                                          onTap: () {
-                                            Navigator.pop(context);
-                                          },
-                                          child: Container(
-                                            margin: const EdgeInsets.only(
-                                                top: 32, left: 12),
-                                            // Adjust as needed for spacing
-                                            padding: const EdgeInsets.all(8),
-                                            child: Icon(
-                                              Icons.arrow_back,
-                                              color: AppColors.whiteColor,
-                                            ),
-                                          ),
-                                        ),*/
+                                            )),
                                       ),
                                 // "Spiritual" text and sort icon at the bottom
                                 Align(
@@ -496,7 +469,7 @@ class _MusicListScreenState extends State<MusicListScreen> {
                                       const SizedBox(width: 8),
                                       // Space before action button
 
-                                      GestureDetector(
+                                      isSubscribe ? GestureDetector(
                                         onTap: () {
                                           if (filteredList[index]
                                                   .isDownloaded ??
@@ -537,49 +510,142 @@ class _MusicListScreenState extends State<MusicListScreen> {
                                                     '');
                                           }
                                         },
-                                        child: Container(
-                                          height: 40,
-                                          width: 40,
-                                          // padding: const EdgeInsets.all(4),
-                                          decoration: BoxDecoration(
-                                            color: getTipIconColor(),
-                                            borderRadius:
-                                                const BorderRadius.all(
-                                                    Radius.circular(4)),
-                                          ),
-                                          child: filteredList[index]
-                                                      .isDownloading ??
-                                                  false
-                                              ? Padding(
-                                                  padding:
-                                                      const EdgeInsets.all(5),
-                                                  child: Center(
-                                                    child: AppUtils
-                                                        .commonTextWidget(
-                                                      text:
-                                                          "${homeProvider.progress.toStringAsFixed(0).padLeft(2, '0')}%",
-                                                      textColor: getTextColor(),
-                                                      fontWeight:
-                                                          FontWeight.w500,
-                                                      fontSize: 14,
-                                                    ),
-                                                  ),
-                                                )
-                                              : Icon(
-                                                  filteredList[index]
-                                                              .isDownloaded ??
-                                                          false
-                                                      ? Icons.play_arrow_rounded
-                                                      : Icons
-                                                          .arrow_downward_rounded,
-                                                  color: AppColors.blackColor,
-                                                  size: filteredList[index]
-                                                              .isDownloaded ??
-                                                          false
-                                                      ? 32
-                                                      : 28,
+                                        child: ValueListenableBuilder(valueListenable: homeProvider.progress, builder: (context, value, child) {
+                                          return Container(
+                                            height: 40,
+                                            width: 40,
+                                            // padding: const EdgeInsets.all(4),
+                                            decoration: BoxDecoration(
+                                              color: getTipIconColor(),
+                                              borderRadius:
+                                              const BorderRadius.all(
+                                                  Radius.circular(4)),
+                                            ),
+                                            child: filteredList[index]
+                                                .isDownloading ??
+                                                false
+                                                ? Padding(
+                                              padding:
+                                              const EdgeInsets.all(5),
+                                              child: Center(
+                                                child: AppUtils
+                                                    .commonTextWidget(
+                                                  text:
+                                                  "${homeProvider.progress.value.toStringAsFixed(0).padLeft(2, '0')}%",
+                                                  textColor: getTextColor(),
+                                                  fontWeight:
+                                                  FontWeight.w500,
+                                                  fontSize: 12,
                                                 ),
-                                        ),
+                                              ),
+                                            )
+                                                : Icon(
+                                              filteredList[index]
+                                                  .isDownloaded ??
+                                                  false
+                                                  ? Icons.play_arrow_rounded
+                                                  : Icons
+                                                  .arrow_downward_rounded,
+                                              color: AppColors.blackColor,
+                                              size: filteredList[index]
+                                                  .isDownloaded ??
+                                                  false
+                                                  ? 32
+                                                  : 28,
+                                            ),
+                                          );
+                                        },),
+                                      ) :  GestureDetector(
+                                        onTap: () {
+                                          if(filteredList[index].isPaid == false){
+                                            if (filteredList[index]
+                                                .isDownloaded ??
+                                                false) {
+                                              Navigator.push(
+                                                  context,
+                                                  MaterialPageRoute(
+                                                    builder: (context) =>
+                                                        AudioPlayerPage(
+                                                          audioDescription:
+                                                          filteredList[index]
+                                                              .description ??
+                                                              '',
+                                                          trackId: filteredList[index]
+                                                              .id
+                                                              .toString(),
+                                                          minutes: int.parse(
+                                                              filteredList[index]
+                                                                  .duration
+                                                                  .toString()),
+                                                          imgUrl: filteredList[index]
+                                                              .imageUrl ??
+                                                              '',
+                                                          audioTitle:
+                                                          filteredList[index]
+                                                              .title ??
+                                                              '',
+                                                          filePath:
+                                                          filteredList[index]
+                                                              .filePath ??
+                                                              '',
+                                                        ),
+                                                  ));
+                                            } else {
+                                              callDownloadAudioApi(
+                                                  homeProvider,
+                                                  filteredList[index].trackUrl ??
+                                                      '');
+                                            }
+                                          }else{
+                                            print("go to Subscribe");
+                                          }
+
+                                        },
+                                        child: ValueListenableBuilder(valueListenable: homeProvider.progress, builder: (context, value, child) {
+                                          return Container(
+                                            height: 40,
+                                            width: 40,
+                                            // padding: const EdgeInsets.all(4),
+                                            decoration: BoxDecoration(
+                                              color: getTipIconColor(),
+                                              borderRadius:
+                                              const BorderRadius.all(
+                                                  Radius.circular(4)),
+                                            ),
+                                            child: filteredList[index].isPaid == false ? filteredList[index]
+                                                .isDownloading ??
+                                                false
+                                                ? Padding(
+                                              padding:
+                                              const EdgeInsets.all(5),
+                                              child: Center(
+                                                child: AppUtils
+                                                    .commonTextWidget(
+                                                  text:
+                                                  "${homeProvider.progress.value.toStringAsFixed(0).padLeft(2, '0')}%",
+                                                  textColor: getTextColor(),
+                                                  fontWeight:
+                                                  FontWeight.w500,
+                                                  fontSize: 12,
+                                                ),
+                                              ),
+                                            )
+                                                : Icon(
+                                              filteredList[index]
+                                                  .isDownloaded ??
+                                                  false
+                                                  ? Icons.play_arrow_rounded
+                                                  : Icons
+                                                  .arrow_downward_rounded,
+                                              color: AppColors.blackColor,
+                                              size: filteredList[index]
+                                                  .isDownloaded ??
+                                                  false
+                                                  ? 32
+                                                  : 28,
+                                            ) : Icon(Icons.lock, size: 26,color: AppColors.blackColor,),
+                                          );
+                                        },),
                                       ),
                                     ],
                                   ),

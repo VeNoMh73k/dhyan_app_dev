@@ -1,3 +1,9 @@
+import 'dart:io';
+
+import 'package:firebase_core/firebase_core.dart';
+import 'package:firebase_crashlytics/firebase_crashlytics.dart';
+import 'package:firebase_messaging/firebase_messaging.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
 import 'package:flutter/services.dart';
@@ -5,19 +11,38 @@ import 'package:in_app_purchase/in_app_purchase.dart';
 import 'package:meditationapp/core/storage/preference_helper.dart';
 import 'package:meditationapp/feature/home/provider/home_provider.dart';
 import 'package:meditationapp/feature/splash/view/spash_screen.dart';
+import 'package:meditationapp/firebase_options.dart';
+import 'package:meditationapp/service/fcm_notification_service.dart';
 import 'package:meditationapp/service/notifi_service.dart';
 import 'package:provider/provider.dart';
 import 'package:provider/single_child_widget.dart';
 import 'package:timezone/data/latest.dart' as tz;
 
 GlobalKey<NavigatorState> navigatorKey = GlobalKey<NavigatorState>();
+bool isSubscribe = false;
+
 List<SingleChildWidget> providers = [
   ChangeNotifierProvider<HomeProvider>(create: (_) => HomeProvider()),
 ];
 ThemeData? currentTheme;
 
+
+
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
+  await Firebase.initializeApp(
+    options: DefaultFirebaseOptions.currentPlatform,
+  );
+  if (Platform.isAndroid) {
+    FlutterError.onError = (errorDetails) {
+      FirebaseCrashlytics.instance.recordFlutterFatalError(errorDetails);
+    };
+    PlatformDispatcher.instance.onError = (error, stack) {
+      FirebaseCrashlytics.instance.recordError(error, stack, fatal: true);
+      return true;
+    };
+  }
+  await PushNotificationService().initializePushNotification();
   // Initialize the timezone plugin
   NotificationService().initNotification();
   tz.initializeTimeZones();
@@ -52,24 +77,19 @@ class _MyAppState extends State<MyApp> with WidgetsBindingObserver {
   @override
   void initState() {
     super.initState();
+    getFcmToken();
 
-    check();
-    var brightness = SchedulerBinding.instance.platformDispatcher.platformBrightness;
-    currentTheme =/*
-    brightness == Brightness.dark ? ThemeData.dark() : */ThemeData.light();
+
+    // check();
+    currentTheme =
+    ThemeData.light();
     var dispatcher = SchedulerBinding.instance.platformDispatcher;
 
-    // This callback is called every time the brightness changes.
     dispatcher.onPlatformBrightnessChanged = () {
       print("change");
-      var brightness = dispatcher.platformBrightness;
 
-      // currentTheme =
-      //     brightness == Brightness.dark ? ThemeData.dark() : ThemeData.light();
-     /* brightness == Brightness.dark
-              ? currentTheme = ThemeData.dark()
-              : */currentTheme = ThemeData.light();
-      print("currentTheme${currentTheme}");
+      currentTheme = ThemeData.light();
+      print("currentTheme$currentTheme");
       print("currentTheme${ThemeData.dark()}");
       print("currentTheme${currentTheme == ThemeData.dark()}");
       setState(() {
@@ -79,16 +99,18 @@ class _MyAppState extends State<MyApp> with WidgetsBindingObserver {
 
   }
 
-  check()async{
-    final bool available = await InAppPurchase.instance.isAvailable();
-    if (!available) {
-      print("not_Available");
-      // The store cannot be reached or accessed. Update the UI accordingly.
-    }else{
-      print("Available");
-    }
 
+  getFcmToken()async{
+   String? fcmToken = PreferenceHelper.getString("FCM_TOKEN") ?? "";
+   if(fcmToken == ""){
+     fcmToken = await FirebaseMessaging.instance.getToken();
+   }else{
+     return fcmToken;
+   }
+   print("FCMToke$fcmToken");
+   return fcmToken;
   }
+
 
   // @override
   // void didChangePlatformBrightness() {
@@ -103,9 +125,6 @@ class _MyAppState extends State<MyApp> with WidgetsBindingObserver {
   //   });
   // }
 
-  listner(){
-
-  }
 
   @override
   Widget build(BuildContext context) {

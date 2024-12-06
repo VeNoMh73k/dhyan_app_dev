@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "368910135877",
+    "project_id": "dhyan-7c55d",
+    "storage_bucket": "dhyan-7c55d.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:368910135877:android:4166b9160e347a3a6ee92c",
+        "android_client_info": {
+          "package_name": "com.dhyanlife.app"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDWc3e5BZI89LEbtxhEeMx-yQJiRf6AzLY"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

@@ -34,7 +34,6 @@ class _SplashScreenState extends State<SplashScreen> {
         } else {
           // Not subscribed
           updateSubscriptionStatus(false);
-          PreferenceHelper.setDouble("rawPrice", 0.0);
           print("NotSubscribed");
           _navigateToHomeScreen();
         }

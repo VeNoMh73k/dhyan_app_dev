@@ -1,13 +1,19 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_rating/flutter_rating.dart';
+import 'package:in_app_purchase/in_app_purchase.dart';
 import 'package:meditationapp/core/app_colors.dart';
 import 'package:meditationapp/core/app_utils.dart';
+import 'package:meditationapp/core/commnon_widget/common_tip_dialog_widget.dart';
+import 'package:meditationapp/core/constants.dart';
 import 'package:meditationapp/core/image_path.dart';
 import 'package:meditationapp/core/storage/preference_helper.dart';
 import 'package:meditationapp/core/theme/theme_manager.dart';
 import 'package:meditationapp/feature/feedback/view/thankyou_for_tip_screen.dart';
 import 'package:meditationapp/feature/home/view/home_screen.dart';
 import 'package:meditationapp/feature/subscription/view/subscription_screen.dart';
+import 'package:onepref/onepref.dart';
 
 class FeedbackScreen extends StatefulWidget {
   String? titleName;
@@ -20,11 +26,76 @@ class FeedbackScreen extends StatefulWidget {
 }
 
 class _FeedbackScreenState extends State<FeedbackScreen> {
+
+  late StreamSubscription feedbackStream;
+
+  IApEngine iApEngine = IApEngine();
+
+
+  late final List<ProductId> productId = [
+    ProductId(id: tip1, isConsumable: true,isOneTimePurchase: false),
+    ProductId(id: tip2, isConsumable: true,isOneTimePurchase: false),
+    ProductId(id: tip3, isConsumable: true,isOneTimePurchase: false),
+  ];
+
+  List<ProductDetails> inAppProductList = [];
+
   @override
   void initState() {
     // TODO: implement initState
     super.initState();
+
+    feedbackStream = iApEngine.inAppPurchase.purchaseStream.listen((list) {
+        listenPurchaseStream(list);
+
+    },);
+
     getInitialFav();
+
+    getTipData();
+  }
+
+
+
+
+  listenPurchaseStream(List<PurchaseDetails> listenPurchaseDetails){
+    if(listenPurchaseDetails.isNotEmpty){
+      for(PurchaseDetails purchase in listenPurchaseDetails){
+        for(var id in productId){
+          if(id.id == purchase.productID){
+            if(purchase.status == PurchaseStatus.purchased){
+
+              iApEngine.inAppPurchase.completePurchase(purchase);
+              feedbackStream.cancel();
+              Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => ThankYouForTipScreen(isFromHome: false,),));
+
+
+            }else if(purchase.status == PurchaseStatus.canceled){
+              AppUtils.snackBarFnc(ctx: context,contentText: "Your Purchase has been canceled");
+              feedbackStream.cancel();
+            }else if(purchase.status == PurchaseStatus.pending){
+              AppUtils.snackBarFnc(ctx: context,contentText: "Your Purchase is pending");
+              feedbackStream.cancel();
+            }
+          }
+
+        }
+
+      }
+    }
+  }
+
+  getTipData(){
+    iApEngine.getIsAvailable().then((value) {
+      if(value){
+        iApEngine.queryProducts(productId).then((res) {
+          print("responseData${res.productDetails.length}");
+          setState(() {
+            inAppProductList = res.productDetails;
+          });
+        },);
+      }
+    },);
   }
 
   bool savedFavVar = false;
@@ -45,11 +116,19 @@ class _FeedbackScreenState extends State<FeedbackScreen> {
   }
 
   goBack() {
-    Navigator.pushReplacement(
-        context,
-        MaterialPageRoute(
-          builder: (context) => const HomeScreen(),
-        ));
+    // Navigator.pushReplacement(
+    //     context,
+    //     MaterialPageRoute(
+    //       builder: (context) => const HomeScreen(),
+    //     ));
+    Navigator.pop(context);
+  }
+
+  @override
+  void dispose() {
+    // TODO: implement dispose
+    feedbackStream.cancel();
+    super.dispose();
   }
 
   @override
@@ -131,7 +210,6 @@ class _FeedbackScreenState extends State<FeedbackScreen> {
                       TextButton(
                         onPressed: () {
                           Navigator.pop(context);
-                          Navigator.pop(context);
                         },
                         child: AppUtils.commonTextWidget(
                           text: "Start New Track",
@@ -193,13 +271,7 @@ class _FeedbackScreenState extends State<FeedbackScreen> {
                         child: AppUtils.commonElevatedButton(
                           text: "Tip₹${100.00}",
                           onPressed: () {
-                            //Navigate to Thank you page
-                            Navigator.pushReplacement(
-                                context,
-                                MaterialPageRoute(
-                                  builder: (context) =>
-                                      const ThankYouForTipScreen(),
-                                ));
+                            showTipDialogBox(context,inAppProductList);
                           },
                         ),
                       ),
@@ -361,4 +433,25 @@ class _FeedbackScreenState extends State<FeedbackScreen> {
           });
         });
   }
+
+
+  void showTipDialogBox(BuildContext context, List<ProductDetails> list) {
+    showDialog(
+      context: context,
+      builder: (context) {
+        return CommonDialog(
+          title: "Tip Us",
+          description: "Tip us to provide more free track, Select the amount you want to tip us.",
+          options: list.map((e) => e.price).toList(),
+          onSubmit: (selectedIndex) {
+            final selectedSubscription = list[selectedIndex];
+            iApEngine.handlePurchase(selectedSubscription, productId);
+
+            print("Selected Tip Amount: ${selectedSubscription.price}");
+          },
+        );
+      },
+    );
+  }
+
 }

@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_advanced_drawer/flutter_advanced_drawer.dart';
 import 'package:meditationapp/core/app_colors.dart';
@@ -12,8 +14,9 @@ import 'package:meditationapp/feature/subscription/view/subscription_screen.dart
 
 class CommonDrawerWidget extends StatefulWidget {
   AdvancedDrawerController? advancedDrawerController;
+  StreamSubscription? streamSubscription;
 
-  CommonDrawerWidget({super.key, this.advancedDrawerController});
+  CommonDrawerWidget({super.key, this.advancedDrawerController,this.streamSubscription});
 
   @override
   State<CommonDrawerWidget> createState() => _CommonDrawerWidgetState();
@@ -38,19 +41,7 @@ class _CommonDrawerWidgetState extends State<CommonDrawerWidget> {
                 color: getTextColor(),
               ),
             ),
-            // GestureDetector(
-            //   onTap: () {
-            //   },
-            //   child: AppUtils.commonContainer(
-            //     padding: EdgeInsets.all(4),
-            //     color: Colors.transparent,
-            //     child: Icon(
-            //       Icons.close,
-            //       color: getTextColor(),
-            //       size: 26,
-            //     ),
-            //   ),
-            // ),
+
             const SizedBox(
               height: 30,
             ),
@@ -60,6 +51,7 @@ class _CommonDrawerWidgetState extends State<CommonDrawerWidget> {
               () {
                 //Navigate to Subscription Page
                 widget.advancedDrawerController?.hideDrawer();
+                widget.streamSubscription?.cancel();
                 Navigator.push(
                     context,
                     MaterialPageRoute(

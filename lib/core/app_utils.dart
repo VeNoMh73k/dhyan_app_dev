@@ -175,7 +175,7 @@ class AppUtils {
           decoration: decoration ?? TextDecoration.none),
       textAlign: textAlign ?? TextAlign.start, // Default alignment is start
       maxLines: maxLines, // Optional parameter for max lines
-      overflow: overflow ?? TextOverflow.ellipsis, // Default overflow behavior
+      overflow: overflow ?? TextOverflow.visible, // Default overflow behavior
     );
   }
 

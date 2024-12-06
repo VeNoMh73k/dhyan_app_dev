@@ -20,3 +20,9 @@ const Map<String, String> header = {
   'apikey' : 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImJpaHBoZnNmeG10eWd3eWp5d3p5Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3MzIxMTAyNTIsImV4cCI6MjA0NzY4NjI1Mn0.EGPPEXTNVyn9kcnNc2FPgTEkDeFuNwITakwikGpbNMU',
   'Authorization' : 'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImJpaHBoZnNmeG10eWd3eWp5d3p5Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3MzIxMTAyNTIsImV4cCI6MjA0NzY4NjI1Mn0.EGPPEXTNVyn9kcnNc2FPgTEkDeFuNwITakwikGpbNMU'
 };
+
+
+
+ const String tip1 = 'com.dhyanlife.app.product.tip1';
+ const String tip2 = 'com.dhyanlife.app.product.tip2';
+ const String tip3 = 'com.dhyanlife.app.product.tip3';
