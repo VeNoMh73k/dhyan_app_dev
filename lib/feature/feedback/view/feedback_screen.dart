@@ -284,7 +284,7 @@ class _FeedbackScreenState extends State<FeedbackScreen> {
                                 context,
                                 MaterialPageRoute(
                                   builder: (context) =>
-                                      const SubscriptionScreen(),
+                                      SubscriptionScreen(),
                                 ));
                           },
                         ),

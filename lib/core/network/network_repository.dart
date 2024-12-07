@@ -25,6 +25,9 @@ Future<dynamic> callPostMethodApi(String url) async {
 
   if (await AppUtils.checkInterAvailability()) {
     final response = await Dio().post(url, options: Options(headers: header));
+    if (kDebugMode) {
+      print(response);
+    }
 
     return response;
   } else {

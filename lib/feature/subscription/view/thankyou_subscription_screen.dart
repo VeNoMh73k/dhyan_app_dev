@@ -56,7 +56,6 @@ class ThankYouSubscriptionScreen extends StatelessWidget {
                 rightMargin: width * 0.2,
                 text: "Continue Meditation",
                 onPressed: () {
-                  //move to list Screen
                  Navigator.pop(context);
                 },
               )

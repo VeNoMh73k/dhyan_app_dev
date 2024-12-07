@@ -1,3 +1,5 @@
+import 'package:flutter/material.dart';
+
 class GetAllCategoryAndTracks {
   List<Categories>? categories;
   List<Tracks>? tracks;
@@ -38,6 +40,7 @@ class Categories {
   String? bannerImageUrl;
   String? createdAt;
   List<int>? trackIds;
+  String? textSide;
 
   Categories(
       {this.id,
@@ -45,7 +48,9 @@ class Categories {
         this.imageUrl,
         this.bannerImageUrl,
         this.createdAt,
-        this.trackIds});
+        this.trackIds,
+        this.textSide
+      });
 
   Categories.fromJson(Map<String, dynamic> json) {
     id = json['id'];
@@ -54,6 +59,7 @@ class Categories {
     bannerImageUrl = json['banner_image_url'];
     createdAt = json['created_at'];
     trackIds = json['track_ids'].cast<int>();
+    textSide = json['text_side'];
   }
 
   Map<String, dynamic> toJson() {
@@ -64,6 +70,7 @@ class Categories {
     data['banner_image_url'] = this.bannerImageUrl;
     data['created_at'] = this.createdAt;
     data['track_ids'] = this.trackIds;
+    data['text_side'] = this.textSide;
     return data;
   }
 }
@@ -83,7 +90,7 @@ class Tracks {
   String? filePath;
   bool? isDownloading;
   List<int>? categoryIds;
-  int? downloadProgress;
+  ValueNotifier<double>? downloadProgress = ValueNotifier(0.0);
 
   Tracks(
       {this.id,
@@ -118,7 +125,6 @@ class Tracks {
     filePath = json['filePath'];
     isDownloading = json['isDownloading'];
     categoryIds = json['category_ids'].cast<int>();
-    downloadProgress = json['downloadProgress'];
   }
 
   Map<String, dynamic> toJson() {
@@ -137,7 +143,6 @@ class Tracks {
     data['filePath'] = this.filePath;
     data['isDownloading'] = this.isDownloading;
     data['category_ids'] = this.categoryIds;
-    data['downloadProgress'] = this.downloadProgress;
 
     return data;
   }

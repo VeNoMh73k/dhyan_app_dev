@@ -9,14 +9,13 @@ import 'package:meditationapp/core/app_colors.dart';
 import 'package:meditationapp/core/app_utils.dart';
 import 'package:meditationapp/core/storage/preference_helper.dart';
 import 'package:meditationapp/core/theme/theme_manager.dart';
-import 'package:meditationapp/feature/home/view/home_screen.dart';
 import 'package:meditationapp/feature/subscription/view/thankyou_subscription_screen.dart';
 import 'package:meditationapp/main.dart';
 import 'package:onepref/onepref.dart';
 import 'package:in_app_purchase_android/in_app_purchase_android.dart';
 
 class SubscriptionScreen extends StatefulWidget {
-  const SubscriptionScreen({super.key});
+  SubscriptionScreen({super.key});
 
   @override
   State<SubscriptionScreen> createState() => _SubscriptionScreenState();

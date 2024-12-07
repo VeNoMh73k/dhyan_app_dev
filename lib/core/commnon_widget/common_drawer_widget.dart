@@ -14,15 +14,25 @@ import 'package:meditationapp/feature/subscription/view/subscription_screen.dart
 
 class CommonDrawerWidget extends StatefulWidget {
   AdvancedDrawerController? advancedDrawerController;
-  StreamSubscription? streamSubscription;
-
-  CommonDrawerWidget({super.key, this.advancedDrawerController,this.streamSubscription});
+  StreamSubscription streamSubscription;
+  Function? onItemClick;
+  Function? onReturnFromItem;
+  CommonDrawerWidget({super.key, this.advancedDrawerController,required this.streamSubscription,this.onItemClick,this.onReturnFromItem});
 
   @override
   State<CommonDrawerWidget> createState() => _CommonDrawerWidgetState();
 }
 
+
+
 class _CommonDrawerWidgetState extends State<CommonDrawerWidget> {
+
+  @override
+  void dispose() {
+    // TODO: implement dispose
+    widget.streamSubscription.cancel();
+    super.dispose();
+  }
   @override
   Widget build(BuildContext context) {
     return SafeArea(
@@ -48,15 +58,21 @@ class _CommonDrawerWidgetState extends State<CommonDrawerWidget> {
             commonRow(
               subscriptionIcon,
               "Subscription",
-              () {
-                //Navigate to Subscription Page
+              ()async {
                 widget.advancedDrawerController?.hideDrawer();
-                widget.streamSubscription?.cancel();
+                if(widget.onItemClick != null){
+                  widget.onItemClick!();
+                }
+
                 Navigator.push(
                     context,
                     MaterialPageRoute(
-                      builder: (context) => const SubscriptionScreen(),
-                    ));
+                      builder: (context) =>  SubscriptionScreen(),
+                    )).then((value) {
+                  if(widget.onReturnFromItem != null){
+                    widget.onReturnFromItem!();
+                  }
+                    },);
               },
             ),
             commonRow(

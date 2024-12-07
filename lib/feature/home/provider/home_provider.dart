@@ -20,15 +20,15 @@ class HomeProvider with ChangeNotifier {
 
 
 
-  void freshProgress(){
-    progress.value = 0.0;
+  void freshProgress(Tracks track){
+    track.downloadProgress?.value = 0.0;
   }
 
-  void updateProgress(double value) {
-    progress.value = value;
+  void updateProgress(double value,Tracks track) {
+    track.downloadProgress?.value = value;
   }
 
-  Future<bool> downloadAudio(BuildContext context, url, filePath) async {
+  Future<bool> downloadAudio(BuildContext context, url, filePath,Tracks track) async {
     try {
       if (await AppUtils.checkInterAvailability()) {
         debugPrint('baseUrl--$filePath');
@@ -38,28 +38,29 @@ class HomeProvider with ChangeNotifier {
           onReceiveProgress: (received, total) {
             if (total != -1) {
               double progress = (received / total) * 100;
-              updateProgress(progress);
+              updateProgress(progress,track);
+              // updateProgress(progress);
             }
           },
         );
         if (response.statusCode == 200) {
-          freshProgress();
+          freshProgress(track);
           // var responseInBool = await callDownloadMethod(filePath, url,);
           AppUtils.snackBarFnc(
               ctx: context, contentText: 'Downloaded Successfully');
           return true;
         } else {
-          freshProgress();
+          freshProgress(track);
           notifyListeners();
           return false;
         }
       } else {
-        freshProgress();
+        freshProgress(track);
         noInterNetPopUp();
         return false;
       }
     } catch (e) {
-      freshProgress();
+      freshProgress(track);
       debugPrint('catch at downloadAudio $e');
     }
 

@@ -49,32 +49,36 @@ class _HomeScreenState extends State<HomeScreen> {
   int? selectedValue;
 
   //listener for homeScreen
-  listenPurchaseStream(List<PurchaseDetails> listenPurchaseDetails) {
+  listenPurchaseStream(List<PurchaseDetails> listenPurchaseDetails)async {
+    print("Mount$mounted");
+    if(!mounted){
+      return;
+    }
+    print("not_Mount$mounted");
     if (listenPurchaseDetails.isNotEmpty) {
       for (PurchaseDetails purchase in listenPurchaseDetails) {
-        for (var id in productId) {
-          if (id.id == purchase.productID) {
             if (purchase.status == PurchaseStatus.purchased) {
-              iApEngine.inAppPurchase.completePurchase(purchase);
-              Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (context) => ThankYouForTipScreen(
-                      isFromHome: true,
-                    ),
-                  ));
-              homeStream.cancel();
+              await iApEngine.inAppPurchase.completePurchase(purchase).then((value) {
+                Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => ThankYouForTipScreen(
+                        isFromHome: true,
+                      ),
+                    )).then((value) {
+                      homeStream.resume();
+                    },);
+                homeStream.pause();
+              },);
+
             } else if (purchase.status == PurchaseStatus.canceled) {
               AppUtils.snackBarFnc(
                   ctx: context, contentText: "Your Purchase has been canceled");
-              homeStream.cancel();
             } else if (purchase.status == PurchaseStatus.pending) {
               AppUtils.snackBarFnc(
                   ctx: context, contentText: "Your Purchase is pending");
-              homeStream.cancel();
             }
-          }
-        }
+
       }
     }
   }
@@ -115,20 +119,21 @@ class _HomeScreenState extends State<HomeScreen> {
     );
     homeStream = iApEngine.inAppPurchase.purchaseStream.listen(
       (list) {
-        if (_isActive) {
           listenPurchaseStream(list);
-        }
       },
     );
     getTipData();
+  }
+
+  FutureOr streamResumeFnc(){
+    print("streamResumeFnc");
+    homeStream.resume();
   }
 
   @override
   void dispose() {
     // TODO: implement dispose
     homeStream.cancel();
-
-    _isActive = false;
     super.dispose();
   }
 
@@ -152,6 +157,19 @@ class _HomeScreenState extends State<HomeScreen> {
       drawer: CommonDrawerWidget(
         advancedDrawerController: _advancedDrawerController,
         streamSubscription: homeStream,
+        onItemClick: (){
+          print("onItemClick");
+          homeStream.cancel();
+        },
+        onReturnFromItem: (){
+          print("onReturnFromItem");
+          homeStream = iApEngine.inAppPurchase.purchaseStream.listen(
+                (list) {
+              listenPurchaseStream(list);
+            },
+          );
+          getTipData();
+        },
       ),
       child: SafeArea(
         child: Scaffold(
@@ -195,6 +213,12 @@ class _HomeScreenState extends State<HomeScreen> {
                                         ),
                                       )).then(
                                     (value) {
+                                      homeStream = iApEngine.inAppPurchase.purchaseStream.listen(
+                                            (list) {
+                                          listenPurchaseStream(list);
+                                        },
+                                      );
+                                      getTipData();
                                       savedMinutes = PreferenceHelper.getInt(
                                               'totalPlayedTime') ??
                                           0;
@@ -211,22 +235,45 @@ class _HomeScreenState extends State<HomeScreen> {
                                 child: Container(
                                   height: 110,
                                   width: double.infinity,
-                                  margin: const EdgeInsets.only(
-                                      bottom: 16, left: 12, right: 12),
+                                  margin: const EdgeInsets.only(bottom: 16, left: 12, right: 12),
                                   decoration: BoxDecoration(
-                                    borderRadius: const BorderRadius.all(
-                                        Radius.circular(12)),
+                                    borderRadius: const BorderRadius.all(Radius.circular(12)),
                                     color: AppColors.darkGreyColor,
                                   ),
                                   child: ClipRRect(
-                                      borderRadius: const BorderRadius.all(
-                                          Radius.circular(12)),
-                                      child: AppUtils.cacheImage(
-                                          imageUrl: homeProvider
-                                                  .categories[index].imageUrl ??
-                                              "",
-                                          width: double.infinity)),
-                                ),
+                                    borderRadius: const BorderRadius.all(Radius.circular(12)),
+                                    child: Stack(
+                                      children: [
+                                        // Image
+                                        AppUtils.cacheImage(
+                                          imageUrl: homeProvider.categories[index].imageUrl ?? "",
+                                          width: double.infinity,
+                                        ),
+                                        // Gradient overlay
+                                        homeProvider.categories[index].textSide == "left" ? Container(
+                                          decoration: BoxDecoration(
+                                            gradient: LinearGradient(
+                                              colors: [Colors.transparent, Colors.black.withOpacity(0.3)],
+                                              begin: Alignment.centerLeft,
+                                              end: Alignment.centerRight,
+
+                                            ),
+                                          ),
+                                        ) :Container(
+                                          decoration: BoxDecoration(
+                                            gradient: LinearGradient(
+                                              colors: [ Colors.black.withOpacity(0.3),Colors.transparent,],
+                                              begin: Alignment.centerRight,
+                                              end: Alignment.centerLeft,
+
+                                            ),
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+                                )
+                                ,
                               );
                             },
                           ),

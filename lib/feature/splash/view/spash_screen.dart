@@ -26,6 +26,7 @@ class _SplashScreenState extends State<SplashScreen> {
 
     splashStream = iApEngine.inAppPurchase.purchaseStream.listen(
           (list) {
+            print("datatest");
         if (list.isNotEmpty) {
           // Restore the subscription
           updateSubscriptionStatus(true);
@@ -61,6 +62,7 @@ class _SplashScreenState extends State<SplashScreen> {
   // Navigate to the HomeScreen
   void _navigateToHomeScreen() {
     Future.delayed(const Duration(milliseconds: 2500), () {
+      splashStream.cancel();
       Navigator.pushReplacement(
         context,
         MaterialPageRoute(builder: (context) => const HomeScreen()),

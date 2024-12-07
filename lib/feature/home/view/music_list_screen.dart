@@ -9,6 +9,7 @@ import 'package:meditationapp/core/theme/theme_manager.dart';
 import 'package:meditationapp/feature/home/models/get_all_category_and_track.dart';
 import 'package:meditationapp/feature/home/provider/home_provider.dart';
 import 'package:meditationapp/feature/home/view/audio_player_page.dart';
+import 'package:meditationapp/feature/subscription/view/subscription_screen.dart';
 import 'package:meditationapp/main.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:provider/provider.dart';
@@ -42,18 +43,26 @@ class _MusicListScreenState extends State<MusicListScreen> {
   @override
   void initState() {
     super.initState();
+    checkSubscription();
     WidgetsBinding.instance.addPostFrameCallback((timeStamp) async {
       homeProvider = Provider.of<HomeProvider>(context, listen: false);
 
       getTracksAccordingToCategoryId();
       loadDownloadedData();
-      homeProvider.freshProgress();
       selectedOption = options.first;
       sortList(selectedOption ?? '');
     });
     _scrollController = ScrollController();
     _scrollController.addListener(_handleScroll);
   }
+
+  checkSubscription(){
+    isSubscribe = PreferenceHelper.getBool(PreferenceHelper.isSubscribe);
+    setState(() {
+
+    });
+  }
+
 
   getTracksAccordingToCategoryId() {
     setState(() {
@@ -75,8 +84,7 @@ class _MusicListScreenState extends State<MusicListScreen> {
   }
 
   // Method to handle downloading audio
-  Future<void> callDownloadAudioApi(
-      HomeProvider provider, String audioUrl) async {
+  Future<void> callDownloadAudioApi(HomeProvider provider, String audioUrl,Tracks track) async {
     setState(() {
       filteredList
           .firstWhere((element) => element.trackUrl == audioUrl)
@@ -86,7 +94,7 @@ class _MusicListScreenState extends State<MusicListScreen> {
     final dir = await getApplicationDocumentsDirectory();
     final filePath = '${dir.path}/${audioUrl.hashCode}_cached_audio.mp3';
 
-    provider.downloadAudio(context, audioUrl, filePath).then((value) async {
+    provider.downloadAudio(context, audioUrl, filePath,track).then((value) async {
       setState(() {
         if (value) {
           final track = filteredList
@@ -149,7 +157,6 @@ class _MusicListScreenState extends State<MusicListScreen> {
     _scrollController.removeListener(_handleScroll);
     _scrollController.dispose();
     filteredList.clear();
-    homeProvider.freshProgress();
     super.dispose();
   }
 
@@ -199,6 +206,7 @@ class _MusicListScreenState extends State<MusicListScreen> {
                   valueListenable: _showAppBarTitle,
                   builder: (context, value, child) {
                     return SliverAppBar(
+                      surfaceTintColor: Colors.transparent,
                       expandedHeight: height / 3,
                       collapsedHeight: 60,
                       stretch: true,
@@ -264,7 +272,8 @@ class _MusicListScreenState extends State<MusicListScreen> {
                                               Radius.circular(4)),
                                         ),
                                         padding: const EdgeInsets.all(8),
-                                        child: Image.asset(icBurgerMenu,height: 15),
+                                        child: Image.asset(icBurgerMenu,
+                                            height: 15),
                                       ),
                                     ),
                                   ],
@@ -283,6 +292,7 @@ class _MusicListScreenState extends State<MusicListScreen> {
                                     imageUrl: widget.bannerImageUrl ?? "",
                                   ),
                                 ),
+
                                 // Back arrow icon at the top center
                                 _showAppBarTitle.value
                                     ? SizedBox()
@@ -293,11 +303,12 @@ class _MusicListScreenState extends State<MusicListScreen> {
                                                 top: 32, left: 12),
                                             child: AppUtils.backButton(
                                               onTap: () {
+                                                print("test");
                                                 Navigator.pop(context);
                                               },
                                             )),
                                       ),
-                                // "Spiritual" text and sort icon at the bottom
+
                                 Align(
                                   alignment: Alignment.bottomCenter,
                                   child: Padding(
@@ -309,8 +320,7 @@ class _MusicListScreenState extends State<MusicListScreen> {
                                       children: [
                                         // "Spiritual" text
                                         AppUtils.commonTextWidget(
-                                          text: widget.categoryName ??
-                                              "Spiritual",
+                                          text: widget.categoryName ?? "",
                                           fontSize: 22,
                                           fontWeight: FontWeight.w700,
                                           textColor: AppColors.whiteColor,
@@ -337,7 +347,8 @@ class _MusicListScreenState extends State<MusicListScreen> {
                                                   BorderRadius.circular(4),
                                             ),
                                             padding: const EdgeInsets.all(8),
-                                            child: Image.asset(icBurgerMenu,height: 15),
+                                            child: Image.asset(icBurgerMenu,
+                                                height: 15),
                                           ),
                                         ),
                                       ],
@@ -360,8 +371,8 @@ class _MusicListScreenState extends State<MusicListScreen> {
                     (context, index) {
                       return IntrinsicHeight(
                         child: Container(
-                          margin:
-                              const EdgeInsets.only(left: 16, right: 16, bottom: 12),
+                          margin: const EdgeInsets.only(
+                              left: 16, right: 16, bottom: 12),
                           padding: const EdgeInsets.all(12),
                           decoration: BoxDecoration(
                             color: getMusicListTileColor(),
@@ -493,18 +504,25 @@ class _MusicListScreenState extends State<MusicListScreen> {
                                                                   .filePath ??
                                                               '',
                                                     ),
-                                                  ));
+                                                  )).then(
+                                                (value) {
+                                                  isSubscribe =
+                                                      PreferenceHelper.getBool(
+                                                          PreferenceHelper
+                                                              .isSubscribe);
+                                                  setState(() {});
+                                                },
+                                              );
                                             } else {
                                               callDownloadAudioApi(
                                                   homeProvider,
                                                   filteredList[index]
                                                           .trackUrl ??
-                                                      '');
+                                                      '',filteredList[index]);
                                             }
                                           },
                                           child: ValueListenableBuilder(
-                                            valueListenable:
-                                                homeProvider.progress,
+                                            valueListenable: filteredList[index].downloadProgress ?? ValueNotifier(0.0),
                                             builder: (context, value, child) {
                                               return Container(
                                                 height: 35,
@@ -527,7 +545,7 @@ class _MusicListScreenState extends State<MusicListScreen> {
                                                           child: AppUtils
                                                               .commonTextWidget(
                                                             text:
-                                                                "${homeProvider.progress.value.toStringAsFixed(0).padLeft(2, '0')}%",
+                                                                "${filteredList[index].downloadProgress?.value.toStringAsFixed(0).padLeft(2, '0')}%",
                                                             textColor:
                                                                 getTextColor(),
                                                             fontWeight:
@@ -594,21 +612,41 @@ class _MusicListScreenState extends State<MusicListScreen> {
                                                                     .filePath ??
                                                                 '',
                                                       ),
-                                                    ));
+                                                    )).then(
+                                                  (value) {
+                                                    isSubscribe =
+                                                        PreferenceHelper.getBool(
+                                                            PreferenceHelper
+                                                                .isSubscribe);
+                                                    setState(() {});
+                                                  },
+                                                );
                                               } else {
                                                 callDownloadAudioApi(
                                                     homeProvider,
                                                     filteredList[index]
                                                             .trackUrl ??
-                                                        '');
+                                                        '',filteredList[index]);
                                               }
                                             } else {
-                                              print("go to Subscribe");
+                                              Navigator.push(
+                                                  context,
+                                                  MaterialPageRoute(
+                                                    builder: (context) =>
+                                                        SubscriptionScreen(),
+                                                  )).then(
+                                                (value) {
+                                                  isSubscribe =
+                                                      PreferenceHelper.getBool(
+                                                          PreferenceHelper
+                                                              .isSubscribe);
+                                                  setState(() {});
+                                                },
+                                              );
                                             }
                                           },
                                           child: ValueListenableBuilder(
-                                            valueListenable:
-                                                homeProvider.progress,
+                                            valueListenable: filteredList[index].downloadProgress ?? ValueNotifier(0.0),
                                             builder: (context, value, child) {
                                               return Container(
                                                 height: 35,
@@ -634,7 +672,7 @@ class _MusicListScreenState extends State<MusicListScreen> {
                                                               child: AppUtils
                                                                   .commonTextWidget(
                                                                 text:
-                                                                    "${homeProvider.progress.value.toStringAsFixed(0).padLeft(2, '0')}%",
+                                                                "${filteredList[index].downloadProgress?.value.toStringAsFixed(0).padLeft(2, '0')}%",
                                                                 textColor:
                                                                     getTextColor(),
                                                                 fontWeight:
@@ -758,11 +796,9 @@ class _MusicListScreenState extends State<MusicListScreen> {
       } else if (selectedOption == 'Shortest First') {
         filteredList.sort((a, b) => a.duration!.compareTo(b.duration!));
       } else if (selectedOption == 'Downloaded First') {
-        filteredList.sort((a, b) => (b.isDownloaded ?? false ? 1 : 0)
-            .compareTo(a.isDownloaded ?? false ? 1 : 0));
+        filteredList.sort((a, b) => (b.isDownloaded ?? false ? 1 : 0).compareTo(a.isDownloaded ?? false ? 1 : 0));
       } else if (selectedOption == 'Favorites First') {
-        filteredList
-            .sort((a, b) => (b.isFav! ? 1 : 0).compareTo(a.isFav! ? 1 : 0));
+        filteredList.sort((a, b) => (b.isFav! ? 1 : 0).compareTo(a.isFav! ? 1 : 0));
       }
     });
   }
