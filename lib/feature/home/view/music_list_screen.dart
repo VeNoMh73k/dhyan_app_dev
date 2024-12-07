@@ -220,7 +220,7 @@ class _MusicListScreenState extends State<MusicListScreen> {
                           collapseMode: CollapseMode.parallax,
                           titlePadding: const EdgeInsetsDirectional.only(
                             start: 0.0,
-                            bottom: 16.0,
+                            bottom: 8.0,
                           ),
                           // centerTitle: _showAppBarTitle ?  true : false,
                           title: _showAppBarTitle.value
@@ -255,7 +255,7 @@ class _MusicListScreenState extends State<MusicListScreen> {
                                       },
                                       child: AppUtils.commonContainer(
                                         margin: const EdgeInsets.only(
-                                            left: 0, bottom: 0, right: 12),
+                                            left: 0, bottom: 0, right: 15),
                                         decoration: BoxDecoration(
                                           color: Colors.transparent,
                                           border: Border.all(
@@ -263,11 +263,8 @@ class _MusicListScreenState extends State<MusicListScreen> {
                                           borderRadius: const BorderRadius.all(
                                               Radius.circular(4)),
                                         ),
-                                        padding: const EdgeInsets.all(4),
-                                        child: Icon(
-                                          Icons.sort,
-                                          color: AppColors.whiteColor,
-                                        ),
+                                        padding: const EdgeInsets.all(8),
+                                        child: Image.asset(icBurgerMenu,height: 15),
                                       ),
                                     ),
                                   ],
@@ -339,11 +336,8 @@ class _MusicListScreenState extends State<MusicListScreen> {
                                               borderRadius:
                                                   BorderRadius.circular(4),
                                             ),
-                                            padding: const EdgeInsets.all(4),
-                                            child: Icon(
-                                              Icons.sort,
-                                              color: AppColors.whiteColor,
-                                            ),
+                                            padding: const EdgeInsets.all(8),
+                                            child: Image.asset(icBurgerMenu,height: 15),
                                           ),
                                         ),
                                       ],
@@ -367,7 +361,7 @@ class _MusicListScreenState extends State<MusicListScreen> {
                       return IntrinsicHeight(
                         child: Container(
                           margin:
-                              EdgeInsets.only(left: 16, right: 16, bottom: 12),
+                              const EdgeInsets.only(left: 16, right: 16, bottom: 12),
                           padding: const EdgeInsets.all(12),
                           decoration: BoxDecoration(
                             color: getMusicListTileColor(),
@@ -388,8 +382,8 @@ class _MusicListScreenState extends State<MusicListScreen> {
                                   child: AppUtils.cacheImage(
                                     imageUrl:
                                         filteredList[index].imageUrl ?? "",
-                                    width: 90,
-                                    height: 100,
+                                    width: 95,
+                                    height: 110,
                                     fit: BoxFit.cover,
                                   )),
                               const SizedBox(width: 12),
@@ -705,6 +699,9 @@ class _MusicListScreenState extends State<MusicListScreen> {
                     childCount:
                         filteredList.length, // Adjust as per your requirement
                   ),
+                ),
+                const SliverToBoxAdapter(
+                  child: SizedBox(height: 12),
                 ),
               ],
             ),

@@ -16,6 +16,7 @@ const String privacyLink = "https://dhyanlife.com/privacy-policy";
 const String tncLink = "https://dhyanlife.com/terms-and-conditions";
 
 const fontFamily = "Nunito Sans";
+const appPackageName = "com.dhyanlife.app";
 
 const Map<String, String> header = {
   'Content-type': 'application/json',

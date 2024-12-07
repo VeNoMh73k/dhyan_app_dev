@@ -78,6 +78,8 @@ class _CommonDrawerWidgetState extends State<CommonDrawerWidget> {
               () {
                 //Navigate to RatingPage,
                 widget.advancedDrawerController?.hideDrawer();
+                AppUtils.launchInBrowser(Uri.parse(
+                    "http://play.google.com/store/apps/details?id=$appPackageName"));
               },
             ),
             commonRow(

@@ -153,115 +153,116 @@ class _HomeScreenState extends State<HomeScreen> {
         advancedDrawerController: _advancedDrawerController,
         streamSubscription: homeStream,
       ),
-      child: Scaffold(
-        backgroundColor: getScaffoldColor(),
-        appBar: customAppBarWithRoundedCorners(context),
-        body: Column(
-          children: [
-            // ListView for images
-            Expanded(
-              child: homeProvider.isLoading
-                  ? AppUtils.loaderWidget()
-                  : homeProvider.getAllCategoryAndTracks == null
-                      ? AppUtils.commonTextWidget(text: "No Data Found")
-                      : ListView.builder(
-                          itemCount: homeProvider.categories.length,
-                          padding: const EdgeInsets.symmetric(vertical: 16),
-                          itemBuilder: (context, index) {
-                            return GestureDetector(
-                              onTap: () {
-                                homeStream.cancel();
-                                Navigator.push(
-                                    context,
-                                    MaterialPageRoute(
-                                      builder: (context) => MusicListScreen(
-                                        bannerImageUrl: homeProvider
-                                            .getAllCategoryAndTracks
-                                            ?.categories?[index]
-                                            .bannerImageUrl,
-                                        trackId: homeProvider
-                                            .getAllCategoryAndTracks
-                                            ?.categories?[index]
-                                            .trackIds,
-                                        categoryName: homeProvider
-                                            .getAllCategoryAndTracks
-                                            ?.categories?[index]
-                                            .title,
-                                        categoryId: homeProvider
-                                            .getAllCategoryAndTracks
-                                            ?.categories?[index]
-                                            .id,
-                                      ),
-                                    )).then(
-                                  (value) {
-                                    savedMinutes = PreferenceHelper.getInt(
-                                            'totalPlayedTime') ??
-                                        0;
-                                    daysOfMeditation = PreferenceHelper.getInt(
-                                            "daysOfMeditation") ??
-                                        0;
-                                    sessions = PreferenceHelper.getInt(
-                                            "sessionCount") ??
-                                        0;
-                                    setState(() {});
-                                  },
-                                );
-                              },
-                              child: Container(
-                                height: 120,
-                                width: double.infinity,
-                                margin: const EdgeInsets.only(
-                                    bottom: 16, left: 12, right: 12),
-                                decoration: BoxDecoration(
-                                  borderRadius: const BorderRadius.all(
-                                      Radius.circular(12)),
-                                  color: AppColors.darkGreyColor,
-                                ),
-                                child: ClipRRect(
+      child: SafeArea(
+        child: Scaffold(
+          backgroundColor: getScaffoldColor(),
+          appBar: customAppBarWithRoundedCorners(context),
+          body: Column(
+            children: [
+              // ListView for images
+              Expanded(
+                child: homeProvider.isLoading
+                    ? AppUtils.loaderWidget()
+                    : homeProvider.getAllCategoryAndTracks == null
+                        ? AppUtils.commonTextWidget(text: "No Data Found")
+                        : ListView.builder(
+                            itemCount: homeProvider.categories.length,
+                            padding: const EdgeInsets.symmetric(vertical: 16),
+                            itemBuilder: (context, index) {
+                              return GestureDetector(
+                                onTap: () {
+                                  homeStream.cancel();
+                                  Navigator.push(
+                                      context,
+                                      MaterialPageRoute(
+                                        builder: (context) => MusicListScreen(
+                                          bannerImageUrl: homeProvider
+                                              .getAllCategoryAndTracks
+                                              ?.categories?[index]
+                                              .bannerImageUrl,
+                                          trackId: homeProvider
+                                              .getAllCategoryAndTracks
+                                              ?.categories?[index]
+                                              .trackIds,
+                                          categoryName: homeProvider
+                                              .getAllCategoryAndTracks
+                                              ?.categories?[index]
+                                              .title,
+                                          categoryId: homeProvider
+                                              .getAllCategoryAndTracks
+                                              ?.categories?[index]
+                                              .id,
+                                        ),
+                                      )).then(
+                                    (value) {
+                                      savedMinutes = PreferenceHelper.getInt(
+                                              'totalPlayedTime') ??
+                                          0;
+                                      daysOfMeditation = PreferenceHelper.getInt(
+                                              "daysOfMeditation") ??
+                                          0;
+                                      sessions = PreferenceHelper.getInt(
+                                              "sessionCount") ??
+                                          0;
+                                      setState(() {});
+                                    },
+                                  );
+                                },
+                                child: Container(
+                                  height: 110,
+                                  width: double.infinity,
+                                  margin: const EdgeInsets.only(
+                                      bottom: 16, left: 12, right: 12),
+                                  decoration: BoxDecoration(
                                     borderRadius: const BorderRadius.all(
                                         Radius.circular(12)),
-                                    child: AppUtils.cacheImage(
-                                        imageUrl: homeProvider
-                                                .categories[index].imageUrl ??
-                                            "",
-                                        height: 120,
-                                        width: double.infinity)),
-                              ),
-                            );
-                          },
-                        ),
-            ),
+                                    color: AppColors.darkGreyColor,
+                                  ),
+                                  child: ClipRRect(
+                                      borderRadius: const BorderRadius.all(
+                                          Radius.circular(12)),
+                                      child: AppUtils.cacheImage(
+                                          imageUrl: homeProvider
+                                                  .categories[index].imageUrl ??
+                                              "",
+                                          width: double.infinity)),
+                                ),
+                              );
+                            },
+                          ),
+              ),
 
-            // Bottom container (fixed)
-            AppUtils.commonContainer(
-              width: double.infinity,
-              padding: const EdgeInsets.only(
-                  top: 10, bottom: 10, left: 10, right: 10),
-              decoration: BoxDecoration(
-                color: getBottomCountContainerColor(),
-                boxShadow: [
-                  BoxShadow(
-                    color: Colors.black.withOpacity(0.1),
-                    // Adjust opacity for shadow
-                    blurRadius: 10,
-                    // Blur radius for the shadow
-                    offset: const Offset(4, 0), // Position of the shadow
-                  ),
-                ],
+              // Bottom container (fixed)
+              AppUtils.commonContainer(
+                width: double.infinity,
+                padding: const EdgeInsets.only(
+                    top: 10, bottom: 10, left: 10, right: 10),
+                decoration: BoxDecoration(
+                  color: getBottomCountContainerColor(),
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.black.withOpacity(0.1),
+                      // Adjust opacity for shadow
+                      blurRadius: 10,
+                      // Blur radius for the shadow
+                      offset: const Offset(4, 0), // Position of the shadow
+                    ),
+                  ],
+                ),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceAround,
+                  children: [
+                    bottomCustomRow(savedMinutes.toString().padLeft(2, '0'),
+                        "Min of Meditation"),
+                    bottomCustomRow(
+                        sessions.toString().padLeft(2, '0'), "Session Completed"),
+                    bottomCustomRow(daysOfMeditation.toString().padLeft(2, '0'),
+                        "Days of Meditation"),
+                  ],
+                ),
               ),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceAround,
-                children: [
-                  bottomCustomRow(savedMinutes.toString().padLeft(2, '0'),
-                      "Min of Meditation"),
-                  bottomCustomRow(
-                      sessions.toString().padLeft(2, '0'), "Session Completed"),
-                  bottomCustomRow(daysOfMeditation.toString().padLeft(2, '0'),
-                      "Days of Meditation"),
-                ],
-              ),
-            ),
-          ],
+            ],
+          ),
         ),
       ),
     );
