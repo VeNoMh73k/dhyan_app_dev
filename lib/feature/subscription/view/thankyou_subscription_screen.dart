@@ -28,7 +28,6 @@ class ThankYouSubscriptionScreen extends StatelessWidget {
                   text: "Subscription Subscribed\n Successfully!",
                   fontWeight: FontWeight.w700,
                   fontSize: 20,
-                  textColor: AppColors.blackColor,
                   maxLines: 2,
                 textAlign: TextAlign.center
 
@@ -44,7 +43,6 @@ class ThankYouSubscriptionScreen extends StatelessWidget {
                 fontSize: 16,
                 maxLines: 3,
                 textAlign: TextAlign.center,
-                textColor: AppColors.blackColor,
               ),
               const SizedBox(
                 height: 30,

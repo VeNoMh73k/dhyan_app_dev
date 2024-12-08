@@ -157,24 +157,23 @@ class _SubscriptionScreenState extends State<SubscriptionScreen>
           iApEngine.queryProducts(productId).then(
             (res) {
               subscriptionList.clear();
-              print("Response${res.productDetails.first}");
-              print("subscriptionList$subscriptionList");
               setState(() {
                 subscriptionList = res.productDetails;
-
-                subscriptionList
-                    .sort((a, b) => a.rawPrice.compareTo(b.rawPrice));
+                subscriptionList.sort((a, b) => a.rawPrice.compareTo(b.rawPrice));
+                isLoading = false;
               });
 
               print("Sorted subscriptionList$subscriptionList");
             },
           );
+        }else{
+          setState(() {
+            isLoading = false;
+          });
+
         }
       },
     );
-    setState(() {
-      isLoading = false;
-    });
   }
 
   @override
@@ -197,10 +196,9 @@ class _SubscriptionScreenState extends State<SubscriptionScreen>
             onTap: () {
               Navigator.pop(context);
             },
-            color: AppColors.blackColor),
+            color: getTextColor()),
         title: AppUtils.commonTextWidget(
           text: "Subscription",
-          textColor: AppColors.blackColor,
           fontSize: 20,
           fontWeight: FontWeight.w600,
         ),
@@ -218,7 +216,6 @@ class _SubscriptionScreenState extends State<SubscriptionScreen>
                         maxLines: 2,
                         fontSize: 16,
                         fontWeight: FontWeight.w400,
-                        textColor: AppColors.blackColor,
                         textAlign: TextAlign.center),
                     const SizedBox(
                       height: 34,
@@ -230,6 +227,7 @@ class _SubscriptionScreenState extends State<SubscriptionScreen>
                           "assets/subscription_icon.png",
                           width: 25,
                           height: 25,
+                          color: getTextColor(),
                         ),
                         const SizedBox(
                           width: 5,
@@ -238,7 +236,7 @@ class _SubscriptionScreenState extends State<SubscriptionScreen>
                             text: "Benefits of Premium",
                             fontWeight: FontWeight.w700,
                             fontSize: 18,
-                            textColor: AppColors.blackColor)
+                           )
                       ],
                     ),
                     const SizedBox(
@@ -259,7 +257,7 @@ class _SubscriptionScreenState extends State<SubscriptionScreen>
                             text: "Ad-Free Experience",
                             fontWeight: FontWeight.w400,
                             fontSize: 16,
-                            textColor: AppColors.blackColor)
+                          )
                       ],
                     ),
                     const SizedBox(
@@ -280,7 +278,7 @@ class _SubscriptionScreenState extends State<SubscriptionScreen>
                             text: "Exclusive Content",
                             fontWeight: FontWeight.w400,
                             fontSize: 16,
-                            textColor: AppColors.blackColor)
+                            )
                       ],
                     ),
                     const SizedBox(
@@ -292,7 +290,7 @@ class _SubscriptionScreenState extends State<SubscriptionScreen>
                             : "Manage Your Plan",
                         fontWeight: FontWeight.w700,
                         fontSize: 18,
-                        textColor: AppColors.blackColor),
+                        ),
                     const SizedBox(
                       height: 10,
                     ),
@@ -324,7 +322,7 @@ class _SubscriptionScreenState extends State<SubscriptionScreen>
                                     top: 16, left: 16, right: 16, bottom: 16),
                                 decoration: AppUtils.commonBoxDecoration(
                                   borderRadius: BorderRadius.circular(10),
-                                  color: AppColors.whiteColor,
+                                  color: getMusicListTileColor(),
                                 ),
                                 child: Column(
                                   crossAxisAlignment: CrossAxisAlignment.start,
@@ -339,7 +337,6 @@ class _SubscriptionScreenState extends State<SubscriptionScreen>
                                             text: "$subscriptionType Plan",
                                             fontWeight: FontWeight.w700,
                                             fontSize: 16,
-                                            textColor: AppColors.blackColor,
                                             maxLines: 2,
                                           ),
                                         ),
@@ -410,7 +407,7 @@ class _SubscriptionScreenState extends State<SubscriptionScreen>
                                 top: 16, left: 16, right: 16, bottom: 16),
                             decoration: AppUtils.commonBoxDecoration(
                               borderRadius: BorderRadius.circular(10),
-                              color: AppColors.whiteColor,
+                              color: getMusicListTileColor()
                             ),
                             child: Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
@@ -419,7 +416,6 @@ class _SubscriptionScreenState extends State<SubscriptionScreen>
                                   text: "Manage Your Subscription",
                                   fontWeight: FontWeight.w700,
                                   fontSize: 16,
-                                  textColor: AppColors.blackColor,
                                   maxLines: 2,
                                 ),
                                 const SizedBox(height: 8),

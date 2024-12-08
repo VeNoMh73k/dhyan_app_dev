@@ -35,7 +35,7 @@ class _CommonWebViewWidgetState extends State<CommonWebViewWidget> {
               onTap: () {
                 Navigator.pop(context);
               },
-              color: AppColors.blackColor),
+              color: getTextColor()),
           centerTitle: true,
           title: AppUtils.commonTextWidget(
             text: widget.title ?? "WebView",

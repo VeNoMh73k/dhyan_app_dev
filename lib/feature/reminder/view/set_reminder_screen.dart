@@ -162,7 +162,6 @@ class _SetReminderScreenState extends State<SetReminderScreen> {
             onTap: () {
               Navigator.pop(context);
             },
-            color: AppColors.blackColor
         ), /*GestureDetector(
           onTap: () {
             Navigator.pop(context);
@@ -177,7 +176,6 @@ class _SetReminderScreenState extends State<SetReminderScreen> {
         ),*/
         title: AppUtils.commonTextWidget(
           text: "Set Reminder",
-          textColor: AppColors.blackColor,
           fontSize: 20,
           fontWeight: FontWeight.w600,
         ),
@@ -195,7 +193,7 @@ class _SetReminderScreenState extends State<SetReminderScreen> {
                   padding: EdgeInsets.all(16),
                   decoration: AppUtils.commonBoxDecoration(
                     borderRadius: BorderRadius.circular(8),
-                    color: AppColors.whiteColor,
+                    color: getSetReminderContainerColor(),
                     boxShadow: [
                       BoxShadow(
                         color: AppColors.blackColor.withOpacity(0.1),
@@ -323,7 +321,7 @@ class _SetReminderScreenState extends State<SetReminderScreen> {
                       left: 16, top: 8, bottom: 8, right: 16),
                   decoration: AppUtils.commonBoxDecoration(
                     borderRadius: BorderRadius.circular(8),
-                    color: AppColors.whiteColor,
+                    color: getSetReminderContainerColor(),
                     boxShadow: [
                       BoxShadow(
                         color: AppColors.blackColor.withOpacity(0.1),
@@ -336,7 +334,6 @@ class _SetReminderScreenState extends State<SetReminderScreen> {
                     children: [
                       AppUtils.commonTextWidget(
                           text: "Select Day",
-                          textColor: AppColors.blackColor,
                           fontSize: 16,
                           fontWeight: FontWeight.w500),
                       SizedBox(height: 8),
@@ -439,10 +436,9 @@ class _SetReminderScreenState extends State<SetReminderScreen> {
                             await saveReminder(
                                 selectedDays, selectedTime, selectedIntDays);
 
-                            ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-                                content: AppUtils.commonTextWidget(text : widget.index == null
-                                    ? 'Reminder Added!'
-                                    : 'Reminder Updated!')));
+                           AppUtils.snackBarFnc(ctx: context,contentText: widget.index == null
+                               ? 'Reminder Added!'
+                               : 'Reminder Updated!');
 
                             Navigator.pop(context);
                           },

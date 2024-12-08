@@ -39,7 +39,6 @@ class _ThankYouForTipScreenState extends State<ThankYouForTipScreen> {
                   text: "Thank you for Tip!",
                   fontWeight: FontWeight.w700,
                   fontSize: 20,
-                  textColor: AppColors.blackColor,
 
                 ),
                 const SizedBox(height: 10,),
@@ -47,7 +46,6 @@ class _ThankYouForTipScreenState extends State<ThankYouForTipScreen> {
                   text: "Thank you for your generosity! 🙏",
                   fontWeight: FontWeight.w400,
                   fontSize: 16,
-                  textColor: AppColors.blackColor,
                 ),
                 const SizedBox(height: 10,),
                 AppUtils.commonTextWidget(
@@ -56,7 +54,6 @@ class _ThankYouForTipScreenState extends State<ThankYouForTipScreen> {
                   fontSize: 16,
                   maxLines: 2,
                   textAlign: TextAlign.center,
-                  textColor: AppColors.blackColor,
                 ),
                 const SizedBox(height: 10,),
                 AppUtils.commonTextWidget(
@@ -65,7 +62,6 @@ class _ThankYouForTipScreenState extends State<ThankYouForTipScreen> {
                   fontSize: 16,
                   maxLines: 2,
                   textAlign: TextAlign.center,
-                  textColor: AppColors.blackColor,
                 ),
                 const SizedBox(height: 30,),
                 AppUtils.commonElevatedButton(

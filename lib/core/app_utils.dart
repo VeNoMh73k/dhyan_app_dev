@@ -92,6 +92,7 @@ class AppUtils {
             return Center(
               child: Image.asset(
                 "assets/logo_light.png",
+                color: getPrimaryColor(),
                 height: 75,
                 width: 75,
                 fit: BoxFit.scaleDown,
@@ -103,6 +104,7 @@ class AppUtils {
               child: Image.asset(
                 height: 75,
                 width: 75,
+                color: getPrimaryColor(),
                 "assets/logo_light.png",
                 fit: BoxFit.scaleDown,
               ),
@@ -372,7 +374,7 @@ class AppUtils {
       ),
       child: Icon(
         Icons.done,
-        color: AppColors.whiteColor,
+        color: getScaffoldColor(),
         size: iconsSize ?? 60,
       ),
     );

@@ -15,10 +15,9 @@ import in_app_purchase_storekit
 import just_audio
 import path_provider_foundation
 import shared_preferences_foundation
-import sqflite
+import sqflite_darwin
 import url_launcher_macos
 import video_player_avfoundation
-import webview_flutter_wkwebview
 
 func RegisterGeneratedPlugins(registry: FlutterPluginRegistry) {
   AudioSessionPlugin.register(with: registry.registrar(forPlugin: "AudioSessionPlugin"))
@@ -34,5 +33,4 @@ func RegisterGeneratedPlugins(registry: FlutterPluginRegistry) {
   SqflitePlugin.register(with: registry.registrar(forPlugin: "SqflitePlugin"))
   UrlLauncherPlugin.register(with: registry.registrar(forPlugin: "UrlLauncherPlugin"))
   FVPVideoPlayerPlugin.register(with: registry.registrar(forPlugin: "FVPVideoPlayerPlugin"))
-  FLTWebViewFlutterPlugin.register(with: registry.registrar(forPlugin: "FLTWebViewFlutterPlugin"))
 }

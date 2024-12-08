@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:io';
 
 import 'package:firebase_core/firebase_core.dart';
@@ -7,7 +8,6 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
 import 'package:flutter/services.dart';
-import 'package:google_mobile_ads/google_mobile_ads.dart';
 import 'package:in_app_purchase/in_app_purchase.dart';
 import 'package:meditationapp/core/storage/preference_helper.dart';
 import 'package:meditationapp/feature/home/provider/home_provider.dart';
@@ -20,18 +20,23 @@ import 'package:provider/single_child_widget.dart';
 import 'package:timezone/data/latest.dart' as tz;
 
 GlobalKey<NavigatorState> navigatorKey = GlobalKey<NavigatorState>();
+//Global Variables
 bool isSubscribe = false;
+int savedMinutes = 0;
+int daysOfMeditation = 0;
+int sessions = 0;
 
 List<SingleChildWidget> providers = [
   ChangeNotifierProvider<HomeProvider>(create: (_) => HomeProvider()),
 ];
-ThemeData? currentTheme;
+
+ThemeData? currentTheme = ThemeData.dark();
 
 
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  MobileAds.instance.initialize();
+  // MobileAds.instance.initialize();
   await Firebase.initializeApp(
     options: DefaultFirebaseOptions.currentPlatform,
   );
@@ -77,23 +82,13 @@ class _MyAppState extends State<MyApp> with WidgetsBindingObserver {
   void initState() {
     super.initState();
     getFcmToken();
-
-
-    // check();
-    currentTheme = ThemeData.light();
-    var dispatcher = SchedulerBinding.instance.platformDispatcher;
-
-    dispatcher.onPlatformBrightnessChanged = () {
-      print("change");
-
-      currentTheme = ThemeData.light();
-      print("currentTheme$currentTheme");
-      print("currentTheme${ThemeData.dark()}");
-      print("currentTheme${currentTheme == ThemeData.dark()}");
-      setState(() {
-
-      });
-    };
+    var brightness =
+        SchedulerBinding.instance.platformDispatcher.platformBrightness;
+    brightness == Brightness.dark
+        ? currentTheme = ThemeData.dark()
+        : currentTheme = ThemeData.light();
+    print("currentTheme$currentTheme");
+    setState(() {});
 
   }
 
@@ -112,7 +107,6 @@ class _MyAppState extends State<MyApp> with WidgetsBindingObserver {
 
   @override
   void didChangePlatformBrightness() {
-
     setState(() {
       var brightness =
           SchedulerBinding.instance.platformDispatcher.platformBrightness;
@@ -131,11 +125,11 @@ class _MyAppState extends State<MyApp> with WidgetsBindingObserver {
         theme: currentTheme,
         builder: (context, child) {
           final MediaQueryData data = MediaQuery.of(context);
-          // var brightness =
-          //     SchedulerBinding.instance.platformDispatcher.platformBrightness;
-          // brightness == Brightness.dark
-          //     ? currentTheme = ThemeData.dark()
-          //     : currentTheme = ThemeData.light();
+          var brightness =
+              SchedulerBinding.instance.platformDispatcher.platformBrightness;
+          brightness == Brightness.dark
+              ? currentTheme = ThemeData.dark()
+              : currentTheme = ThemeData.light();
           return MediaQuery(
             data: data.copyWith(
                 alwaysUse24HourFormat: false,

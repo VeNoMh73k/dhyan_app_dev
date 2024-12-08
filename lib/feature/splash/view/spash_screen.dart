@@ -1,9 +1,12 @@
 import 'dart:async'; // Needed for StreamSubscription
 
 import 'package:flutter/material.dart';
+import 'package:meditationapp/core/app_colors.dart';
 import 'package:meditationapp/core/storage/preference_helper.dart';
+import 'package:meditationapp/core/theme/icon_path.dart';
 import 'package:meditationapp/core/theme/theme_manager.dart';
 import 'package:meditationapp/feature/home/view/home_screen.dart';
+import 'package:meditationapp/main.dart';
 import 'package:onepref/onepref.dart';
 
 class SplashScreen extends StatefulWidget {
@@ -87,7 +90,7 @@ class _SplashScreenState extends State<SplashScreen> {
         crossAxisAlignment: CrossAxisAlignment.center,
         children: [
           Center(
-            child: Image.asset("assets/logo_dhyan_light.png"),
+            child: Image.asset(currentTheme == ThemeData.light() ? splashLogoLight : splashLogoDark,),
           ),
         ],
       ),

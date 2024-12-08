@@ -16,6 +16,7 @@ import 'package:meditationapp/main.dart';
       return AppColors.blackColor;
     }
 
+
     getTextColor() {
     if (currentTheme == ThemeData.dark()) {
       return AppColors.whiteColor; // Dark theme text color
@@ -31,6 +32,16 @@ import 'package:meditationapp/main.dart';
       return AppColors.blackThemeBackgroundColor; // Dark theme text color
     } else if (currentTheme == ThemeData.light()) {
       return AppColors.whiteThemeBackgroundColor; // Light theme text color
+    }
+    // Default text color if theme is not specified or invalid
+    return AppColors.blackColor;
+  }
+
+  getElevationColor(){
+    if (currentTheme == ThemeData.dark()) {
+      return AppColors.whiteColor.withOpacity(0.1); // Dark theme text color
+    } else if (currentTheme == ThemeData.light()) {
+      return  AppColors.blackColor.withOpacity(0.1); // Light theme text color
     }
     // Default text color if theme is not specified or invalid
     return AppColors.blackColor;
@@ -81,7 +92,7 @@ getPrimaryColor() {
 
     getBottomCountContainerColor() {
     if (currentTheme == ThemeData.dark()) {
-      return AppColors.primaryColor; // Dark theme text color
+      return AppColors.secondaryColor; // Dark theme text color
     } else if (currentTheme == ThemeData.light()) {
       return AppColors.whiteColor;
       return AppColors.primaryColor; // Light theme text color
@@ -116,6 +127,58 @@ getMusicTileColorWithOpacity(){
 getPopUpColor() {
   if (currentTheme == ThemeData.dark()) {
     return AppColors.blackThemeBackgroundColor; // Dark theme text color
+  } else if (currentTheme == ThemeData.light()) {
+    return AppColors.whiteColor; // Light theme text color
+  }
+  // Default text color if theme is not specified or invalid
+  return AppColors.blackColor;
+}
+
+getUnSelectedRadioButtonColor() {
+  if (currentTheme == ThemeData.dark()) {
+    return AppColors.unSelectedRadioTileDarkTheme; // Dark theme text color
+  } else if (currentTheme == ThemeData.light()) {
+    return AppColors.greyColor; // Light theme text color
+  }
+  // Default text color if theme is not specified or invalid
+  return AppColors.blackColor;
+}
+
+
+getAudioPlayerIntroductionAndCloseIconColor() {
+  if (currentTheme == ThemeData.dark()) {
+    return AppColors.primaryColor; // Dark theme text color
+  } else if (currentTheme == ThemeData.light()) {
+    return AppColors.whiteColor; // Light theme text color
+  }
+  // Default text color if theme is not specified or invalid
+  return AppColors.blackColor;
+}
+
+
+getTipPopUpColor() {
+  if (currentTheme == ThemeData.dark()) {
+    return AppColors.lightBlackColor; // Dark theme text color
+  } else if (currentTheme == ThemeData.light()) {
+    return AppColors.whiteColor; // Light theme text color
+  }
+  // Default text color if theme is not specified or invalid
+  return AppColors.blackColor;
+}
+
+getRadioListTileColor() {
+  if (currentTheme == ThemeData.dark()) {
+    return AppColors.radioTileColorDark; // Dark theme text color
+  } else if (currentTheme == ThemeData.light()) {
+    return AppColors.textFieldColor; // Light theme text color
+  }
+  // Default text color if theme is not specified or invalid
+  return AppColors.blackColor;
+}
+
+getSetReminderContainerColor() {
+  if (currentTheme == ThemeData.dark()) {
+    return AppColors.lightBlackColor; // Dark theme text color
   } else if (currentTheme == ThemeData.light()) {
     return AppColors.whiteColor; // Light theme text color
   }

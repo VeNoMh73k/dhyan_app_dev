@@ -138,8 +138,7 @@ class _MusicListScreenState extends State<MusicListScreen> {
   // Load persisted download data
   Future<void> loadDownloadedData() async {
     if (PreferenceHelper.containsKey('downloadedFiles')) {
-      final downloads = Map<String, String>.from(
-          jsonDecode(PreferenceHelper.getString('downloadedFiles')!));
+      final downloads = Map<String, String>.from(jsonDecode(PreferenceHelper.getString('downloadedFiles')!));
       setState(() {
         for (var track in filteredList) {
           if (downloads.containsKey(track.trackUrl)) {
@@ -547,10 +546,10 @@ class _MusicListScreenState extends State<MusicListScreen> {
                                                             text:
                                                                 "${filteredList[index].downloadProgress?.value.toStringAsFixed(0).padLeft(2, '0')}%",
                                                             textColor:
-                                                                getTextColor(),
+                                                                AppColors.blackColor,
                                                             fontWeight:
                                                                 FontWeight.w600,
-                                                            fontSize: 10,
+                                                            fontSize: 11,
                                                           ),
                                                         ),
                                                       )
@@ -674,11 +673,11 @@ class _MusicListScreenState extends State<MusicListScreen> {
                                                                 text:
                                                                 "${filteredList[index].downloadProgress?.value.toStringAsFixed(0).padLeft(2, '0')}%",
                                                                 textColor:
-                                                                    getTextColor(),
+                                                                AppColors.blackColor,
                                                                 fontWeight:
                                                                     FontWeight
                                                                         .w600,
-                                                                fontSize: 10,
+                                                                fontSize: 11,
                                                               ),
                                                             ),
                                                           )
@@ -760,24 +759,37 @@ class _MusicListScreenState extends State<MusicListScreen> {
       position: isFromTopAppBar ?? false
           ? const RelativeRect.fromLTRB(200, 80, 15, 0)
           : const RelativeRect.fromLTRB(200, 315, 15, 0),
-      color: AppColors.whiteColor,
+      color: getPopUpColor(),
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
       items: options.map((option) {
         return PopupMenuItem<String>(
           value: option,
-          child: RadioListTile<String>(
-            contentPadding: EdgeInsets.zero,
-            title: AppUtils.commonTextWidget(
-                text: option,
-                textColor: getTextColor(),
-                fontSize: 16,
-                fontWeight: FontWeight.w400),
-            value: option,
-            groupValue: selectedOption,
-            activeColor: AppColors.secondaryColor,
-            onChanged: (value) {
-              Navigator.of(context).pop(value);
-            },
+          child: Theme(
+            data: ThemeData(
+              unselectedWidgetColor: AppColors.textFieldColor
+            ),
+            child: RadioListTile<String>(
+              fillColor: MaterialStateProperty.resolveWith(
+                      (states) {
+                    if (states
+                        .contains(MaterialState.selected)) {
+                      return getPrimaryColor();
+                    }
+                    return getUnSelectedRadioButtonColor();
+                  }),
+              contentPadding: EdgeInsets.zero,
+              title: AppUtils.commonTextWidget(
+                  text: option,
+                  textColor: getTextColor(),
+                  fontSize: 16,
+                  fontWeight: FontWeight.w400),
+              value: option,
+              groupValue: selectedOption,
+              activeColor: getPrimaryColor(),
+              onChanged: (value) {
+                Navigator.of(context).pop(value);
+              },
+            ),
           ),
         );
       }).toList(),

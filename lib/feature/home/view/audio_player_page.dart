@@ -194,6 +194,7 @@ class _AudioPlayerPageState extends State<AudioPlayerPage> {
           forceMaterialTransparency: false,
           automaticallyImplyLeading: false,
           leading: AppUtils.backButton(
+            color: AppColors.whiteColor,
             onTap: () {
               pauseAudio();
               Navigator.pushReplacement(
@@ -237,7 +238,7 @@ class _AudioPlayerPageState extends State<AudioPlayerPage> {
               },
               child: Icon(
                 showInfo ? Icons.cancel : Icons.info,
-                color: AppColors.whiteColor,
+                color: getAudioPlayerIntroductionAndCloseIconColor(),
                 size: 26,
               ),
             ),

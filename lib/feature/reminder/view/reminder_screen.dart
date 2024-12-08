@@ -118,7 +118,7 @@ class _ReminderScreenState extends State<ReminderScreen> {
             onTap: () {
               Navigator.pop(context);
             },
-            color: AppColors.blackColor
+            color: getTextColor()
         ), /*GestureDetector(
           onTap: () {
             Navigator.pop(context);
@@ -133,7 +133,6 @@ class _ReminderScreenState extends State<ReminderScreen> {
         ),*/
         title: AppUtils.commonTextWidget(
           text: "Reminder",
-          textColor: AppColors.blackColor,
           fontSize: 20,
           fontWeight: FontWeight.w600,
         ),
@@ -161,7 +160,7 @@ class _ReminderScreenState extends State<ReminderScreen> {
                   color: getPrimaryColor(),
                   shape: BoxShape.circle,
                 ),
-                child: Icon(Icons.add)),
+                child: Icon(Icons.add,color: AppColors.blackColor,)),
           )
         ],
       ),
@@ -174,7 +173,8 @@ class _ReminderScreenState extends State<ReminderScreen> {
                 const SizedBox(height: 10),
                 AppUtils.commonTextWidget(
                   text: "No reminders found!",
-                  textColor: AppColors.blackColor,
+                  fontSize: 16,
+                  fontWeight: FontWeight.w400
                 ),
               ],
             )
@@ -207,11 +207,11 @@ class _ReminderScreenState extends State<ReminderScreen> {
                   child: AppUtils.commonContainer(
                     width: double.infinity,
                     padding: const EdgeInsets.only(
-                        left: 16, top: 8, bottom: 8, right: 16),
+                        left: 16, top: 8, bottom: 12, right: 16),
                     margin: const EdgeInsets.only(bottom: 10),
                     decoration: AppUtils.commonBoxDecoration(
                       borderRadius: BorderRadius.circular(8),
-                      color: AppColors.whiteColor,
+                      color: getSetReminderContainerColor(),
                       boxShadow: [
                         BoxShadow(
                           color: AppColors.blackColor.withOpacity(0.1),
@@ -228,7 +228,6 @@ class _ReminderScreenState extends State<ReminderScreen> {
                             AppUtils.commonTextWidget(
                                 text: DateFormat("h:mm a").format(DateTime.parse(
                                     "2000-01-01T${reminder.reminderTime?.replaceAll(" ", "").replaceAll("AM", "").replaceAll("PM", "")}")),
-                                textColor: AppColors.blackColor,
                                 letterSpacing: 0,
                                 fontSize: 20,
                                 fontWeight: FontWeight.w700),

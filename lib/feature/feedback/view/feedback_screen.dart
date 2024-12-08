@@ -13,6 +13,7 @@ import 'package:meditationapp/core/theme/theme_manager.dart';
 import 'package:meditationapp/feature/feedback/view/thankyou_for_tip_screen.dart';
 import 'package:meditationapp/feature/home/view/home_screen.dart';
 import 'package:meditationapp/feature/subscription/view/subscription_screen.dart';
+import 'package:meditationapp/service/adMobService.dart';
 import 'package:onepref/onepref.dart';
 
 class FeedbackScreen extends StatefulWidget {
@@ -27,6 +28,8 @@ class FeedbackScreen extends StatefulWidget {
 
 class _FeedbackScreenState extends State<FeedbackScreen> {
   late StreamSubscription feedbackStream;
+
+  // BannerAd? bannerAd;
 
   IApEngine iApEngine = IApEngine();
 
@@ -54,6 +57,7 @@ class _FeedbackScreenState extends State<FeedbackScreen> {
     getInitialFav();
 
     getTipData();
+    // createBannerAd();
   }
 
   listenPurchaseStream(List<PurchaseDetails> listenPurchaseDetails) {
@@ -92,23 +96,24 @@ class _FeedbackScreenState extends State<FeedbackScreen> {
     });
 
     iApEngine.getIsAvailable().then(
-      (value) {
+          (value) {
         if (value) {
           iApEngine.queryProducts(productId).then(
-            (res) {
+                (res) {
               print("responseData${res.productDetails.length}");
               setState(() {
                 inAppProductList = res.productDetails;
+                isLoading = false;
               });
             },
           );
+        }else{
+          setState(() {
+            isLoading = false;
+          });
         }
       },
     );
-    setState(() {
-      isLoading = false;
-    });
-
   }
 
   bool savedFavVar = false;
@@ -139,6 +144,15 @@ class _FeedbackScreenState extends State<FeedbackScreen> {
     super.dispose();
   }
 
+  // createBannerAd() {
+  //   bannerAd = BannerAd(
+  //     size: AdSize.banner,
+  //     adUnitId: AdMobService.bannerAdId!,
+  //     listener: AdMobService.bannerAdListener,
+  //     request: const AdRequest(),
+  //   )..load();
+  // }
+
   @override
   Widget build(BuildContext context) {
     final size = MediaQuery.of(context).size;
@@ -158,139 +172,152 @@ class _FeedbackScreenState extends State<FeedbackScreen> {
             },
           ),
         ),
-        body: isLoading ?  AppUtils.loaderWidget():Padding(
-          padding: const EdgeInsets.all(16.0),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.center,
-            children: [
-              // Top banner
+        body: isLoading
+            ? AppUtils.loaderWidget()
+            : Padding(
+                padding: const EdgeInsets.all(16.0),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  children: [
+                    // bannerAd == null
+                    //     ? SizedBox()
+                    //     : ClipRRect(
+                    //         borderRadius: BorderRadius.circular(10),
+                    //         child: AppUtils.commonContainer(
+                    //             width: size.width,
+                    //             height: size.height * 0.2,
+                    //             child: AdWidget(ad: bannerAd!)),
+                    //       ),
 
-              ClipRRect(
-                borderRadius: BorderRadius.circular(10),
-                child: Image.asset(
-                  adImage,
-                  fit: BoxFit.cover,
-                  width: size.width,
-                  height: size.height * 0.2,
-                ),
-              ),
-
-              const SizedBox(height: 20),
-
-              // Main content
-              Expanded(
-                child: SingleChildScrollView(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.center,
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      const SizedBox(height: 50),
-                      AppUtils.successImage(
-                          height: 60, width: 60, iconsSize: 40),
-                      const SizedBox(height: 20),
-                      AppUtils.commonTextWidget(
-                        text: "You have completed meditation of",
-                        fontWeight: FontWeight.w400,
-                        fontSize: 16,
-                        textColor: getTextColor(),
+               ClipRRect(
+                      borderRadius: BorderRadius.circular(10),
+                      child: Image.asset(
+                        adImage,
+                        fit: BoxFit.cover,
+                        width: size.width,
+                        height: size.height * 0.2,
                       ),
-                      const SizedBox(height: 8),
-                      AppUtils.commonTextWidget(
-                        text: widget.titleName,
-                        fontWeight: FontWeight.w700,
-                        maxLines: 2,
-                        fontSize: 24,
-                        textColor: getTextColor(),
+                    ),
+
+                    const SizedBox(height: 20),
+
+                    // Main content
+                    Expanded(
+                      child: SingleChildScrollView(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.center,
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            const SizedBox(height: 50),
+                            AppUtils.successImage(
+                                height: 60, width: 60, iconsSize: 40),
+                            const SizedBox(height: 20),
+                            AppUtils.commonTextWidget(
+                              text: "You have completed meditation of",
+                              fontWeight: FontWeight.w400,
+                              fontSize: 16,
+                              textColor: getTextColor(),
+                            ),
+                            const SizedBox(height: 8),
+                            AppUtils.commonTextWidget(
+                              text: widget.titleName,
+                              fontWeight: FontWeight.w700,
+                              maxLines: 2,
+                              fontSize: 24,
+                              textColor: getTextColor(),
+                            ),
+                            const SizedBox(height: 20),
+                            TextButton(
+                              onPressed: () {
+                                Navigator.pop(context);
+                              },
+                              child: AppUtils.commonTextWidget(
+                                text: "Start New Track",
+                                fontWeight: FontWeight.w400,
+                                fontSize: 16,
+                                textColor: getTextColor(),
+                                decoration: TextDecoration.underline,
+                              ),
+                            ),
+                            OutlinedButton(
+                              style: OutlinedButton.styleFrom(
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(4),
+                                ),
+                              ),
+                              onPressed: () {
+                                shoFeedBackPopUpView();
+                              },
+                              child: Padding(
+                                padding:
+                                    const EdgeInsets.only(top: 11, bottom: 11),
+                                child: AppUtils.commonTextWidget(
+                                  text: "Provide Your Feedback",
+                                  textColor: getTextColor(),
+                                  fontWeight: FontWeight.w500,
+                                  fontSize: 16,
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
                       ),
-                      const SizedBox(height: 20),
-                      TextButton(
-                        onPressed: () {
-                          Navigator.pop(context);
-                        },
-                        child: AppUtils.commonTextWidget(
-                          text: "Start New Track",
+                    ),
+                    // const SizedBox(height: 0),
+
+                    // Favorites and Buttons
+                    Column(
+                      children: [
+                        GestureDetector(
+                            onTap: () {
+                              toggleFav();
+                            },
+                            child: Icon(Icons.favorite,
+                                size: 30,
+                                color: savedFavVar
+                                    ? getPrimaryColor()
+                                    : AppColors.greyColor)),
+                        const SizedBox(height: 4),
+                        AppUtils.commonTextWidget(
+                          text: "Favorites",
                           fontWeight: FontWeight.w400,
-                          fontSize: 16,
+                          fontSize: 14,
                           textColor: getTextColor(),
-                          decoration: TextDecoration.underline,
                         ),
-                      ),
-                      OutlinedButton(
-                        style: OutlinedButton.styleFrom(
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(4),
-                          ),
+                        const SizedBox(height: 50),
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            Expanded(
+                              child: AppUtils.commonElevatedButton(
+                                text: "Tip${inAppProductList.first.price}",
+                                onPressed: () {
+                                  showTipDialogBox(context, inAppProductList);
+
+                                },
+                              ),
+                            ),
+                            const SizedBox(width: 10),
+                            Expanded(
+                              child: AppUtils.commonElevatedButton(
+                                text: "Get Subscription",
+                                onPressed: () {
+                                  Navigator.pushReplacement(
+                                      context,
+                                      MaterialPageRoute(
+                                        builder: (context) =>
+                                            SubscriptionScreen(),
+                                      ));
+                                },
+                              ),
+                            ),
+                          ],
                         ),
-                        onPressed: () {
-                          shoFeedBackPopUpView();
-                        },
-                        child: Padding(
-                          padding: const EdgeInsets.only(top: 11, bottom: 11),
-                          child: AppUtils.commonTextWidget(
-                            text: "Provide Your Feedback",
-                            textColor: getTextColor(),
-                            fontWeight: FontWeight.w500,
-                            fontSize: 16,
-                          ),
-                        ),
-                      ),
-                    ],
-                  ),
+                      ],
+                    ),
+                  ],
                 ),
               ),
-              // const SizedBox(height: 0),
-
-              // Favorites and Buttons
-              Column(
-                children: [
-                  GestureDetector(
-                      onTap: () {
-                        toggleFav();
-                      },
-                      child: Icon(Icons.favorite,
-                          size: 30,
-                          color: savedFavVar
-                              ? getPrimaryColor()
-                              : AppColors.greyColor)),
-                  const SizedBox(height: 4),
-                  AppUtils.commonTextWidget(
-                    text: "Favorites",
-                    fontWeight: FontWeight.w400,
-                    fontSize: 14,
-                    textColor: getTextColor(),
-                  ),
-                  const SizedBox(height: 50),
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Expanded(
-                        child: AppUtils.commonElevatedButton(
-                          text: "Give Tip",
-                          onPressed: () {
-                            showTipDialogBox(context, inAppProductList);
-                          },
-                        ),
-                      ),
-                      const SizedBox(width: 10),
-                      Expanded(
-                        child: AppUtils.commonElevatedButton(
-                          text: "Get Subscription",
-                          onPressed: () {
-                            Navigator.pushReplacement(
-                                context,
-                                MaterialPageRoute(
-                                  builder: (context) => SubscriptionScreen(),
-                                ));
-                          },
-                        ),
-                      ),
-                    ],
-                  ),
-                ],
-              ),
-            ],
-          ),
-        ),
       ),
     );
   }
@@ -379,7 +406,7 @@ class _FeedbackScreenState extends State<FeedbackScreen> {
                               maxLines: 4,
                               decoration: InputDecoration(
                                 enabled: true,
-                                fillColor: AppColors.greyColor,
+                                fillColor: AppColors.textFieldColor,
                                 // Use your defined grey color
                                 filled: true,
                                 // This makes the background color visible
@@ -429,23 +456,17 @@ class _FeedbackScreenState extends State<FeedbackScreen> {
         });
   }
 
-  void showTipDialogBox(BuildContext context, List<ProductDetails> list) {
-    showDialog(
+  showTipDialogBox(
+      BuildContext context, List<ProductDetails> subscriptionList) {
+    return showDialog(
       context: context,
       builder: (context) {
-        return CommonDialog(
-          title: "Tip Us",
-          description:
-              "Tip us to provide more free track, Select the amount you want to tip us.",
-          options: list.map((e) => e.price).toList(),
-          onSubmit: (selectedIndex) {
-            final selectedSubscription = list[selectedIndex];
-            iApEngine.handlePurchase(selectedSubscription, productId);
-
-            print("Selected Tip Amount: ${selectedSubscription.price}");
-          },
-        );
+        return TipDialogBox(subscriptionList: subscriptionList, onSubmit: onSubmit);
       },
     );
+  }
+
+  onSubmit(ProductDetails productDetails){
+    iApEngine.handlePurchase(productDetails, productId);
   }
 }

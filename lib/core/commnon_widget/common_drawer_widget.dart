@@ -146,7 +146,7 @@ class _CommonDrawerWidgetState extends State<CommonDrawerWidget> {
               padding: const EdgeInsets.only(bottom: 20),
               child: AppUtils.commonTextWidget(
                   text: "Version 1.1.0",
-                  textColor: AppColors.primaryColor,
+                  textColor: getPrimaryColor(),
                   fontWeight: FontWeight.w400,
                   fontSize: 14),
             )
@@ -163,6 +163,7 @@ class _CommonDrawerWidgetState extends State<CommonDrawerWidget> {
         contentPadding: EdgeInsets.zero,
         leading: Image.asset(
           icon ?? '',
+          color: getTextColor(),
           height: 24,
           width: 24,
         ),
@@ -170,7 +171,7 @@ class _CommonDrawerWidgetState extends State<CommonDrawerWidget> {
             text: title ?? "",
             fontWeight: FontWeight.w400,
             fontSize: 16,
-            textColor: AppColors.blackColor),
+            ),
       ),
     );
   }

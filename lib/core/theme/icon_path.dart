@@ -1,6 +1,8 @@
 String basePath = "assets";
 
 String dhyanLogoLight = "$basePath/logo_light.png";
+String splashLogoLight = "$basePath/logo_dhyan_light.png";
+String splashLogoDark = "$basePath/logo_dhyan_dark.png";
 
 String drawerBackground = "$basePath/drawer_background.png";
 String tipIcon = "$basePath/tip_icon.png";
