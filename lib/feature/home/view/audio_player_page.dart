@@ -58,7 +58,6 @@ class _AudioPlayerPageState extends State<AudioPlayerPage> {
       });
 
     // Audio player setup
-    audioPlayer.setAllowsExternalPlayback(true);
     audioPlayer.setFilePath(widget.filePath).then((_) {
       audioDuration = audioPlayer.duration;
       playAudio();

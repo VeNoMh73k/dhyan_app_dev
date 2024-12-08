@@ -23,7 +23,6 @@ class _SplashScreenState extends State<SplashScreen> {
     print("returned");
     saveDate();
     restoreSubscription();
-
     splashStream = iApEngine.inAppPurchase.purchaseStream.listen(
           (list) {
             print("datatest");

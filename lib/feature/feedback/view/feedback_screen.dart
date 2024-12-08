@@ -16,86 +16,99 @@ import 'package:meditationapp/feature/subscription/view/subscription_screen.dart
 import 'package:onepref/onepref.dart';
 
 class FeedbackScreen extends StatefulWidget {
-  String? titleName;
-  String? trackId;
+  String titleName;
+  String trackId;
 
-  FeedbackScreen({super.key, this.trackId, this.titleName});
+  FeedbackScreen({super.key, required this.trackId, required this.titleName});
 
   @override
   State<FeedbackScreen> createState() => _FeedbackScreenState();
 }
 
 class _FeedbackScreenState extends State<FeedbackScreen> {
-
   late StreamSubscription feedbackStream;
 
   IApEngine iApEngine = IApEngine();
 
-
   late final List<ProductId> productId = [
-    ProductId(id: tip1, isConsumable: true,isOneTimePurchase: false),
-    ProductId(id: tip2, isConsumable: true,isOneTimePurchase: false),
-    ProductId(id: tip3, isConsumable: true,isOneTimePurchase: false),
+    ProductId(id: tip1, isConsumable: true, isOneTimePurchase: false),
+    ProductId(id: tip2, isConsumable: true, isOneTimePurchase: false),
+    ProductId(id: tip3, isConsumable: true, isOneTimePurchase: false),
   ];
 
   List<ProductDetails> inAppProductList = [];
+
+  bool isLoading = false;
 
   @override
   void initState() {
     // TODO: implement initState
     super.initState();
 
-    feedbackStream = iApEngine.inAppPurchase.purchaseStream.listen((list) {
+    feedbackStream = iApEngine.inAppPurchase.purchaseStream.listen(
+      (list) {
         listenPurchaseStream(list);
-
-    },);
+      },
+    );
 
     getInitialFav();
 
     getTipData();
   }
 
-
-
-
-  listenPurchaseStream(List<PurchaseDetails> listenPurchaseDetails){
-    if(listenPurchaseDetails.isNotEmpty){
-      for(PurchaseDetails purchase in listenPurchaseDetails){
-        for(var id in productId){
-          if(id.id == purchase.productID){
-            if(purchase.status == PurchaseStatus.purchased){
-
+  listenPurchaseStream(List<PurchaseDetails> listenPurchaseDetails) {
+    if (listenPurchaseDetails.isNotEmpty) {
+      for (PurchaseDetails purchase in listenPurchaseDetails) {
+        for (var id in productId) {
+          if (id.id == purchase.productID) {
+            if (purchase.status == PurchaseStatus.purchased) {
               iApEngine.inAppPurchase.completePurchase(purchase);
               feedbackStream.cancel();
-              Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => ThankYouForTipScreen(isFromHome: false,),));
-
-
-            }else if(purchase.status == PurchaseStatus.canceled){
-              AppUtils.snackBarFnc(ctx: context,contentText: "Your Purchase has been canceled");
+              Navigator.pushReplacement(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => ThankYouForTipScreen(
+                      isFromHome: false,
+                    ),
+                  ));
+            } else if (purchase.status == PurchaseStatus.canceled) {
+              AppUtils.snackBarFnc(
+                  ctx: context, contentText: "Your Purchase has been canceled");
               feedbackStream.cancel();
-            }else if(purchase.status == PurchaseStatus.pending){
-              AppUtils.snackBarFnc(ctx: context,contentText: "Your Purchase is pending");
+            } else if (purchase.status == PurchaseStatus.pending) {
+              AppUtils.snackBarFnc(
+                  ctx: context, contentText: "Your Purchase is pending");
               feedbackStream.cancel();
             }
           }
-
         }
-
       }
     }
   }
 
-  getTipData(){
-    iApEngine.getIsAvailable().then((value) {
-      if(value){
-        iApEngine.queryProducts(productId).then((res) {
-          print("responseData${res.productDetails.length}");
-          setState(() {
-            inAppProductList = res.productDetails;
-          });
-        },);
-      }
-    },);
+  getTipData() {
+    setState(() {
+      isLoading = true;
+    });
+
+    iApEngine.getIsAvailable().then(
+      (value) {
+        if (value) {
+          iApEngine.queryProducts(productId).then(
+            (res) {
+              print("responseData${res.productDetails.length}");
+              setState(() {
+                inAppProductList = res.productDetails;
+              });
+            },
+          );
+        }
+      },
+    );
+    setState(() {
+      isLoading = false;
+    });
+
   }
 
   bool savedFavVar = false;
@@ -116,11 +129,6 @@ class _FeedbackScreenState extends State<FeedbackScreen> {
   }
 
   goBack() {
-    // Navigator.pushReplacement(
-    //     context,
-    //     MaterialPageRoute(
-    //       builder: (context) => const HomeScreen(),
-    //     ));
     Navigator.pop(context);
   }
 
@@ -141,28 +149,16 @@ class _FeedbackScreenState extends State<FeedbackScreen> {
       child: Scaffold(
         backgroundColor: getScaffoldColor(),
         appBar: AppBar(
-            automaticallyImplyLeading: false,
-            backgroundColor: getScaffoldColor(),
-            leading: AppUtils.backButton(
-              color: getTextColor(),
-              onTap: () {
-                goBack();
-              },
-            ) /*GestureDetector(
+          automaticallyImplyLeading: false,
+          backgroundColor: getScaffoldColor(),
+          leading: AppUtils.backButton(
+            color: getTextColor(),
             onTap: () {
               goBack();
             },
-            child: Container(
-              margin: const EdgeInsets.only(left: 0, bottom: 0, right: 0),
-              padding: const EdgeInsets.all(4),
-              child: Icon(
-                Icons.arrow_back,
-                color: getTextColor(),
-              ),
-            ),
-          ),*/
-            ),
-        body: Padding(
+          ),
+        ),
+        body: isLoading ?  AppUtils.loaderWidget():Padding(
           padding: const EdgeInsets.all(16.0),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.center,
@@ -200,7 +196,7 @@ class _FeedbackScreenState extends State<FeedbackScreen> {
                       ),
                       const SizedBox(height: 8),
                       AppUtils.commonTextWidget(
-                        text: widget.titleName ?? "",
+                        text: widget.titleName,
                         fontWeight: FontWeight.w700,
                         maxLines: 2,
                         fontSize: 24,
@@ -229,7 +225,7 @@ class _FeedbackScreenState extends State<FeedbackScreen> {
                           shoFeedBackPopUpView();
                         },
                         child: Padding(
-                          padding: const EdgeInsets.only(top: 11,bottom: 11),
+                          padding: const EdgeInsets.only(top: 11, bottom: 11),
                           child: AppUtils.commonTextWidget(
                             text: "Provide Your Feedback",
                             textColor: getTextColor(),
@@ -269,9 +265,9 @@ class _FeedbackScreenState extends State<FeedbackScreen> {
                     children: [
                       Expanded(
                         child: AppUtils.commonElevatedButton(
-                          text: "Tip₹${100.00}",
+                          text: "Give Tip",
                           onPressed: () {
-                            showTipDialogBox(context,inAppProductList);
+                            showTipDialogBox(context, inAppProductList);
                           },
                         ),
                       ),
@@ -283,8 +279,7 @@ class _FeedbackScreenState extends State<FeedbackScreen> {
                             Navigator.pushReplacement(
                                 context,
                                 MaterialPageRoute(
-                                  builder: (context) =>
-                                      SubscriptionScreen(),
+                                  builder: (context) => SubscriptionScreen(),
                                 ));
                           },
                         ),
@@ -434,14 +429,14 @@ class _FeedbackScreenState extends State<FeedbackScreen> {
         });
   }
 
-
   void showTipDialogBox(BuildContext context, List<ProductDetails> list) {
     showDialog(
       context: context,
       builder: (context) {
         return CommonDialog(
           title: "Tip Us",
-          description: "Tip us to provide more free track, Select the amount you want to tip us.",
+          description:
+              "Tip us to provide more free track, Select the amount you want to tip us.",
           options: list.map((e) => e.price).toList(),
           onSubmit: (selectedIndex) {
             final selectedSubscription = list[selectedIndex];
@@ -453,5 +448,4 @@ class _FeedbackScreenState extends State<FeedbackScreen> {
       },
     );
   }
-
 }

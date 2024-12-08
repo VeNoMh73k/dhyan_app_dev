@@ -7,6 +7,7 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
 import 'package:flutter/services.dart';
+import 'package:google_mobile_ads/google_mobile_ads.dart';
 import 'package:in_app_purchase/in_app_purchase.dart';
 import 'package:meditationapp/core/storage/preference_helper.dart';
 import 'package:meditationapp/feature/home/provider/home_provider.dart';
@@ -30,6 +31,7 @@ ThemeData? currentTheme;
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
+  MobileAds.instance.initialize();
   await Firebase.initializeApp(
     options: DefaultFirebaseOptions.currentPlatform,
   );
@@ -55,9 +57,6 @@ Future<void> main() async {
           value?.containsKey(PreferenceHelper.reminderHour) == false) {
         value?.setString(PreferenceHelper.reminderHour, '08');
         value?.setString(PreferenceHelper.reminderMin, '30');
-        // NotificationService().scheduleNotification(
-        //     scheduledNotificationDateTime: DateTime(DateTime.now().year,
-        //         DateTime.now().month, DateTime.now().day, 08, 30), selectedTime: null);
       }
     },
   );
@@ -81,8 +80,7 @@ class _MyAppState extends State<MyApp> with WidgetsBindingObserver {
 
 
     // check();
-    currentTheme =
-    ThemeData.light();
+    currentTheme = ThemeData.light();
     var dispatcher = SchedulerBinding.instance.platformDispatcher;
 
     dispatcher.onPlatformBrightnessChanged = () {
@@ -112,18 +110,18 @@ class _MyAppState extends State<MyApp> with WidgetsBindingObserver {
   }
 
 
-  // @override
-  // void didChangePlatformBrightness() {
-  //   // This method is triggered when the system theme changes
-  //   setState(() {
-  //     // var brightness =
-  //     //     SchedulerBinding.instance.platformDispatcher.platformBrightness;
-  //     brightness = View.of(context).platformDispatcher.platformBrightness;
-  //     brightness == Brightness.dark
-  //         ? currentTheme = ThemeData.dark()
-  //         : currentTheme = ThemeData.light();
-  //   });
-  // }
+  @override
+  void didChangePlatformBrightness() {
+
+    setState(() {
+      var brightness =
+          SchedulerBinding.instance.platformDispatcher.platformBrightness;
+      brightness = View.of(context).platformDispatcher.platformBrightness;
+      brightness == Brightness.dark
+          ? currentTheme = ThemeData.dark()
+          : currentTheme = ThemeData.light();
+    });
+  }
 
 
   @override
