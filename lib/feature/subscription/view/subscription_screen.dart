@@ -36,11 +36,15 @@ class _SubscriptionScreenState extends State<SubscriptionScreen>
   List<ProductDetails> subscriptionList = [];
 
   //ProductsId
-  static const String _subscriptionProductId = 'com.dhyanlife.app.subscription';
+  static const String _monthlySubscriptionProductId =
+      'com.dhyanlife.app.subscription.monthly';
+  static const String _yearlySubscriptionProductId =
+      'com.dhyanlife.app.subscription.yearly';
   static const String _lifeTimeSubscriptionProductId =
       'com.dhyanlife.app.product.lifetime';
   late final List<ProductId> productId = [
-    ProductId(id: _subscriptionProductId, isConsumable: false),
+    ProductId(id: _monthlySubscriptionProductId, isConsumable: false),
+    ProductId(id: _yearlySubscriptionProductId, isConsumable: false),
     ProductId(
         id: _lifeTimeSubscriptionProductId,
         isConsumable: false,
@@ -66,6 +70,7 @@ class _SubscriptionScreenState extends State<SubscriptionScreen>
 
     isSubscribe = PreferenceHelper.getBool(PreferenceHelper.isSubscribe);
     print("isSubscribe$isSubscribe");
+
     _subscriptionStream = iApEngine.inAppPurchase.purchaseStream.listen(
       (listenPurchaseDetails) {
         //Listen Purchase Details
@@ -91,14 +96,18 @@ class _SubscriptionScreenState extends State<SubscriptionScreen>
         print("Purchase${purchase.purchaseID}");
         if (purchase.status == PurchaseStatus.restored ||
             purchase.status == PurchaseStatus.purchased) {
+          Map purchaseData =
+          json.decode(purchase.verificationData.localVerificationData);
+
+          setState(() {});
           print(purchase.verificationData.localVerificationData);
 
-          Map purchaseData =
-              json.decode(purchase.verificationData.localVerificationData);
 
           if (purchaseData['acknowledged']) {
             print("restorePurchase");
+
             updateSubscriptionStatus(true);
+
           } else {
             //its FirstTime Purchase
             print("firsTimePurchase");
@@ -110,9 +119,12 @@ class _SubscriptionScreenState extends State<SubscriptionScreen>
 
               await androidPlatformAddition.consumePurchase(purchase).then(
                 (value) {
+                  subscriptionId = purchaseData["productId"];
+                  print("subscription$subscriptionId");
                   updateSubscriptionStatus(
                     true,
                   );
+                  getSubscriptionList();
                 },
               );
             }
@@ -146,6 +158,7 @@ class _SubscriptionScreenState extends State<SubscriptionScreen>
   }
 
   getSubscriptionList() async {
+
     setState(() {
       isLoading = true;
     });
@@ -157,20 +170,35 @@ class _SubscriptionScreenState extends State<SubscriptionScreen>
           iApEngine.queryProducts(productId).then(
             (res) {
               subscriptionList.clear();
-              setState(() {
-                subscriptionList = res.productDetails;
-                subscriptionList.sort((a, b) => a.rawPrice.compareTo(b.rawPrice));
-                isLoading = false;
-              });
+              print("subscriptionId$subscriptionId");
+
+              if(isSubscribe == true){
+                setState(() {
+                  subscriptionList = res.productDetails.where((element) => element.id == subscriptionId,).toList();
+                  print("responseData${subscriptionList.first.title}");
+                  isLoading = false;
+
+                });
+
+              } else{
+                 setState(() {
+                   subscriptionList = res.productDetails;
+                   subscriptionList.sort((a, b) => a.rawPrice.compareTo(b.rawPrice));
+                   isLoading = false;
+                 });
+
+                }
+
+
+
 
               print("Sorted subscriptionList$subscriptionList");
             },
           );
-        }else{
+        } else {
           setState(() {
             isLoading = false;
           });
-
         }
       },
     );
@@ -233,10 +261,10 @@ class _SubscriptionScreenState extends State<SubscriptionScreen>
                           width: 5,
                         ),
                         AppUtils.commonTextWidget(
-                            text: "Benefits of Premium",
-                            fontWeight: FontWeight.w700,
-                            fontSize: 18,
-                           )
+                          text: "Benefits of Premium",
+                          fontWeight: FontWeight.w700,
+                          fontSize: 18,
+                        )
                       ],
                     ),
                     const SizedBox(
@@ -254,10 +282,10 @@ class _SubscriptionScreenState extends State<SubscriptionScreen>
                           width: 5,
                         ),
                         AppUtils.commonTextWidget(
-                            text: "Ad-Free Experience",
-                            fontWeight: FontWeight.w400,
-                            fontSize: 16,
-                          )
+                          text: "Ad-Free Experience",
+                          fontWeight: FontWeight.w400,
+                          fontSize: 16,
+                        )
                       ],
                     ),
                     const SizedBox(
@@ -275,184 +303,132 @@ class _SubscriptionScreenState extends State<SubscriptionScreen>
                           width: 5,
                         ),
                         AppUtils.commonTextWidget(
-                            text: "Exclusive Content",
-                            fontWeight: FontWeight.w400,
-                            fontSize: 16,
-                            )
+                          text: "Exclusive Content",
+                          fontWeight: FontWeight.w400,
+                          fontSize: 16,
+                        )
                       ],
                     ),
                     const SizedBox(
                       height: 32,
                     ),
                     AppUtils.commonTextWidget(
-                        text: isSubscribe == false
-                            ? "Choose Your Plan"
-                            : "Manage Your Plan",
-                        fontWeight: FontWeight.w700,
-                        fontSize: 18,
-                        ),
+                      text: isSubscribe == false
+                          ? "Choose Your Plan"
+                          : "Manage Your Plan",
+                      fontWeight: FontWeight.w700,
+                      fontSize: 18,
+                    ),
                     const SizedBox(
                       height: 10,
                     ),
-                    isSubscribe == false
-                        ? ListView.builder(
-                            itemCount: subscriptionList.length,
-                            shrinkWrap: true,
-                            padding: const EdgeInsets.only(top: 8, bottom: 16),
-                            physics: const NeverScrollableScrollPhysics(),
-                            itemBuilder: (context, index) {
-                              final ProductDetails product =
-                                  subscriptionList[index];
+                    ListView.builder(
+                      itemCount: subscriptionList.length,
+                      shrinkWrap: true,
+                      padding: const EdgeInsets.only(top: 8, bottom: 16),
+                      physics: const NeverScrollableScrollPhysics(),
+                      itemBuilder: (context, index) {
+                        final ProductDetails product = subscriptionList[index];
+                        String title = product.title.split(' (')[0];
 
-                              // Categorize by price
-                              String subscriptionType;
-                              if (product.rawPrice ==
-                                  subscriptionList.first.rawPrice) {
-                                subscriptionType = "Monthly";
-                              } else if (product.rawPrice ==
-                                  subscriptionList.last.rawPrice) {
-                                subscriptionType = "Lifetime";
-                              } else {
-                                subscriptionType = "Yearly";
-                              }
+                        print("title$title"); // Output: Yearly
 
-                              return AppUtils.commonContainer(
-                                margin: const EdgeInsets.only(bottom: 16),
-                                padding: const EdgeInsets.only(
-                                    top: 16, left: 16, right: 16, bottom: 16),
-                                decoration: AppUtils.commonBoxDecoration(
-                                  borderRadius: BorderRadius.circular(10),
-                                  color: getMusicListTileColor(),
-                                ),
-                                child: Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    Row(
-                                      mainAxisAlignment:
-                                          MainAxisAlignment.spaceBetween,
-                                      children: [
-                                        Expanded(
-                                          flex: 3,
-                                          child: AppUtils.commonTextWidget(
-                                            text: "$subscriptionType Plan",
-                                            fontWeight: FontWeight.w700,
-                                            fontSize: 16,
-                                            maxLines: 2,
-                                          ),
-                                        ),
-                                        const SizedBox(width: 10),
-                                        AppUtils.commonTextWidget(
-                                          text:
-                                              "${product.price} / $subscriptionType",
-                                          fontWeight: FontWeight.w700,
-                                          fontSize: 16,
-                                          textColor: AppColors.primaryColor,
-                                        ),
-                                      ],
-                                    ),
-                                    const SizedBox(height: 8),
-                                    AppUtils.commonTextWidget(
-                                      text: subscriptionType == "Lifetime"
-                                          ? "One-time payment, cancel anytime"
-                                          : "Billed $subscriptionType, cancel anytime.",
-                                      textColor: AppColors.darkGreyColor,
-                                      fontSize: 14,
-                                      fontWeight: FontWeight.w400,
-                                    ),
-                                    const SizedBox(height: 8),
-                                    PreferenceHelper.getBool(
-                                            PreferenceHelper.isSubscribe)
-                                        ? Center(
-                                            child: OutlinedButton(
-                                              style: OutlinedButton.styleFrom(
-                                                elevation: 0,
-                                                shape: RoundedRectangleBorder(
-                                                  borderRadius:
-                                                      BorderRadius.circular(4),
-                                                ),
-                                                side: const BorderSide(
-                                                  color: Colors
-                                                      .red, // Border color
-                                                ),
-                                              ),
-                                              onPressed: () {
-                                                showCancelSubscriptionPopUp();
-                                              },
-                                              child: AppUtils.commonTextWidget(
-                                                text: "Cancel Subscription",
-                                                textColor: Colors.red,
-                                                fontWeight: FontWeight.w400,
-                                                fontSize: 16,
-                                              ),
-                                            ),
-                                          )
-                                        : AppUtils.commonElevatedButton(
-                                            text: "Subscribe Now",
-                                            onPressed: () {
-                                              iApEngine.handlePurchase(
-                                                  product, productId);
-                                            },
-                                            buttonWidth: double.infinity,
-                                            leftMargin: 80,
-                                            rightMargin: 80,
-                                          ),
-                                  ],
-                                ),
-                              );
-                            },
-                          )
-                        : AppUtils.commonContainer(
-                            margin: const EdgeInsets.only(bottom: 16),
-                            padding: const EdgeInsets.only(
-                                top: 16, left: 16, right: 16, bottom: 16),
-                            decoration: AppUtils.commonBoxDecoration(
-                              borderRadius: BorderRadius.circular(10),
-                              color: getMusicListTileColor()
-                            ),
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                AppUtils.commonTextWidget(
-                                  text: "Manage Your Subscription",
-                                  fontWeight: FontWeight.w700,
-                                  fontSize: 16,
-                                  maxLines: 2,
-                                ),
-                                const SizedBox(height: 8),
-                                AppUtils.commonTextWidget(
-                                  text:
-                                      "Tap Cancel to manage your subscription in your  ${Platform.isAndroid ? 'Play Store' : 'App Store'}.",
-                                  textColor: AppColors.darkGreyColor,
-                                  fontSize: 14,
-                                  maxLines: 3,
-                                  fontWeight: FontWeight.w400,
-                                ),
-                                const SizedBox(height: 8),
-                                Center(
-                                  child: OutlinedButton(
-                                    style: OutlinedButton.styleFrom(
-                                      elevation: 0,
-                                      shape: RoundedRectangleBorder(
-                                        borderRadius: BorderRadius.circular(4),
-                                      ),
-                                      side: const BorderSide(
-                                        color: Colors.red, // Border color
-                                      ),
-                                    ),
-                                    onPressed: () {
-                                      showCancelSubscriptionPopUp();
-                                    },
+                        // Categorize by price
+                        String subscriptionType;
+                        if (product.rawPrice ==
+                            subscriptionList.first.rawPrice) {
+                          subscriptionType = "Monthly";
+                        } else if (product.rawPrice ==
+                            subscriptionList.last.rawPrice) {
+                          subscriptionType = "Lifetime";
+                        } else {
+                          subscriptionType = "Yearly";
+                        }
+
+                        return AppUtils.commonContainer(
+                          margin: const EdgeInsets.only(bottom: 16),
+                          padding: const EdgeInsets.only(
+                              top: 16, left: 16, right: 16, bottom: 16),
+                          decoration: AppUtils.commonBoxDecoration(
+                            borderRadius: BorderRadius.circular(10),
+                            color: getMusicListTileColor(),
+                          ),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Row(
+                                mainAxisAlignment:
+                                    MainAxisAlignment.spaceBetween,
+                                children: [
+                                  Expanded(
+                                    flex: 3,
                                     child: AppUtils.commonTextWidget(
-                                      text: "Cancel Subscription",
-                                      textColor: Colors.red,
-                                      fontWeight: FontWeight.w400,
+                                      text: "$title Plan",
+                                      fontWeight: FontWeight.w700,
                                       fontSize: 16,
+                                      maxLines: 2,
                                     ),
                                   ),
-                                )
-                              ],
-                            ),
+                                  const SizedBox(width: 10),
+                                  AppUtils.commonTextWidget(
+                                    text:
+                                        "${product.price} / $title",
+                                    fontWeight: FontWeight.w700,
+                                    fontSize: 16,
+                                    textColor: AppColors.primaryColor,
+                                  ),
+                                ],
+                              ),
+                              const SizedBox(height: 8),
+                              AppUtils.commonTextWidget(
+                                text: subscriptionType == "Lifetime"
+                                    ? "One-time payment, cancel anytime"
+                                    : "Billed $title, cancel anytime.",
+                                textColor: AppColors.darkGreyColor,
+                                fontSize: 14,
+                                fontWeight: FontWeight.w400,
+                              ),
+                              const SizedBox(height: 8),
+                              PreferenceHelper.getBool(
+                                      PreferenceHelper.isSubscribe)
+                                  ? Center(
+                                      child: OutlinedButton(
+                                        style: OutlinedButton.styleFrom(
+                                          elevation: 0,
+                                          shape: RoundedRectangleBorder(
+                                            borderRadius:
+                                                BorderRadius.circular(4),
+                                          ),
+                                          side: const BorderSide(
+                                            color: Colors.red, // Border color
+                                          ),
+                                        ),
+                                        onPressed: () {
+                                          showCancelSubscriptionPopUp();
+                                        },
+                                        child: AppUtils.commonTextWidget(
+                                          text: "Cancel Subscription",
+                                          textColor: Colors.red,
+                                          fontWeight: FontWeight.w400,
+                                          fontSize: 16,
+                                        ),
+                                      ),
+                                    )
+                                  : AppUtils.commonElevatedButton(
+                                      text: "Subscribe Now",
+                                      onPressed: () {
+                                        iApEngine.handlePurchase(
+                                            product, productId);
+                                      },
+                                      buttonWidth: double.infinity,
+                                      leftMargin: 80,
+                                      rightMargin: 80,
+                                    ),
+                            ],
                           ),
+                        );
+                      },
+                    ),
                   ],
                 ),
               ),

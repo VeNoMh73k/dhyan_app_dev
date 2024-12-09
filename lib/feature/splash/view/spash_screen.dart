@@ -1,7 +1,7 @@
-import 'dart:async'; // Needed for StreamSubscription
+import 'dart:async';
+import 'dart:convert';
 
 import 'package:flutter/material.dart';
-import 'package:meditationapp/core/app_colors.dart';
 import 'package:meditationapp/core/storage/preference_helper.dart';
 import 'package:meditationapp/core/theme/icon_path.dart';
 import 'package:meditationapp/core/theme/theme_manager.dart';
@@ -28,8 +28,18 @@ class _SplashScreenState extends State<SplashScreen> {
     restoreSubscription();
     splashStream = iApEngine.inAppPurchase.purchaseStream.listen(
           (list) {
-            print("datatest");
+            print("datatest$list");
         if (list.isNotEmpty) {
+          for(var purchase in list){
+            Map purchaseData = json.decode(purchase.verificationData.localVerificationData);
+            subscriptionId = purchaseData["productId"];
+            setState(() {
+
+            });
+            print("subscriptionId$subscriptionId");
+          }
+
+
           // Restore the subscription
           updateSubscriptionStatus(true);
           print("SubscriptionData: ${list.first.verificationData.localVerificationData}");
@@ -44,8 +54,10 @@ class _SplashScreenState extends State<SplashScreen> {
     );
   }
 
+
   // Save the current date to preferences
   void saveDate() {
+
     DateTime todayDate = DateTime.now();
     print("todayDate: ${todayDate.toString()}");
     PreferenceHelper.setString("todayDate", todayDate.toString());
@@ -53,6 +65,7 @@ class _SplashScreenState extends State<SplashScreen> {
 
   // Restore subscriptions
   Future<void> restoreSubscription() async {
+    subscriptionId = "";
     await iApEngine.inAppPurchase.restorePurchases();
   }
 

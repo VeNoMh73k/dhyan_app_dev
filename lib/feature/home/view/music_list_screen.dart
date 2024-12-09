@@ -5,6 +5,7 @@ import 'package:meditationapp/core/app_colors.dart';
 import 'package:meditationapp/core/app_utils.dart';
 import 'package:meditationapp/core/image_path.dart';
 import 'package:meditationapp/core/storage/preference_helper.dart';
+import 'package:meditationapp/core/theme/icon_path.dart';
 import 'package:meditationapp/core/theme/theme_manager.dart';
 import 'package:meditationapp/feature/home/models/get_all_category_and_track.dart';
 import 'package:meditationapp/feature/home/provider/home_provider.dart';
@@ -56,13 +57,10 @@ class _MusicListScreenState extends State<MusicListScreen> {
     _scrollController.addListener(_handleScroll);
   }
 
-  checkSubscription(){
+  checkSubscription() {
     isSubscribe = PreferenceHelper.getBool(PreferenceHelper.isSubscribe);
-    setState(() {
-
-    });
+    setState(() {});
   }
-
 
   getTracksAccordingToCategoryId() {
     setState(() {
@@ -84,7 +82,8 @@ class _MusicListScreenState extends State<MusicListScreen> {
   }
 
   // Method to handle downloading audio
-  Future<void> callDownloadAudioApi(HomeProvider provider, String audioUrl,Tracks track) async {
+  Future<void> callDownloadAudioApi(
+      HomeProvider provider, String audioUrl, Tracks track) async {
     setState(() {
       filteredList
           .firstWhere((element) => element.trackUrl == audioUrl)
@@ -92,9 +91,11 @@ class _MusicListScreenState extends State<MusicListScreen> {
     });
 
     final dir = await getApplicationDocumentsDirectory();
-    final filePath = '${dir.path}/${audioUrl.hashCode}_cached_audio.mp3';
+    final filePath = '${dir.path}/${track.id}_cached_audio.mp3';
 
-    provider.downloadAudio(context, audioUrl, filePath,track).then((value) async {
+    provider
+        .downloadAudio(context, audioUrl, filePath, track)
+        .then((value) async {
       setState(() {
         if (value) {
           final track = filteredList
@@ -138,7 +139,8 @@ class _MusicListScreenState extends State<MusicListScreen> {
   // Load persisted download data
   Future<void> loadDownloadedData() async {
     if (PreferenceHelper.containsKey('downloadedFiles')) {
-      final downloads = Map<String, String>.from(jsonDecode(PreferenceHelper.getString('downloadedFiles')!));
+      final downloads = Map<String, String>.from(
+          jsonDecode(PreferenceHelper.getString('downloadedFiles')!));
       setState(() {
         for (var track in filteredList) {
           if (downloads.containsKey(track.trackUrl)) {
@@ -403,11 +405,20 @@ class _MusicListScreenState extends State<MusicListScreen> {
                                   mainAxisAlignment: MainAxisAlignment.start,
                                   mainAxisSize: MainAxisSize.min,
                                   children: [
-                                    AppUtils.commonTextWidget(
-                                      text: filteredList[index].title ?? "",
-                                      textColor: getTextColor(),
-                                      fontSize: 16,
-                                      fontWeight: FontWeight.w700,
+                                    Row(
+                                      children: [
+                                        Expanded(
+                                          child: AppUtils.commonTextWidget(
+                                              text: filteredList[index].title ??
+                                                  "",
+                                              textColor: getTextColor(),
+                                              fontSize: 16,
+                                              fontWeight: FontWeight.w700,
+                                              maxLines: 2),
+                                        ),
+                                        // SizedBox(width: 5,),
+                                        // Image.asset(subscriptionIcon,color: AppColors.premiumAudioIconColor,height: 18,width: 18,)
+                                      ],
                                     ),
                                     const SizedBox(height: 4),
                                     Row(
@@ -517,11 +528,14 @@ class _MusicListScreenState extends State<MusicListScreen> {
                                                   homeProvider,
                                                   filteredList[index]
                                                           .trackUrl ??
-                                                      '',filteredList[index]);
+                                                      '',
+                                                  filteredList[index]);
                                             }
                                           },
                                           child: ValueListenableBuilder(
-                                            valueListenable: filteredList[index].downloadProgress ?? ValueNotifier(0.0),
+                                            valueListenable: filteredList[index]
+                                                    .downloadProgress ??
+                                                ValueNotifier(0.0),
                                             builder: (context, value, child) {
                                               return Container(
                                                 height: 35,
@@ -545,8 +559,8 @@ class _MusicListScreenState extends State<MusicListScreen> {
                                                               .commonTextWidget(
                                                             text:
                                                                 "${filteredList[index].downloadProgress?.value.toStringAsFixed(0).padLeft(2, '0')}%",
-                                                            textColor:
-                                                                AppColors.blackColor,
+                                                            textColor: AppColors
+                                                                .blackColor,
                                                             fontWeight:
                                                                 FontWeight.w600,
                                                             fontSize: 11,
@@ -625,7 +639,8 @@ class _MusicListScreenState extends State<MusicListScreen> {
                                                     homeProvider,
                                                     filteredList[index]
                                                             .trackUrl ??
-                                                        '',filteredList[index]);
+                                                        '',
+                                                    filteredList[index]);
                                               }
                                             } else {
                                               Navigator.push(
@@ -645,24 +660,26 @@ class _MusicListScreenState extends State<MusicListScreen> {
                                             }
                                           },
                                           child: ValueListenableBuilder(
-                                            valueListenable: filteredList[index].downloadProgress ?? ValueNotifier(0.0),
+                                            valueListenable: filteredList[index]
+                                                    .downloadProgress ??
+                                                ValueNotifier(0.0),
                                             builder: (context, value, child) {
                                               return Container(
                                                 height: 35,
                                                 width: 35,
-                                                // padding: const EdgeInsets.all(4),
                                                 decoration: BoxDecoration(
                                                   color: getTipIconColor(),
                                                   borderRadius:
                                                       const BorderRadius.all(
-                                                          Radius.circular(4)),
+                                                    Radius.circular(4),
+                                                  ),
                                                 ),
                                                 child: filteredList[index]
                                                             .isPaid ==
                                                         false
-                                                    ? filteredList[index]
+                                                    ? (filteredList[index]
                                                                 .isDownloading ??
-                                                            false
+                                                            false)
                                                         ? Padding(
                                                             padding:
                                                                 const EdgeInsets
@@ -671,9 +688,9 @@ class _MusicListScreenState extends State<MusicListScreen> {
                                                               child: AppUtils
                                                                   .commonTextWidget(
                                                                 text:
-                                                                "${filteredList[index].downloadProgress?.value.toStringAsFixed(0).padLeft(2, '0')}%",
-                                                                textColor:
-                                                                AppColors.blackColor,
+                                                                    "${filteredList[index].downloadProgress?.value.toStringAsFixed(0).padLeft(2, '0')}%",
+                                                                textColor: AppColors
+                                                                    .blackColor,
                                                                 fontWeight:
                                                                     FontWeight
                                                                         .w600,
@@ -682,12 +699,14 @@ class _MusicListScreenState extends State<MusicListScreen> {
                                                             ),
                                                           )
                                                         : Padding(
-                                                            padding: EdgeInsets.all(
-                                                                filteredList[index]
-                                                                            .isDownloaded ??
-                                                                        false
-                                                                    ? 10
-                                                                    : 9),
+                                                            padding:
+                                                                EdgeInsets.all(
+                                                              filteredList[index]
+                                                                          .isDownloaded ??
+                                                                      false
+                                                                  ? 10
+                                                                  : 9,
+                                                            ),
                                                             child: Image.asset(
                                                               filteredList[index]
                                                                           .isDownloaded ??
@@ -698,11 +717,16 @@ class _MusicListScreenState extends State<MusicListScreen> {
                                                                   .blackColor,
                                                             ),
                                                           )
-                                                    : Icon(
-                                                        Icons.lock,
-                                                        size: 22,
-                                                        color: AppColors
-                                                            .blackColor,
+                                                    : Padding(
+                                                        padding:
+                                                            const EdgeInsets
+                                                                .all(6),
+                                                        child: Image.asset(
+                                                          premiumIcon,
+                                                          color: AppColors
+                                                              .premiumAudioIconColor,
+
+                                                        ),
                                                       ),
                                               );
                                             },
@@ -765,18 +789,14 @@ class _MusicListScreenState extends State<MusicListScreen> {
         return PopupMenuItem<String>(
           value: option,
           child: Theme(
-            data: ThemeData(
-              unselectedWidgetColor: AppColors.textFieldColor
-            ),
+            data: ThemeData(unselectedWidgetColor: AppColors.textFieldColor),
             child: RadioListTile<String>(
-              fillColor: MaterialStateProperty.resolveWith(
-                      (states) {
-                    if (states
-                        .contains(MaterialState.selected)) {
-                      return getPrimaryColor();
-                    }
-                    return getUnSelectedRadioButtonColor();
-                  }),
+              fillColor: MaterialStateProperty.resolveWith((states) {
+                if (states.contains(MaterialState.selected)) {
+                  return getPrimaryColor();
+                }
+                return getUnSelectedRadioButtonColor();
+              }),
               contentPadding: EdgeInsets.zero,
               title: AppUtils.commonTextWidget(
                   text: option,
@@ -808,9 +828,11 @@ class _MusicListScreenState extends State<MusicListScreen> {
       } else if (selectedOption == 'Shortest First') {
         filteredList.sort((a, b) => a.duration!.compareTo(b.duration!));
       } else if (selectedOption == 'Downloaded First') {
-        filteredList.sort((a, b) => (b.isDownloaded ?? false ? 1 : 0).compareTo(a.isDownloaded ?? false ? 1 : 0));
+        filteredList.sort((a, b) => (b.isDownloaded ?? false ? 1 : 0)
+            .compareTo(a.isDownloaded ?? false ? 1 : 0));
       } else if (selectedOption == 'Favorites First') {
-        filteredList.sort((a, b) => (b.isFav! ? 1 : 0).compareTo(a.isFav! ? 1 : 0));
+        filteredList
+            .sort((a, b) => (b.isFav! ? 1 : 0).compareTo(a.isFav! ? 1 : 0));
       }
     });
   }

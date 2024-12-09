@@ -22,6 +22,7 @@ import 'package:timezone/data/latest.dart' as tz;
 GlobalKey<NavigatorState> navigatorKey = GlobalKey<NavigatorState>();
 //Global Variables
 bool isSubscribe = false;
+String subscriptionId = "";
 int savedMinutes = 0;
 int daysOfMeditation = 0;
 int sessions = 0;

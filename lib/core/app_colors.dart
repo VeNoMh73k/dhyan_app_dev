@@ -21,4 +21,7 @@ class AppColors{
 
    static  Color lightBlackColor =  Color.fromRGBO(13, 13, 13, 1);
    static  Color radioTileColorDark =  Color.fromRGBO(23, 23, 23, 1);
+
+
+   static  Color premiumAudioIconColor =  Color.fromRGBO(255, 157, 0, 1);
 }

@@ -81,7 +81,10 @@ class HomeProvider with ChangeNotifier {
 
         // Check if the audioUrl exists in the downloaded cache
         if (downloads.containsKey(audioUrl)) {
+
           String filePath = downloads[audioUrl]!;
+
+          print("FilePath$filePath");
 
           // Delete the file from storage
           final file = File(filePath);
