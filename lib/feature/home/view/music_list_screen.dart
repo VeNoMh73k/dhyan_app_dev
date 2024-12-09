@@ -720,7 +720,7 @@ class _MusicListScreenState extends State<MusicListScreen> {
                                                     : Padding(
                                                         padding:
                                                             const EdgeInsets
-                                                                .all(6),
+                                                                .all(8.5),
                                                         child: Image.asset(
                                                           premiumIcon,
                                                           color: AppColors
