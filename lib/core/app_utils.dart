@@ -12,15 +12,15 @@ import 'package:path_provider/path_provider.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 class AppUtils {
-  static Future<String?> doesExitFile(audioId) async {
-    final dir = await getApplicationDocumentsDirectory();
-    final filePath = '${dir.path}/${audioId}cached_audio.mp3';
-    if (File(filePath).existsSync()) {
-      return filePath;
-    } else {
-      return null;
-    }
-  }
+  // static Future<String?> doesExitFile(audioId) async {
+  //   final dir = await getApplicationDocumentsDirectory();
+  //   final filePath = '${dir.path}/${audioId}cached_audio.mp3';
+  //   if (File(filePath).existsSync()) {
+  //     return filePath;
+  //   } else {
+  //     return null;
+  //   }
+  // }
 
   static Future<bool> checkInterAvailability() async {
     final isConnected = await InternetConnectionChecker().hasConnection;

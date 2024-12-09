@@ -135,11 +135,17 @@ class HomeProvider with ChangeNotifier {
             if (track.isPaid == true) {
               if (track.trackUrl != "" || track.trackUrl != null) {
                 final dir = await getApplicationDocumentsDirectory();
-                final filePath = '${dir.path}/${track.id}cached_audio.mp3';
+                final filePath = '${dir.path}/${track.id}_cached_audio.mp3';
                 if (await File(filePath).exists()) {
                   File(filePath).delete();
                 }
                 // deleteAudioCache(track.trackUrl ?? "");
+                if (PreferenceHelper.containsKey('downloadedFiles')) {
+                  Map<String, String> downloads = Map<String, String>.from(
+                    jsonDecode(PreferenceHelper.getString('downloadedFiles')!),
+                  );
+                  downloads.remove(track.filePath);
+                }
               }
             }
           }
