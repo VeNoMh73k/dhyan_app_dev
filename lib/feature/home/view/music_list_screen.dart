@@ -11,6 +11,7 @@ import 'package:meditationapp/core/theme/theme_manager.dart';
 import 'package:meditationapp/feature/home/models/get_all_category_and_track.dart';
 import 'package:meditationapp/feature/home/provider/home_provider.dart';
 import 'package:meditationapp/feature/home/view/audio_player_page.dart';
+import 'package:meditationapp/feature/home/view/marquee_widget.dart';
 import 'package:meditationapp/feature/subscription/view/subscription_screen.dart';
 import 'package:meditationapp/main.dart';
 import 'package:path_provider/path_provider.dart';
@@ -171,6 +172,7 @@ class _MusicListScreenState extends State<MusicListScreen> {
       _showAppBarTitle.value = false;
     }
   }
+
   getInitialFav() async {
     for (var track in filteredList) {
       final key = 'isFav_${track.id}';
@@ -183,9 +185,9 @@ class _MusicListScreenState extends State<MusicListScreen> {
     }
   }
 
-
   void toggleFavorite(int index) async {
-    final key = 'isFav_${filteredList[index].id}'; // Use unique ID for each item
+    final key =
+        'isFav_${filteredList[index].id}'; // Use unique ID for each item
     final newValue = !(filteredList[index].isFav ?? false);
 
     setState(() {
@@ -418,9 +420,19 @@ class _MusicListScreenState extends State<MusicListScreen> {
                                   mainAxisAlignment: MainAxisAlignment.start,
                                   mainAxisSize: MainAxisSize.min,
                                   children: [
+                                    // MarqueeWidget(
+                                    //   direction: Axis.horizontal,
+                                    //   child: AppUtils.commonTextWidget(
+                                    //     text: filteredList[index].title ?? "",
+                                    //     fontSize: 16,
+                                    //     fontWeight: FontWeight.w700,
+                                    //     textColor: getTextColor(),
+                                    //   ),
+                                    // ),
                                     SizedBox(
                                       height: 30,
-                                      width: double.infinity, // You can use a specific width if needed
+                                      width: double.infinity,
+                                      // You can use a specific width if needed
                                       child: Marquee(
                                         text: filteredList[index].title ?? "",
                                         style: TextStyle(
@@ -431,16 +443,16 @@ class _MusicListScreenState extends State<MusicListScreen> {
                                         scrollAxis: Axis.horizontal,
                                         blankSpace: 120,
                                         velocity: 50,
-                                        crossAxisAlignment: CrossAxisAlignment.start,
-                                        startAfter: Duration(seconds: 2),
-                                        pauseAfterRound: Duration(seconds: 1),
+                                        crossAxisAlignment:
+                                            CrossAxisAlignment.start,
+                                        startAfter: const Duration(seconds: 2),
+                                        pauseAfterRound: const Duration(seconds: 5),
                                         showFadingOnlyWhenScrolling: true,
                                         fadingEdgeStartFraction: 0.0,
-
                                         fadingEdgeEndFraction: 0.1,
                                       ),
                                     ),
-                                     SizedBox(height: 4),
+                                    const SizedBox(height: 4),
                                     Row(
                                       children: [
                                         AppUtils.commonContainer(
@@ -535,7 +547,7 @@ class _MusicListScreenState extends State<MusicListScreen> {
                                                               '',
                                                     ),
                                                   )).then(
-                                                (value) async{
+                                                (value) async {
                                                   getInitialFav();
                                                   isSubscribe =
                                                       PreferenceHelper.getBool(
@@ -649,7 +661,7 @@ class _MusicListScreenState extends State<MusicListScreen> {
                                                     )).then(
                                                   (value) async {
                                                     print("value$value");
-                                                 getInitialFav();
+                                                    getInitialFav();
                                                     isSubscribe =
                                                         PreferenceHelper.getBool(
                                                             PreferenceHelper
@@ -748,7 +760,6 @@ class _MusicListScreenState extends State<MusicListScreen> {
                                                           premiumIcon,
                                                           color: AppColors
                                                               .premiumAudioIconColor,
-
                                                         ),
                                                       ),
                                               );

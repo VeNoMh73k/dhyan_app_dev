@@ -27,7 +27,7 @@ class HomeScreen extends StatefulWidget {
   State<HomeScreen> createState() => _HomeScreenState();
 }
 
-class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver{
+class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
   final _advancedDrawerController = AdvancedDrawerController();
   IApEngine iApEngine = IApEngine();
   late HomeProvider homeProvider;
@@ -51,36 +51,38 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver{
   int? selectedValue;
 
   //listener for homeScreen
-  listenPurchaseStream(List<PurchaseDetails> listenPurchaseDetails)async {
+  listenPurchaseStream(List<PurchaseDetails> listenPurchaseDetails) async {
     print("Mount$mounted");
-    if(!mounted){
+    if (!mounted) {
       return;
     }
     print("not_Mount$mounted");
     if (listenPurchaseDetails.isNotEmpty) {
       for (PurchaseDetails purchase in listenPurchaseDetails) {
-            if (purchase.status == PurchaseStatus.purchased) {
-              await iApEngine.inAppPurchase.completePurchase(purchase).then((value) {
-                Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (context) => ThankYouForTipScreen(
-                        isFromHome: true,
-                      ),
-                    )).then((value) {
-                      homeStream.resume();
-                    },);
-                homeStream.pause();
-              },);
-
-            } else if (purchase.status == PurchaseStatus.canceled) {
-              AppUtils.snackBarFnc(
-                  ctx: context, contentText: "Your Purchase has been canceled");
-            } else if (purchase.status == PurchaseStatus.pending) {
-              AppUtils.snackBarFnc(
-                  ctx: context, contentText: "Your Purchase is pending");
-            }
-
+        if (purchase.status == PurchaseStatus.purchased) {
+          await iApEngine.inAppPurchase.completePurchase(purchase).then(
+            (value) {
+              Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => ThankYouForTipScreen(
+                      isFromHome: true,
+                    ),
+                  )).then(
+                (value) {
+                  homeStream.resume();
+                },
+              );
+              homeStream.pause();
+            },
+          );
+        } else if (purchase.status == PurchaseStatus.canceled) {
+          AppUtils.snackBarFnc(
+              ctx: context, contentText: "Your Purchase has been canceled");
+        } else if (purchase.status == PurchaseStatus.pending) {
+          AppUtils.snackBarFnc(
+              ctx: context, contentText: "Your Purchase is pending");
+        }
       }
     }
   }
@@ -109,7 +111,6 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver{
     homeProvider.callGetAllCategoryAndTrack();
   }
 
-
   @override
   void initState() {
     // TODO: implement initState
@@ -123,13 +124,13 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver{
     );
     homeStream = iApEngine.inAppPurchase.purchaseStream.listen(
       (list) {
-          listenPurchaseStream(list);
+        listenPurchaseStream(list);
       },
     );
     getTipData();
   }
 
-  FutureOr streamResumeFnc(){
+  FutureOr streamResumeFnc() {
     print("streamResumeFnc");
     homeStream.resume();
   }
@@ -168,21 +169,23 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver{
       rtlOpening: false,
       animationDuration: const Duration(milliseconds: 300),
       backdropColor: getScaffoldColor(),
-      backdrop: currentTheme == ThemeData.dark() ? null : AppUtils.commonContainer(
-          child: Image.asset(
-        drawerBackground,
-      )),
+      backdrop: currentTheme == ThemeData.dark()
+          ? null
+          : AppUtils.commonContainer(
+              child: Image.asset(
+              drawerBackground,
+            )),
       drawer: CommonDrawerWidget(
         advancedDrawerController: _advancedDrawerController,
         streamSubscription: homeStream,
-        onItemClick: (){
+        onItemClick: () {
           print("onItemClick");
           homeStream.cancel();
         },
-        onReturnFromItem: (){
+        onReturnFromItem: () {
           print("onReturnFromItem");
           homeStream = iApEngine.inAppPurchase.purchaseStream.listen(
-                (list) {
+            (list) {
               listenPurchaseStream(list);
             },
           );
@@ -191,7 +194,9 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver{
       ),
       child: Scaffold(
         backgroundColor: getScaffoldColor(),
-        appBar: currentTheme == ThemeData.dark() ? customAppBarWithRoundedCornersForBlackTheme(context) :  customAppBarWithRoundedCorners(context),
+        appBar: currentTheme == ThemeData.dark()
+            ? customAppBarWithRoundedCornersForBlackTheme(context)
+            : customAppBarWithRoundedCorners(context),
         body: Column(
           children: [
             // ListView for images
@@ -204,7 +209,8 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver{
                           itemCount: homeProvider.categories.length,
                           padding: const EdgeInsets.symmetric(vertical: 16),
                           itemBuilder: (context, index) {
-                            print("object${ homeProvider.categories[index].textSide.toString()}");
+                            print(
+                                "object${homeProvider.categories[index].textSide.toString()}");
                             return GestureDetector(
                               onTap: () {
                                 homeStream.cancel();
@@ -232,8 +238,10 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver{
                                     )).then(
                                   (value) {
                                     print("onReturnFromMusicListScreen");
-                                    homeStream = iApEngine.inAppPurchase.purchaseStream.listen(
-                                          (list) {
+                                    homeStream = iApEngine
+                                        .inAppPurchase.purchaseStream
+                                        .listen(
+                                      (list) {
                                         listenPurchaseStream(list);
                                       },
                                     );
@@ -254,51 +262,67 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver{
                               child: Container(
                                 height: 110,
                                 width: double.infinity,
-                                margin: const EdgeInsets.only(bottom: 16, left: 12, right: 12),
+                                margin: const EdgeInsets.only(
+                                    bottom: 16, left: 12, right: 12),
                                 decoration: BoxDecoration(
-                                  borderRadius: const BorderRadius.all(Radius.circular(12)),
+                                  borderRadius: const BorderRadius.all(
+                                      Radius.circular(12)),
                                   color: getScaffoldColor(),
                                 ),
                                 child: ClipRRect(
-                                  borderRadius: const BorderRadius.all(Radius.circular(12)),
+                                  borderRadius: const BorderRadius.all(
+                                      Radius.circular(12)),
                                   child: Stack(
                                     children: [
                                       // Image
                                       AppUtils.cacheImage(
-                                        imageUrl: homeProvider.categories[index].imageUrl ?? "",
+                                        imageUrl: homeProvider
+                                                .categories[index].imageUrl ??
+                                            "",
                                         width: double.infinity,
+                                        placeholder: const SizedBox(),
                                         fit: BoxFit.cover,
                                       ),
 
                                       Align(
-                                        alignment:  Alignment.center ,
+                                        alignment: Alignment.center,
                                         child: AppUtils.commonContainer(
-                                          padding: const EdgeInsets.only(left: 40,right: 40),
+                                          padding: const EdgeInsets.only(
+                                              left: 40, right: 40),
                                           width: double.infinity,
                                           child: AppUtils.commonTextWidget(
-                                            text: homeProvider.categories[index].title ?? "",
-                                            textColor: AppColors.whiteColor,
-                                            fontFamilyForText: "Carattere",
-                                            fontWeight: FontWeight.w400,
-                                            fontSize: 34,
-                                            textAlign: homeProvider.categories[index].textSide == "right" ? TextAlign.right : TextAlign.left
-
-                                          ),
+                                              text: homeProvider
+                                                      .categories[index]
+                                                      .title ??
+                                                  "",
+                                              textColor: AppColors.whiteColor,
+                                              fontFamilyForText: "Carattere",
+                                              fontWeight: FontWeight.w400,
+                                              fontSize: 34,
+                                              textAlign: homeProvider
+                                                          .categories[index]
+                                                          .textSide ==
+                                                      "right"
+                                                  ? TextAlign.right
+                                                  : homeProvider
+                                                              .categories[index]
+                                                              .textSide ==
+                                                          "center"
+                                                      ? TextAlign.center
+                                                      : TextAlign.left),
                                         ),
                                       ),
                                     ],
                                   ),
                                 ),
-                              )
-                              ,
+                              ),
                             );
                           },
                         ),
-                      ),
+            ),
 
             // Bottom container (fixed)
-            if(currentTheme == ThemeData.light())
-              bottomWidget(),
+            if (currentTheme == ThemeData.light()) bottomWidget(),
           ],
         ),
       ),
@@ -307,27 +331,27 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver{
 
   showTipDialogBox(
       BuildContext context, List<ProductDetails> subscriptionList) {
-
     return showDialog(
       context: context,
       builder: (context) {
-        return TipDialogBox(subscriptionList: subscriptionList, onSubmit: onSubmit);
+        return TipDialogBox(
+            subscriptionList: subscriptionList, onSubmit: onSubmit);
       },
     );
   }
 
-  onSubmit(ProductDetails productDetail){
+  onSubmit(ProductDetails productDetail) {
     iApEngine.handlePurchase(productDetail, productId);
   }
 
-  Widget bottomWidget(){
+  Widget bottomWidget() {
     return AppUtils.commonContainer(
       width: double.infinity,
-      padding: const EdgeInsets.only(
-          top: 10, bottom: 10, left: 10, right: 10),
+      padding: const EdgeInsets.only(top: 10, bottom: 10, left: 10, right: 10),
       decoration: BoxDecoration(
         color: getBottomCountContainerColor(),
-        borderRadius: const BorderRadius.only(bottomLeft: Radius.circular(16),bottomRight: Radius.circular(16)),
+        borderRadius: const BorderRadius.only(
+            bottomLeft: Radius.circular(16), bottomRight: Radius.circular(16)),
         boxShadow: [
           BoxShadow(
             color: Colors.black.withOpacity(0.1),
@@ -341,8 +365,8 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver{
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceAround,
         children: [
-          bottomCustomRow(savedMinutes.toString().padLeft(2, '0'),
-              "Min of Meditation"),
+          bottomCustomRow(
+              savedMinutes.toString().padLeft(2, '0'), "Min of Meditation"),
           bottomCustomRow(
               sessions.toString().padLeft(2, '0'), "Session Completed"),
           bottomCustomRow(daysOfMeditation.toString().padLeft(2, '0'),
@@ -372,7 +396,7 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver{
         ),
         child: AppBar(
           surfaceTintColor: Colors.transparent,
-          backgroundColor:Colors.transparent,
+          backgroundColor: Colors.transparent,
           // Make the AppBar background transparent
           elevation: 0,
           // Remove AppBar's default elevation
@@ -404,7 +428,10 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver{
           actions: [
             GestureDetector(
               onTap: () {
-                showTipDialogBox(context, subscriptionList,);
+                showTipDialogBox(
+                  context,
+                  subscriptionList,
+                );
               },
               child: AppUtils.commonContainer(
                 padding: const EdgeInsets.all(8),
@@ -424,7 +451,8 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver{
     );
   }
 
-  PreferredSizeWidget customAppBarWithRoundedCornersForBlackTheme(BuildContext context) {
+  PreferredSizeWidget customAppBarWithRoundedCornersForBlackTheme(
+      BuildContext context) {
     return PreferredSize(
       preferredSize: const Size.fromHeight(140),
       child: Column(
@@ -436,11 +464,10 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver{
                 bottomLeft: Radius.circular(16),
                 bottomRight: Radius.circular(16),
               ),
-
             ),
-            child:AppBar(
+            child: AppBar(
               surfaceTintColor: Colors.transparent,
-              backgroundColor:Colors.transparent,
+              backgroundColor: Colors.transparent,
               // Make the AppBar background transparent
               elevation: 0,
               // Remove AppBar's default elevation
@@ -448,7 +475,7 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver{
               centerTitle: true,
               leading: ClipRRect(
                 borderRadius:
-                const BorderRadius.only(bottomLeft: Radius.circular(16)),
+                    const BorderRadius.only(bottomLeft: Radius.circular(16)),
                 child: GestureDetector(
                   onTap: () {
                     _advancedDrawerController.showDrawer();
@@ -489,10 +516,7 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver{
               ],
             ),
           ),
-          
           bottomWidget()
-
-
         ],
       ),
     );

@@ -125,6 +125,7 @@ class HomeProvider with ChangeNotifier {
     try {
       Response<dynamic> response = await callPostMethodApi(getAudioListApi);
       if (response.statusCode == 200) {
+
         getAllCategoryAndTracks =
             GetAllCategoryAndTracks.fromJson(response.data);
         categories.addAll(getAllCategoryAndTracks?.categories ?? []);

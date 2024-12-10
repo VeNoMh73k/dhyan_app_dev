@@ -74,6 +74,7 @@ class AppUtils {
     required String imageUrl,
     double? height,
     double? width,
+    Widget? placeholder,
     BoxFit fit = BoxFit.cover,
     BorderRadius borderRadius = const BorderRadius.all(Radius.circular(12)),
   }) {
@@ -89,12 +90,12 @@ class AppUtils {
           imageUrl: imageUrl,
           fit: fit,
           placeholder: (context, url) {
-            return Center(
+            return placeholder ?? Center(
               child: Image.asset(
                 "assets/logo_light.png",
                 color: getPrimaryColor(),
-                height: 75,
-                width: 75,
+                height: 50,
+                width: 50,
                 fit: BoxFit.scaleDown,
               ),
             );
