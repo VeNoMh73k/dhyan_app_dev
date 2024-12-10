@@ -1,6 +1,7 @@
 import 'dart:convert';
 
 import 'package:flutter/material.dart';
+import 'package:marquee/marquee.dart';
 import 'package:meditationapp/core/app_colors.dart';
 import 'package:meditationapp/core/app_utils.dart';
 import 'package:meditationapp/core/image_path.dart';
@@ -45,6 +46,7 @@ class _MusicListScreenState extends State<MusicListScreen> {
   void initState() {
     super.initState();
     checkSubscription();
+
     WidgetsBinding.instance.addPostFrameCallback((timeStamp) async {
       homeProvider = Provider.of<HomeProvider>(context, listen: false);
 
@@ -169,10 +171,21 @@ class _MusicListScreenState extends State<MusicListScreen> {
       _showAppBarTitle.value = false;
     }
   }
+  getInitialFav() async {
+    for (var track in filteredList) {
+      final key = 'isFav_${track.id}';
+      // Fetch the value asynchronously
+      final isFav = PreferenceHelper.getBool(key);
+      print("isFav$isFav");
+      setState(() {
+        track.isFav = isFav;
+      });
+    }
+  }
+
 
   void toggleFavorite(int index) async {
-    final key =
-        'isFav_${filteredList[index].id}'; // Use unique ID for each item
+    final key = 'isFav_${filteredList[index].id}'; // Use unique ID for each item
     final newValue = !(filteredList[index].isFav ?? false);
 
     setState(() {
@@ -405,22 +418,29 @@ class _MusicListScreenState extends State<MusicListScreen> {
                                   mainAxisAlignment: MainAxisAlignment.start,
                                   mainAxisSize: MainAxisSize.min,
                                   children: [
-                                    Row(
-                                      children: [
-                                        Expanded(
-                                          child: AppUtils.commonTextWidget(
-                                              text: filteredList[index].title ??
-                                                  "",
-                                              textColor: getTextColor(),
-                                              fontSize: 16,
-                                              fontWeight: FontWeight.w700,
-                                              maxLines: 2),
+                                    SizedBox(
+                                      height: 30,
+                                      width: double.infinity, // You can use a specific width if needed
+                                      child: Marquee(
+                                        text: filteredList[index].title ?? "",
+                                        style: TextStyle(
+                                          color: getTextColor(),
+                                          fontSize: 16,
+                                          fontWeight: FontWeight.w700,
                                         ),
-                                        // SizedBox(width: 5,),
-                                        // Image.asset(subscriptionIcon,color: AppColors.premiumAudioIconColor,height: 18,width: 18,)
-                                      ],
+                                        scrollAxis: Axis.horizontal,
+                                        blankSpace: 120,
+                                        velocity: 50,
+                                        crossAxisAlignment: CrossAxisAlignment.start,
+                                        startAfter: Duration(seconds: 2),
+                                        pauseAfterRound: Duration(seconds: 1),
+                                        showFadingOnlyWhenScrolling: true,
+                                        fadingEdgeStartFraction: 0.0,
+
+                                        fadingEdgeEndFraction: 0.1,
+                                      ),
                                     ),
-                                    const SizedBox(height: 4),
+                                     SizedBox(height: 4),
                                     Row(
                                       children: [
                                         AppUtils.commonContainer(
@@ -515,7 +535,8 @@ class _MusicListScreenState extends State<MusicListScreen> {
                                                               '',
                                                     ),
                                                   )).then(
-                                                (value) {
+                                                (value) async{
+                                                  getInitialFav();
                                                   isSubscribe =
                                                       PreferenceHelper.getBool(
                                                           PreferenceHelper
@@ -626,7 +647,9 @@ class _MusicListScreenState extends State<MusicListScreen> {
                                                                 '',
                                                       ),
                                                     )).then(
-                                                  (value) {
+                                                  (value) async {
+                                                    print("value$value");
+                                                 getInitialFav();
                                                     isSubscribe =
                                                         PreferenceHelper.getBool(
                                                             PreferenceHelper

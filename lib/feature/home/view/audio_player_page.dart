@@ -77,7 +77,7 @@ class _AudioPlayerPageState extends State<AudioPlayerPage> {
             saveMinutesInPref();
             saveSessionCompleted();
             pauseAudio();
-            Navigator.pushReplacement(
+            Navigator.push(
                 context,
                 MaterialPageRoute(
                   builder: (context) => FeedbackScreen(
@@ -174,7 +174,7 @@ class _AudioPlayerPageState extends State<AudioPlayerPage> {
   Widget build(BuildContext context) {
     return WillPopScope(
       onWillPop: () async{
-        Navigator.pushReplacement(
+        Navigator.push(
             context,
             MaterialPageRoute(
               builder: (context) => FeedbackScreen(
@@ -197,7 +197,7 @@ class _AudioPlayerPageState extends State<AudioPlayerPage> {
             color: AppColors.whiteColor,
             onTap: () {
               pauseAudio();
-              Navigator.pushReplacement(
+              Navigator.push(
                   context,
                   MaterialPageRoute(
                     builder: (context) => FeedbackScreen(

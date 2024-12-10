@@ -26,6 +26,7 @@ String subscriptionId = "";
 int savedMinutes = 0;
 int daysOfMeditation = 0;
 int sessions = 0;
+PurchaseDetails?  purchaseDetails;
 
 List<SingleChildWidget> providers = [
   ChangeNotifierProvider<HomeProvider>(create: (_) => HomeProvider()),

@@ -166,6 +166,7 @@ class AppUtils {
       int? maxLines,
       double? letterSpacing,
       TextOverflow? overflow,
+        String? fontFamilyForText,
       TextDecoration? decoration}) {
     return Text(
       text ?? "",
@@ -173,7 +174,7 @@ class AppUtils {
           fontSize: fontSize ?? 14,
           // Default font size
           fontWeight: fontWeight ?? FontWeight.normal,
-          fontFamily: fontFamily,
+          fontFamily: fontFamilyForText ?? fontFamily,
           // Default font weight
           color: textColor ?? getTextColor(),
           letterSpacing: letterSpacing ?? 0.1,

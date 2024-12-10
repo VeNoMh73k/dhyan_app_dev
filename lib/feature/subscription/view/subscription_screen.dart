@@ -111,27 +111,30 @@ class _SubscriptionScreenState extends State<SubscriptionScreen>
           } else {
             //its FirstTime Purchase
             print("firsTimePurchase");
-            if (Platform.isAndroid) {
-              final InAppPurchaseAndroidPlatformAddition
-                  androidPlatformAddition = iApEngine.inAppPurchase
-                      .getPlatformAddition<
-                          InAppPurchaseAndroidPlatformAddition>();
-
-              await androidPlatformAddition.consumePurchase(purchase).then(
-                (value) {
-                  subscriptionId = purchaseData["productId"];
-                  print("subscription$subscriptionId");
-                  updateSubscriptionStatus(
-                    true,
-                  );
-                  getSubscriptionList();
-                },
-              );
-            }
+            // if (Platform.isAndroid) {
+            //   final InAppPurchaseAndroidPlatformAddition
+            //       androidPlatformAddition = iApEngine.inAppPurchase
+            //           .getPlatformAddition<
+            //               InAppPurchaseAndroidPlatformAddition>();
+            //
+            //   await androidPlatformAddition.consumePurchase(purchase).then(
+            //     (value) {
+            //       subscriptionId = purchaseData["productId"];
+            //       print("subscription$subscriptionId");
+            //       updateSubscriptionStatus(
+            //         true,
+            //       );
+            //       getSubscriptionList();
+            //     },
+            //   );
+            // }
 
             if (purchase.pendingCompletePurchase) {
               await iApEngine.inAppPurchase.completePurchase(purchase).then(
                 (value) {
+                  subscriptionId = purchaseData["productId"];
+
+                  getSubscriptionList();
                   updateSubscriptionStatus(
                     true,
                   );
@@ -162,7 +165,6 @@ class _SubscriptionScreenState extends State<SubscriptionScreen>
     setState(() {
       isLoading = true;
     });
-
     await iApEngine.getIsAvailable().then(
       (value) {
         if (value) {
@@ -188,10 +190,6 @@ class _SubscriptionScreenState extends State<SubscriptionScreen>
                  });
 
                 }
-
-
-
-
               print("Sorted subscriptionList$subscriptionList");
             },
           );
@@ -381,7 +379,7 @@ class _SubscriptionScreenState extends State<SubscriptionScreen>
                               ),
                               const SizedBox(height: 8),
                               AppUtils.commonTextWidget(
-                                text: subscriptionType == "Lifetime"
+                                text: title == "Lifetime"
                                     ? "One-time payment, cancel anytime"
                                     : "Billed $title, cancel anytime.",
                                 textColor: AppColors.darkGreyColor,
@@ -391,7 +389,34 @@ class _SubscriptionScreenState extends State<SubscriptionScreen>
                               const SizedBox(height: 8),
                               PreferenceHelper.getBool(
                                       PreferenceHelper.isSubscribe)
-                                  ? Center(
+                                  ? title== "Lifetime"  ?AppUtils.commonElevatedButton(
+                                backgroundColor: getLifeTimePurchaseColorManager(),
+                                text: "Subscribed",
+                                onPressed: () async{
+
+                                  //this code is only for testing
+                                  // if (Platform.isAndroid && purchaseDetails != null) {
+                                  //   final InAppPurchaseAndroidPlatformAddition
+                                  //       androidPlatformAddition = iApEngine.inAppPurchase
+                                  //           .getPlatformAddition<
+                                  //               InAppPurchaseAndroidPlatformAddition>();
+                                  //
+                                  //   await androidPlatformAddition.consumePurchase(purchaseDetails!).then(
+                                  //     (value) {
+                                  //       // subscriptionId = purchaseDetails?.productID ?? '';
+                                  //       print("subscription$subscriptionId");
+                                  //       updateSubscriptionStatus(
+                                  //         false,
+                                  //       );
+                                  //       getSubscriptionList();
+                                  //     },
+                                  //   );
+                                  // }
+                                },
+                                buttonWidth: double.infinity,
+                                leftMargin: 80,
+                                rightMargin: 80,
+                              )  : Center(
                                       child: OutlinedButton(
                                         style: OutlinedButton.styleFrom(
                                           elevation: 0,
@@ -414,7 +439,7 @@ class _SubscriptionScreenState extends State<SubscriptionScreen>
                                         ),
                                       ),
                                     )
-                                  : AppUtils.commonElevatedButton(
+                                  :  AppUtils.commonElevatedButton(
                                       text: "Subscribe Now",
                                       onPressed: () {
                                         iApEngine.handlePurchase(
@@ -423,7 +448,7 @@ class _SubscriptionScreenState extends State<SubscriptionScreen>
                                       buttonWidth: double.infinity,
                                       leftMargin: 80,
                                       rightMargin: 80,
-                                    ),
+                                    )
                             ],
                           ),
                         );

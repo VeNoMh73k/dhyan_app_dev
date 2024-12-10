@@ -185,3 +185,13 @@ getSetReminderContainerColor() {
   // Default text color if theme is not specified or invalid
   return AppColors.blackColor;
 }
+
+getLifeTimePurchaseColorManager() {
+  if (currentTheme == ThemeData.dark()) {
+    return AppColors.greyColor; // Dark theme text color
+  } else if (currentTheme == ThemeData.light()) {
+    return AppColors.textFieldColor; // Light theme text color
+  }
+  // Default text color if theme is not specified or invalid
+  return AppColors.blackColor;
+}

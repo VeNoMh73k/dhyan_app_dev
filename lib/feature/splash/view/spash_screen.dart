@@ -31,6 +31,7 @@ class _SplashScreenState extends State<SplashScreen> {
             print("datatest$list");
         if (list.isNotEmpty) {
           for(var purchase in list){
+            purchaseDetails = purchase;
             Map purchaseData = json.decode(purchase.verificationData.localVerificationData);
             subscriptionId = purchaseData["productId"];
             setState(() {

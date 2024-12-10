@@ -60,6 +60,8 @@ class _FeedbackScreenState extends State<FeedbackScreen> {
     // createBannerAd();
   }
 
+
+
   listenPurchaseStream(List<PurchaseDetails> listenPurchaseDetails) {
     if (listenPurchaseDetails.isNotEmpty) {
       for (PurchaseDetails purchase in listenPurchaseDetails) {
@@ -121,6 +123,7 @@ class _FeedbackScreenState extends State<FeedbackScreen> {
   getInitialFav() async {
     final key = 'isFav_${widget.trackId}'; // Use unique ID for each item
     savedFavVar = PreferenceHelper.getBool(key);
+    print("isFav$savedFavVar");
     setState(() {});
   }
 
@@ -130,10 +133,12 @@ class _FeedbackScreenState extends State<FeedbackScreen> {
     final newValue = savedFavVar ? false : true;
     await PreferenceHelper.setBool(key, newValue);
     savedFavVar = newValue;
+    print("isFav$savedFavVar");
     setState(() {});
   }
 
   goBack() {
+    Navigator.pop(context);
     Navigator.pop(context);
   }
 
@@ -229,7 +234,7 @@ class _FeedbackScreenState extends State<FeedbackScreen> {
                             const SizedBox(height: 20),
                             TextButton(
                               onPressed: () {
-                                Navigator.pop(context);
+                                Navigator.pop(context,savedFavVar);
                               },
                               child: AppUtils.commonTextWidget(
                                 text: "Start New Track",

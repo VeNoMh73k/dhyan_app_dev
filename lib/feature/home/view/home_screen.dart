@@ -204,6 +204,7 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver{
                           itemCount: homeProvider.categories.length,
                           padding: const EdgeInsets.symmetric(vertical: 16),
                           itemBuilder: (context, index) {
+                            print("object${ homeProvider.categories[index].textSide.toString()}");
                             return GestureDetector(
                               onTap: () {
                                 homeStream.cancel();
@@ -268,22 +269,19 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver{
                                         width: double.infinity,
                                         fit: BoxFit.cover,
                                       ),
-                                      // Gradient overlay
-                                      homeProvider.categories[index].textSide == "left" ? Container(
-                                        decoration: BoxDecoration(
-                                          gradient: LinearGradient(
-                                            colors: [Colors.transparent, Colors.black.withOpacity(0.3)],
-                                            begin: Alignment.centerLeft,
-                                            end: Alignment.centerRight,
 
-                                          ),
-                                        ),
-                                      ) :Container(
-                                        decoration: BoxDecoration(
-                                          gradient: LinearGradient(
-                                            colors: [ Colors.black.withOpacity(0.3),Colors.transparent,],
-                                            begin: Alignment.centerRight,
-                                            end: Alignment.centerLeft,
+                                      Align(
+                                        alignment:  Alignment.center ,
+                                        child: AppUtils.commonContainer(
+                                          padding: const EdgeInsets.only(left: 40,right: 40),
+                                          width: double.infinity,
+                                          child: AppUtils.commonTextWidget(
+                                            text: homeProvider.categories[index].title ?? "",
+                                            textColor: AppColors.whiteColor,
+                                            fontFamilyForText: "Carattere",
+                                            fontWeight: FontWeight.w400,
+                                            fontSize: 34,
+                                            textAlign: homeProvider.categories[index].textSide == "right" ? TextAlign.right : TextAlign.left
 
                                           ),
                                         ),
@@ -296,7 +294,7 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver{
                             );
                           },
                         ),
-            ),
+                      ),
 
             // Bottom container (fixed)
             if(currentTheme == ThemeData.light())
