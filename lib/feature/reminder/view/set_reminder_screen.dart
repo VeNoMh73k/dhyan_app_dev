@@ -7,6 +7,7 @@ import 'package:meditationapp/core/storage/preference_helper.dart';
 import 'package:meditationapp/core/theme/theme_manager.dart';
 import 'package:meditationapp/feature/reminder/model/reminder_model.dart';
 import 'package:meditationapp/service/notifi_service.dart';
+import 'package:uuid/uuid.dart';
 import 'package:wheel_picker/wheel_picker.dart';
 
 class SetReminderScreen extends StatefulWidget {
@@ -30,84 +31,79 @@ class _SetReminderScreenState extends State<SetReminderScreen> {
   // model
   ReminderModel? reminderModel;
 
-  Future<void> saveReminder(List<bool> selectedDays, TimeOfDay selectedTime,
-      List<int>? selectedDaysInNumbers,
-      {int? index}) async {
-    String hour = selectedTime.hour.toString().padLeft(2, '0') ?? "";
-    String minute = selectedTime.minute.toString().padLeft(2, '0') ?? "";
+  Future<void> saveReminder(
+      List<bool> selectedDays,
+      TimeOfDay selectedTime,
+      List<int>? selectedDaysInNumbers, {
+        int? index,
+      }) async {
+    String hour = selectedTime.hour.toString().padLeft(2, '0');
+    String minute = selectedTime.minute.toString().padLeft(2, '0');
 
     String timeOfDay = "$hour:$minute ${selectedPeriod.value}";
+    Map<int, String> dayUuidMap = {};
 
     reminderModel = ReminderModel(
       selectedDays: selectedDays,
       isReminderOn: true,
-      reminderTime: timeOfDay.toString(),
+      reminderTime: timeOfDay,
     );
 
-    String serializedReminder = jsonEncode(reminderModel?.toJson());
+    List<String> remindersList = PreferenceHelper.getStringList("reminder") ?? [];
 
-    List<String> remindersList =
-        PreferenceHelper.getStringList("reminder") ?? [];
+    print("reminderList $remindersList");
 
-    if (widget.index != null &&
-        (widget.index ?? 0) >= 0 &&
-        (widget.index ?? 0) < remindersList.length) {
-      remindersList[widget.index ?? 0] = serializedReminder;
+    if (index != null && index >= 0 && index < remindersList.length) {
+      var existingReminder = ReminderModel.fromJson(jsonDecode(remindersList[index]));
+      print("reminderExisting $existingReminder");
+      dayUuidMap = existingReminder.dayUuidMap ?? {};
+      print("dayUuidMap $dayUuidMap");
+
+      reminderModel = ReminderModel(
+        selectedDays: selectedDays,
+        isReminderOn: true,
+        reminderTime: timeOfDay,
+        dayUuidMap: dayUuidMap,
+      );
+
+      String serializedReminder = jsonEncode(reminderModel?.toJson());
+      remindersList[index] = serializedReminder;
       NotificationService().scheduleWeeklyNotifications(
-          selectedDaysInNumbers ?? [], selectedTime, widget.index ?? 0);
-
+        selectedDaysInNumbers ?? [],
+        selectedTime,
+        dayUuidMap,
+      );
     } else {
+      for (int i = 0; i < selectedDays.length; i++) {
+        if (selectedDays[i]) {
+          // Generate UUID if not already present
+          dayUuidMap.putIfAbsent(i, () => const Uuid().v4());
+        } else {
+          // Remove UUID if the day is deselected
+          dayUuidMap.remove(i);
+        }
+      }
+
+      reminderModel = ReminderModel(
+        selectedDays: selectedDays,
+        isReminderOn: true,
+        reminderTime: timeOfDay,
+        dayUuidMap: dayUuidMap,
+      );
+
+      String serializedReminder = jsonEncode(reminderModel?.toJson());
+      print("serializeReminder $serializedReminder");
       remindersList.add(serializedReminder);
       NotificationService().scheduleWeeklyNotifications(
-          selectedDaysInNumbers ?? [], selectedTime, remindersList.length);
+        selectedDaysInNumbers ?? [],
+        selectedTime,
+        dayUuidMap,
+      );
     }
 
     await PreferenceHelper.setStringList("reminder", remindersList);
-
-
   }
 
-  // Future<void> scheduleNotification(
-  //     int hour, int minute, List<bool> selectedDays) async {
-  //   final now = DateTime.now();
-  //
-  //   for (int i = 0; i < 7; i++) {
-  //     if (selectedDays[i]) {
-  //       int dayDifference = (i - now.weekday + 7) % 7;
-  //
-  //       if (dayDifference == 0) {
-  //         if (hour < now.hour || (hour == now.hour && minute <= now.minute)) {
-  //           dayDifference = 1; // Move to tomorrow
-  //         }
-  //       }
-  //
-  //       // Calculate the scheduled date and time
-  //       DateTime scheduledDate = now.add(Duration(days: dayDifference));
-  //       scheduledDate = DateTime(
-  //         scheduledDate.year,
-  //         scheduledDate.month,
-  //         scheduledDate.day,
-  //         hour,
-  //         minute,
-  //       );
-  //
-  //       // Schedule the reminder
-  //       setReminder(hour, minute, i);
-  //     }
-  //   }
-  // }
-
-  // setReminder(int hour, int min, int i) {
-  //   DateTime now = DateTime.now();
-  //   // Ensure you're using the passed `hour` and `min` values
-  //   DateTime selectedDateTime = DateTime(
-  //     now.year,
-  //     now.month,
-  //     now.day,
-  //     hour,
-  //     min,
-  //   );
-  // }
 
   @override
   void initState() {
@@ -124,8 +120,7 @@ class _SetReminderScreenState extends State<SetReminderScreen> {
     List<String>? remindersList = PreferenceHelper.getStringList("reminder");
     print("remindersList: $remindersList");
     if (remindersList.isNotEmpty && index < remindersList.length) {
-      ReminderModel reminder =
-          ReminderModel.fromJson(jsonDecode(remindersList[index]));
+      ReminderModel reminder = ReminderModel.fromJson(jsonDecode(remindersList[index]));
 
       List<String> timeParts = (reminder.reminderTime ?? "").split(':');
       print("timeParts$timeParts");
@@ -434,7 +429,7 @@ class _SetReminderScreenState extends State<SetReminderScreen> {
                             );
 
                             await saveReminder(
-                                selectedDays, selectedTime, selectedIntDays);
+                                selectedDays, selectedTime, selectedIntDays,index: widget.index);
 
                            AppUtils.snackBarFnc(ctx: context,contentText: widget.index == null
                                ? 'Reminder Added!'

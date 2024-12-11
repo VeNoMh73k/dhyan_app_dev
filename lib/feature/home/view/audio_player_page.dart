@@ -13,7 +13,7 @@ class AudioPlayerPage extends StatefulWidget {
   final String imgUrl;
   final String filePath;
   final String audioTitle;
-  final String trackId;
+  final int trackId;
   final String audioDescription;
 
   final num minutes;

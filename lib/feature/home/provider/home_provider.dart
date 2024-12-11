@@ -20,6 +20,8 @@ class HomeProvider with ChangeNotifier {
   List<Categories> categories = [];
   List<Tracks> tracks = [];
 
+  TextEditingController feedBackController = TextEditingController();
+
   ValueNotifier<double> progress = ValueNotifier(0.0);
 
   void freshProgress(Tracks track) {
@@ -70,52 +72,6 @@ class HomeProvider with ChangeNotifier {
     return false;
   }
 
-  // Future<bool> deleteAudioCache(String audioUrl) async {
-  //   try {
-  //     // Load existing cached data
-  //     if (PreferenceHelper.containsKey('downloadedFiles')) {
-  //       Map<String, String> downloads = Map<String, String>.from(
-  //         jsonDecode(PreferenceHelper.getString('downloadedFiles')!),
-  //       );
-  //
-  //       // Check if the audioUrl exists in the downloaded cache
-  //       if (downloads.containsKey(audioUrl)) {
-  //
-  //         String filePath = downloads[audioUrl]!;
-  //
-  //         print("FilePath$filePath");
-  //
-  //         // Delete the file from storage
-  //         final file = File(filePath);
-  //         if (await file.exists()) {
-  //           await file.delete();
-  //           debugPrint('File deleted: $filePath');
-  //         } else {
-  //           debugPrint('File not found at: $filePath');
-  //         }
-  //
-  //         // Remove the entry from SharedPreferences
-  //         downloads.remove(audioUrl);
-  //
-  //         // Save updated map back to SharedPreferences
-  //         await PreferenceHelper.setString(
-  //           'downloadedFiles',
-  //           jsonEncode(downloads),
-  //         );
-  //
-  //         return true;
-  //       } else {
-  //         debugPrint('Audio URL not found in cache.');
-  //       }
-  //     } else {
-  //       debugPrint('No cached data exists.');
-  //     }
-  //   } catch (e) {
-  //     debugPrint('Error while deleting audio cache: $e');
-  //   }
-  //
-  //   return false;
-  // }
 
   Future<GetAllCategoryAndTracks?> callGetAllCategoryAndTrack() async {
     isLoading = true;
@@ -126,8 +82,7 @@ class HomeProvider with ChangeNotifier {
       Response<dynamic> response = await callPostMethodApi(getAudioListApi);
       if (response.statusCode == 200) {
 
-        getAllCategoryAndTracks =
-            GetAllCategoryAndTracks.fromJson(response.data);
+        getAllCategoryAndTracks = GetAllCategoryAndTracks.fromJson(response.data);
         categories.addAll(getAllCategoryAndTracks?.categories ?? []);
         tracks.addAll(getAllCategoryAndTracks?.tracks ?? []);
 
@@ -159,4 +114,56 @@ class HomeProvider with ChangeNotifier {
     notifyListeners();
     return getAllCategoryAndTracks;
   }
+
+
+  noDataFound(){
+    getAllCategoryAndTracks = null;
+    categories = [];
+    tracks  =[];
+    notifyListeners();
+  }
+
+  Future callFeedBackApi(int rating, int trackId)async{
+
+    isLoading = true;
+    notifyListeners();
+
+    Map<String,dynamic> body = {
+      "p_track_id" : trackId,
+      "p_comment" : feedBackController.text,
+      "p_rating" :rating,
+    };
+
+    try{
+      print("body$body");
+      Response<dynamic> response = await callPostMethodWithBodyApi(postFeedBackApi,body);
+      bool?  isSuccess = checkStatusCode(response.statusCode);
+      if(isSuccess == true){
+        print("success");
+        feedBackController.clear();
+        AppUtils.snackBarFnc(ctx: navigatorKey.currentState!.context,contentText: "Thank you for your valuable feedback");
+      }else{
+        print("fail");
+        feedBackController.clear();
+        AppUtils.snackBarFnc(ctx: navigatorKey.currentState!.context,contentText: "Something went wrong, please try again!");
+      }
+
+    }catch(e){
+      print("error$e");
+    }
+
+
+
+  }
+
 }
+
+bool checkStatusCode(int? statusCode) {
+  if (statusCode == null) {
+    return false; // statusCode is null, so return false
+  }
+
+  // Check if the statusCode is in the success range (200-299)
+  return statusCode >= 200 && statusCode < 300;
+}
+

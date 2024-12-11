@@ -1,21 +1,29 @@
 class ReminderModel {
+  Map<int, String>? dayUuidMap;
   String? reminderTime;
   List<dynamic>? selectedDays;
   bool? isReminderOn;
 
-  ReminderModel({this.reminderTime, this.selectedDays, this.isReminderOn});
-
-  ReminderModel.fromJson(Map<String, dynamic> json) {
-    reminderTime = json['reminder_time'];
-    selectedDays = json['selected_days'];
-    isReminderOn = json['isReminderOn'];
-  }
+  ReminderModel({this.reminderTime, this.selectedDays, this.isReminderOn,this.dayUuidMap});
 
   Map<String, dynamic> toJson() {
-    final Map<String, dynamic> data = new Map<String, dynamic>();
-    data['reminder_time'] = this.reminderTime;
-    data['selected_days'] = this.selectedDays;
-    data['isReminderOn'] = this.isReminderOn;
-    return data;
+    return {
+      'selectedDays': selectedDays,
+      'isReminderOn': isReminderOn,
+      'reminderTime': reminderTime,
+      'dayUuidMap': dayUuidMap?.map((key, value) => MapEntry(key.toString(), value)),
+    };
   }
+
+  factory ReminderModel.fromJson(Map<String, dynamic> json) {
+    return ReminderModel(
+      selectedDays: List<bool>.from(json['selectedDays']),
+      isReminderOn: json['isReminderOn'],
+      reminderTime: json['reminderTime'],
+      dayUuidMap: (json['dayUuidMap'] as Map<String, dynamic>).map(
+            (key, value) => MapEntry(int.parse(key), value as String),
+      ),
+    );
+  }
+
 }

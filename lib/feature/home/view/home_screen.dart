@@ -120,6 +120,7 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
       (timeStamp) {
         homeProvider = Provider.of<HomeProvider>(context, listen: false);
         callHomeApi(homeProvider);
+        // homeProvider.noDataFound();
       },
     );
     homeStream = iApEngine.inAppPurchase.purchaseStream.listen(
@@ -204,7 +205,14 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
               child: homeProvider.isLoading
                   ? AppUtils.loaderWidget()
                   : homeProvider.getAllCategoryAndTracks == null
-                      ? AppUtils.commonTextWidget(text: "No Data Found")
+                      ? Center(
+                          child: AppUtils.noDataFound(
+                            error: "No Categories Found",
+                            onTap: () {
+                              homeProvider.callGetAllCategoryAndTrack();
+                            },
+                          ),
+                        )
                       : ListView.builder(
                           itemCount: homeProvider.categories.length,
                           padding: const EdgeInsets.symmetric(vertical: 16),

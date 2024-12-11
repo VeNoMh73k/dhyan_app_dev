@@ -37,43 +37,59 @@ class NotificationService {
         id ?? 0, title, body, await notificationDetails());
   }
 
-  Future<void> scheduleWeeklyNotifications(List<int> weekdays,
+  Future<void> scheduleWeeklyNotifications(
+      List<int> weekdays,
       TimeOfDay time,
-      int id) async {
+      Map<int, String> dayUuidMap,
+      ) async {
+    for (var entry in dayUuidMap.entries) {
+      int weekday = entry.key; // Day index (0 = Sunday, 1 = Monday, ...)
+      String uuid = entry.value; // Corresponding UUID
+      print("uuid$uuid");
+      print("uuidWithHashcode${uuid.hashCode}");
+      print("weekday$weekday");
 
-    for (var weekday in weekdays) {
-      var scheduleDate = DateTime.now();
-      scheduleDate = _getNextWeekday(scheduleDate, weekday,time);
-      scheduleDate = DateTime(scheduleDate.year,scheduleDate.month,scheduleDate.day,time.hour, time.minute);
-
-      var androidDetails = const AndroidNotificationDetails(
-        'weekly_notification_channel',
-        'Weekly Notifications',
-        channelDescription: 'This channel is for weekly notifications.',
-        importance: Importance.high,
-        priority: Priority.high,
-        enableVibration: true,
-      );
-
-      var platformDetails = NotificationDetails(android: androidDetails);
-
-      try {
-        await notificationsPlugin.zonedSchedule(
-          weekday,
-          'Hi Meditator!',
-          "Let's Start Meditation, Your daily meditation time is started.",
-          tz.TZDateTime.from(scheduleDate,tz.local),
-          platformDetails,
-          androidAllowWhileIdle: true,
-          androidScheduleMode: AndroidScheduleMode.exactAllowWhileIdle,
-          matchDateTimeComponents: DateTimeComponents.dayOfWeekAndTime,
-          payload: 'weekly_reminder',
-          uiLocalNotificationDateInterpretation: UILocalNotificationDateInterpretation.absoluteTime,
+      if (weekdays.contains(weekday)) {
+        var scheduleDate = DateTime.now();
+        scheduleDate = _getNextWeekday(scheduleDate, weekday, time);
+        scheduleDate = DateTime(
+          scheduleDate.year,
+          scheduleDate.month,
+          scheduleDate.day,
+          time.hour,
+          time.minute,
         );
-      } catch (e) {
-        print("Error scheduling notification: $e");
-      }
 
+        var androidDetails = const AndroidNotificationDetails(
+          'weekly_notification_channel',
+          'Weekly Notifications',
+          channelDescription: 'This channel is for weekly notifications.',
+          importance: Importance.high,
+          priority: Priority.high,
+          enableVibration: true,
+        );
+
+        var platformDetails = NotificationDetails(android: androidDetails);
+
+
+        try {
+          await notificationsPlugin.zonedSchedule(
+            uuid.hashCode, // Use UUID hash as unique ID
+            'Hi Meditator!',
+            "Let's Start Meditation, Your daily meditation time is started.",
+            tz.TZDateTime.from(scheduleDate, tz.local),
+            platformDetails,
+            androidAllowWhileIdle: true,
+            androidScheduleMode: AndroidScheduleMode.exactAllowWhileIdle,
+            matchDateTimeComponents: DateTimeComponents.dayOfWeekAndTime,
+            payload: 'weekly_reminder',
+            uiLocalNotificationDateInterpretation:
+            UILocalNotificationDateInterpretation.absoluteTime,
+          );
+        } catch (e) {
+          print("Error scheduling notification: $e");
+        }
+      }
     }
   }
 
@@ -116,9 +132,9 @@ class NotificationService {
 
 
 // Cancel daily notifications
-  Future<void> cancelNotifications(int id) async {
-    print("cancelId$id");
-    await notificationsPlugin.cancel(id);
+  Future<void> cancelNotifications(String id) async {
+    print("cancelId${id.hashCode}");
+    await notificationsPlugin.cancel(id.hashCode);
 
   }
 }

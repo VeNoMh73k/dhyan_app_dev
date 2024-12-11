@@ -36,6 +36,48 @@ Future<dynamic> callPostMethodApi(String url) async {
   }
 }
 
+Future<dynamic> callPostMethodWithBodyApi(String url, Map<String, dynamic>? body) async {
+  try {
+    // Check for internet connectivity
+    if (await AppUtils.checkInterAvailability()) {
+      // Make the API call using Dio
+      final response = await Dio().post(
+        url,
+        options: Options(headers: header),
+        data: body,
+      );
+
+      // Debug print for the response
+      if (kDebugMode) {
+        print('Response: ${response}');
+      }
+
+      return response;
+    } else {
+      // Show no internet popup
+      noInterNetPopUp();
+      return null;
+    }
+  } catch (e) {
+    // Handle and print errors for debugging
+    if (kDebugMode) {
+      print('Error during API call: $e');
+    }
+
+    // Optionally, handle specific Dio errors
+    if (e is DioError) {
+      return e.response?.data ?? {'error': 'An error occurred', 'details': e.message};
+    }
+
+    // Return a generic error if not a DioError
+    return {'error': 'An unexpected error occurred', 'details': e.toString()};
+  }
+}
+
+
+
+
+
 void noInterNetPopUp() {
   AppUtils.snackBarFnc(
     ctx: navigatorKey.currentState!.context,

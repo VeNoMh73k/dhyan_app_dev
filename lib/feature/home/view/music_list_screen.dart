@@ -1,9 +1,11 @@
 import 'dart:convert';
 
+import 'package:auto_size_text/auto_size_text.dart';
 import 'package:flutter/material.dart';
 import 'package:marquee/marquee.dart';
 import 'package:meditationapp/core/app_colors.dart';
 import 'package:meditationapp/core/app_utils.dart';
+import 'package:meditationapp/core/constants.dart';
 import 'package:meditationapp/core/image_path.dart';
 import 'package:meditationapp/core/storage/preference_helper.dart';
 import 'package:meditationapp/core/theme/icon_path.dart';
@@ -82,6 +84,7 @@ class _MusicListScreenState extends State<MusicListScreen> {
     setState(() {
       isLoading = false;
     });
+    // filteredList.clear();
   }
 
   // Method to handle downloading audio
@@ -246,7 +249,6 @@ class _MusicListScreenState extends State<MusicListScreen> {
                             start: 0.0,
                             bottom: 8.0,
                           ),
-                          // centerTitle: _showAppBarTitle ?  true : false,
                           title: _showAppBarTitle.value
                               ? Row(
                                   mainAxisAlignment:
@@ -294,7 +296,7 @@ class _MusicListScreenState extends State<MusicListScreen> {
                                     ),
                                   ],
                                 )
-                              : null, // Show title only when _showAppBarTitle is true
+                              : null,
                           background: ClipRRect(
                             borderRadius: const BorderRadius.only(
                               bottomLeft: Radius.circular(24),
@@ -382,426 +384,509 @@ class _MusicListScreenState extends State<MusicListScreen> {
                 const SliverToBoxAdapter(
                   child: SizedBox(height: 20),
                 ),
-                SliverList(
+                filteredList == null ||
+                    filteredList.length == 0 ||
+                    filteredList.isEmpty
+                    ?SliverToBoxAdapter(
+                  child: SizedBox(height: height/2,child: AppUtils.noDataFound(
+                    error: "No Tracks Found",
+                    onTap: () {
+                      getTracksAccordingToCategoryId();
+                    },
+                  ),),
+                )
+                    : SliverList(
                   delegate: SliverChildBuilderDelegate(
                     (context, index) {
                       return IntrinsicHeight(
-                        child: Container(
-                          margin: const EdgeInsets.only(
-                              left: 16, right: 16, bottom: 12),
-                          padding: const EdgeInsets.all(12),
-                          decoration: BoxDecoration(
-                            color: getMusicListTileColor(),
-                            borderRadius: BorderRadius.circular(12),
-                            boxShadow: [
-                              BoxShadow(
-                                color: getMusicTileColorWithOpacity(),
-                                blurRadius: 5,
-                                spreadRadius: 1,
-                              ),
-                            ],
-                          ),
-                          child: Row(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              ClipRRect(
-                                  borderRadius: BorderRadius.circular(6),
-                                  child: AppUtils.cacheImage(
-                                    imageUrl:
-                                        filteredList[index].imageUrl ?? "",
-                                    width: 95,
-                                    height: 110,
-                                    fit: BoxFit.cover,
-                                  )),
-                              const SizedBox(width: 12),
-                              Expanded(
-                                child: Column(
+                              child: Container(
+                                margin: const EdgeInsets.only(
+                                    left: 16, right: 16, bottom: 12),
+                                padding: const EdgeInsets.all(12),
+                                decoration: BoxDecoration(
+                                  color: getMusicListTileColor(),
+                                  borderRadius: BorderRadius.circular(12),
+                                  boxShadow: [
+                                    BoxShadow(
+                                      color: getMusicTileColorWithOpacity(),
+                                      blurRadius: 5,
+                                      spreadRadius: 1,
+                                    ),
+                                  ],
+                                ),
+                                child: Row(
                                   crossAxisAlignment: CrossAxisAlignment.start,
-                                  mainAxisAlignment: MainAxisAlignment.start,
-                                  mainAxisSize: MainAxisSize.min,
                                   children: [
-                                    // MarqueeWidget(
-                                    //   direction: Axis.horizontal,
-                                    //   child: AppUtils.commonTextWidget(
-                                    //     text: filteredList[index].title ?? "",
-                                    //     fontSize: 16,
-                                    //     fontWeight: FontWeight.w700,
-                                    //     textColor: getTextColor(),
-                                    //   ),
-                                    // ),
-                                    SizedBox(
-                                      height: 30,
-                                      width: double.infinity,
-                                      // You can use a specific width if needed
-                                      child: Marquee(
-                                        text: filteredList[index].title ?? "",
-                                        style: TextStyle(
-                                          color: getTextColor(),
-                                          fontSize: 16,
-                                          fontWeight: FontWeight.w700,
-                                        ),
-                                        scrollAxis: Axis.horizontal,
-                                        blankSpace: 120,
-                                        velocity: 50,
+                                    ClipRRect(
+                                        borderRadius: BorderRadius.circular(6),
+                                        child: AppUtils.cacheImage(
+                                          imageUrl:
+                                              filteredList[index].imageUrl ??
+                                                  "",
+                                          width: 95,
+                                          height: 110,
+                                          fit: BoxFit.cover,
+                                        )),
+                                    const SizedBox(width: 12),
+                                    Expanded(
+                                      child: Column(
                                         crossAxisAlignment:
                                             CrossAxisAlignment.start,
-                                        startAfter: const Duration(seconds: 2),
-                                        pauseAfterRound: const Duration(seconds: 5),
-                                        showFadingOnlyWhenScrolling: true,
-                                        fadingEdgeStartFraction: 0.0,
-                                        fadingEdgeEndFraction: 0.1,
+                                        mainAxisAlignment:
+                                            MainAxisAlignment.start,
+                                        mainAxisSize: MainAxisSize.min,
+                                        children: [
+                                          SizedBox(
+                                            height: 20,
+                                            width: double.infinity,
+                                            child: LayoutBuilder(
+                                              builder: (context, constraints) {
+                                                final text =
+                                                    filteredList[index].title ??
+                                                        "";
+                                                final textStyle = TextStyle(
+                                                  color: getTextColor(),
+                                                  fontSize: 16,
+                                                  fontWeight: FontWeight.w700,
+                                                );
+
+                                                // Measure text width
+                                                final textPainter = TextPainter(
+                                                  text: TextSpan(
+                                                      text: text,
+                                                      style: textStyle),
+                                                  maxLines: 1,
+                                                  textDirection:
+                                                      TextDirection.ltr,
+                                                )..layout(
+                                                    maxWidth:
+                                                        constraints.maxWidth);
+
+                                                // Check if text overflows
+                                                final isOverflowing =
+                                                    textPainter
+                                                        .didExceedMaxLines;
+
+                                                return isOverflowing
+                                                    ? Marquee(
+                                                        text: text,
+                                                        style: textStyle,
+                                                        velocity: 30,
+                                                        startAfter:
+                                                            const Duration(
+                                                                seconds: 1),
+                                                        blankSpace: 30,
+                                                        fadingEdgeStartFraction:
+                                                            0.1,
+                                                        fadingEdgeEndFraction:
+                                                            0.1,
+                                                      )
+                                                    : AutoSizeText(
+                                                        text,
+                                                        minFontSize: 16,
+                                                        maxFontSize: 16,
+                                                        maxLines: 1,
+                                                        style: textStyle,
+                                                      );
+                                              },
+                                            ),
+                                          ),
+                                          const SizedBox(height: 4),
+                                          Row(
+                                            children: [
+                                              AppUtils.commonContainer(
+                                                height: 5,
+                                                width: 5,
+                                                decoration: AppUtils
+                                                    .commonBoxDecoration(
+                                                  shape: BoxShape.circle,
+                                                  color:
+                                                      AppColors.darkGreyColor,
+                                                ),
+                                              ),
+                                              SizedBox(width: 5),
+                                              AppUtils.commonTextWidget(
+                                                text:
+                                                    '${filteredList[index].duration} Min',
+                                                textColor:
+                                                    AppColors.darkGreyColor,
+                                                fontSize: 12,
+                                                fontWeight: FontWeight.w600,
+                                              ),
+                                              SizedBox(width: 5),
+                                              AppUtils.commonContainer(
+                                                height: 5,
+                                                width: 5,
+                                                decoration: AppUtils
+                                                    .commonBoxDecoration(
+                                                  shape: BoxShape.circle,
+                                                  color: getTipIconColor(),
+                                                ),
+                                              ),
+                                              const SizedBox(width: 5),
+                                              AppUtils.commonTextWidget(
+                                                text: filteredList[index].tag,
+                                                textColor: getTipIconColor(),
+                                                fontSize: 12,
+                                                fontWeight: FontWeight.w600,
+                                              ),
+                                            ],
+                                          ),
+                                          const SizedBox(height: 12),
+                                          AppUtils.commonTextWidget(
+                                            text: filteredList[index]
+                                                    .description ??
+                                                '',
+                                            fontSize: 14,
+                                            textColor: getTextColor(),
+                                            maxLines: 2,
+                                            overflow: TextOverflow.ellipsis,
+                                          ),
+                                        ],
                                       ),
                                     ),
-                                    const SizedBox(height: 4),
-                                    Row(
+                                    const SizedBox(width: 8),
+                                    Column(
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.end,
+                                      mainAxisAlignment:
+                                          MainAxisAlignment.spaceBetween,
                                       children: [
-                                        AppUtils.commonContainer(
-                                          height: 5,
-                                          width: 5,
-                                          decoration:
-                                              AppUtils.commonBoxDecoration(
-                                            shape: BoxShape.circle,
-                                            color: AppColors.darkGreyColor,
+                                        // Title and Action Row
+                                        isSubscribe
+                                            ? GestureDetector(
+                                                onTap: () {
+                                                  if (filteredList[index]
+                                                          .isDownloaded ??
+                                                      false) {
+                                                    Navigator.push(
+                                                        context,
+                                                        MaterialPageRoute(
+                                                          builder: (context) =>
+                                                              AudioPlayerPage(
+                                                            audioDescription:
+                                                                filteredList[
+                                                                            index]
+                                                                        .description ??
+                                                                    '',
+                                                            trackId: filteredList[
+                                                                        index]
+                                                                    .id ??
+                                                                0,
+                                                            minutes: int.parse(
+                                                                filteredList[
+                                                                        index]
+                                                                    .duration
+                                                                    .toString()),
+                                                            imgUrl: filteredList[
+                                                                        index]
+                                                                    .imageUrl ??
+                                                                '',
+                                                            audioTitle:
+                                                                filteredList[
+                                                                            index]
+                                                                        .title ??
+                                                                    '',
+                                                            filePath: filteredList[
+                                                                        index]
+                                                                    .filePath ??
+                                                                '',
+                                                          ),
+                                                        )).then(
+                                                      (value) async {
+                                                        getInitialFav();
+                                                        isSubscribe =
+                                                            PreferenceHelper.getBool(
+                                                                PreferenceHelper
+                                                                    .isSubscribe);
+                                                        setState(() {});
+                                                      },
+                                                    );
+                                                  } else {
+                                                    callDownloadAudioApi(
+                                                        homeProvider,
+                                                        filteredList[index]
+                                                                .trackUrl ??
+                                                            '',
+                                                        filteredList[index]);
+                                                  }
+                                                },
+                                                child: ValueListenableBuilder(
+                                                  valueListenable: filteredList[
+                                                              index]
+                                                          .downloadProgress ??
+                                                      ValueNotifier(0.0),
+                                                  builder:
+                                                      (context, value, child) {
+                                                    return Container(
+                                                      height: 35,
+                                                      width: 35,
+                                                      // padding: const EdgeInsets.all(4),
+                                                      decoration: BoxDecoration(
+                                                        color:
+                                                            getTipIconColor(),
+                                                        borderRadius:
+                                                            const BorderRadius
+                                                                .all(
+                                                                Radius.circular(
+                                                                    4)),
+                                                      ),
+                                                      child: filteredList[index]
+                                                                  .isDownloading ??
+                                                              false
+                                                          ? Padding(
+                                                              padding:
+                                                                  const EdgeInsets
+                                                                      .all(2),
+                                                              child: Center(
+                                                                child: AppUtils
+                                                                    .commonTextWidget(
+                                                                  text:
+                                                                      "${filteredList[index].downloadProgress?.value.toStringAsFixed(0).padLeft(2, '0')}%",
+                                                                  textColor:
+                                                                      AppColors
+                                                                          .blackColor,
+                                                                  fontWeight:
+                                                                      FontWeight
+                                                                          .w600,
+                                                                  fontSize: 11,
+                                                                ),
+                                                              ),
+                                                            )
+                                                          : Padding(
+                                                              padding: EdgeInsets.all(
+                                                                  filteredList[index]
+                                                                              .isDownloaded ??
+                                                                          false
+                                                                      ? 10
+                                                                      : 9),
+                                                              child:
+                                                                  Image.asset(
+                                                                filteredList[index]
+                                                                            .isDownloaded ??
+                                                                        false
+                                                                    ? icPlay
+                                                                    : icDownload,
+                                                                color: AppColors
+                                                                    .blackColor,
+                                                              ),
+                                                            ),
+                                                    );
+                                                  },
+                                                ),
+                                              )
+                                            : GestureDetector(
+                                                onTap: () {
+                                                  if (filteredList[index]
+                                                          .isPaid ==
+                                                      false) {
+                                                    if (filteredList[index]
+                                                            .isDownloaded ??
+                                                        false) {
+                                                      Navigator.push(
+                                                          context,
+                                                          MaterialPageRoute(
+                                                            builder: (context) =>
+                                                                AudioPlayerPage(
+                                                              audioDescription:
+                                                                  filteredList[
+                                                                              index]
+                                                                          .description ??
+                                                                      '',
+                                                              trackId: filteredList[
+                                                                          index]
+                                                                      .id ??
+                                                                  0,
+                                                              minutes: int.parse(
+                                                                  filteredList[
+                                                                          index]
+                                                                      .duration
+                                                                      .toString()),
+                                                              imgUrl: filteredList[
+                                                                          index]
+                                                                      .imageUrl ??
+                                                                  '',
+                                                              audioTitle: filteredList[
+                                                                          index]
+                                                                      .title ??
+                                                                  '',
+                                                              filePath: filteredList[
+                                                                          index]
+                                                                      .filePath ??
+                                                                  '',
+                                                            ),
+                                                          )).then(
+                                                        (value) async {
+                                                          print("value$value");
+                                                          getInitialFav();
+                                                          isSubscribe =
+                                                              PreferenceHelper.getBool(
+                                                                  PreferenceHelper
+                                                                      .isSubscribe);
+                                                          setState(() {});
+                                                        },
+                                                      );
+                                                    } else {
+                                                      callDownloadAudioApi(
+                                                          homeProvider,
+                                                          filteredList[index]
+                                                                  .trackUrl ??
+                                                              '',
+                                                          filteredList[index]);
+                                                    }
+                                                  } else {
+                                                    Navigator.push(
+                                                        context,
+                                                        MaterialPageRoute(
+                                                          builder: (context) =>
+                                                              SubscriptionScreen(),
+                                                        )).then(
+                                                      (value) {
+                                                        isSubscribe =
+                                                            PreferenceHelper.getBool(
+                                                                PreferenceHelper
+                                                                    .isSubscribe);
+                                                        setState(() {});
+                                                      },
+                                                    );
+                                                  }
+                                                },
+                                                child: ValueListenableBuilder(
+                                                  valueListenable: filteredList[
+                                                              index]
+                                                          .downloadProgress ??
+                                                      ValueNotifier(0.0),
+                                                  builder:
+                                                      (context, value, child) {
+                                                    return Container(
+                                                      height: 35,
+                                                      width: 35,
+                                                      decoration: BoxDecoration(
+                                                        color:
+                                                            getTipIconColor(),
+                                                        borderRadius:
+                                                            const BorderRadius
+                                                                .all(
+                                                          Radius.circular(4),
+                                                        ),
+                                                      ),
+                                                      child: filteredList[index]
+                                                                  .isPaid ==
+                                                              false
+                                                          ? (filteredList[index]
+                                                                      .isDownloading ??
+                                                                  false)
+                                                              ? Padding(
+                                                                  padding:
+                                                                      const EdgeInsets
+                                                                          .all(
+                                                                          2),
+                                                                  child: Center(
+                                                                    child: AppUtils
+                                                                        .commonTextWidget(
+                                                                      text:
+                                                                          "${filteredList[index].downloadProgress?.value.toStringAsFixed(0).padLeft(2, '0')}%",
+                                                                      textColor:
+                                                                          AppColors
+                                                                              .blackColor,
+                                                                      fontWeight:
+                                                                          FontWeight
+                                                                              .w600,
+                                                                      fontSize:
+                                                                          11,
+                                                                    ),
+                                                                  ),
+                                                                )
+                                                              : Padding(
+                                                                  padding:
+                                                                      EdgeInsets
+                                                                          .all(
+                                                                    filteredList[index].isDownloaded ??
+                                                                            false
+                                                                        ? 10
+                                                                        : 9,
+                                                                  ),
+                                                                  child: Image
+                                                                      .asset(
+                                                                    filteredList[index].isDownloaded ??
+                                                                            false
+                                                                        ? icPlay
+                                                                        : icDownload,
+                                                                    color: AppColors
+                                                                        .blackColor,
+                                                                  ),
+                                                                )
+                                                          : Padding(
+                                                              padding:
+                                                                  const EdgeInsets
+                                                                      .all(8.5),
+                                                              child:
+                                                                  Image.asset(
+                                                                premiumIcon,
+                                                                color: AppColors
+                                                                    .premiumAudioIconColor,
+                                                              ),
+                                                            ),
+                                                    );
+                                                  },
+                                                ),
+                                              ),
+                                        const SizedBox(height: 5),
+                                        Container(
+                                          height: 35,
+                                          width: 35,
+                                          child: GestureDetector(
+                                            onTap: () {
+                                              toggleFavorite(index);
+                                            },
+                                            child: Icon(
+                                              Icons.favorite,
+                                              color:
+                                                  filteredList[index].isFav ??
+                                                          false
+                                                      ? getPrimaryColor()
+                                                      : AppColors.darkGreyColor,
+                                              size: 24,
+                                            ),
                                           ),
-                                        ),
-                                        SizedBox(width: 5),
-                                        AppUtils.commonTextWidget(
-                                          text:
-                                              '${filteredList[index].duration} Min',
-                                          textColor: AppColors.darkGreyColor,
-                                          fontSize: 12,
-                                          fontWeight: FontWeight.w600,
-                                        ),
-                                        SizedBox(width: 5),
-                                        AppUtils.commonContainer(
-                                          height: 5,
-                                          width: 5,
-                                          decoration:
-                                              AppUtils.commonBoxDecoration(
-                                            shape: BoxShape.circle,
-                                            color: getTipIconColor(),
-                                          ),
-                                        ),
-                                        const SizedBox(width: 5),
-                                        AppUtils.commonTextWidget(
-                                          text: filteredList[index].tag,
-                                          textColor: getTipIconColor(),
-                                          fontSize: 12,
-                                          fontWeight: FontWeight.w600,
-                                        ),
+                                        )
                                       ],
-                                    ),
-                                    const SizedBox(height: 12),
-                                    AppUtils.commonTextWidget(
-                                      text:
-                                          filteredList[index].description ?? '',
-                                      fontSize: 14,
-                                      textColor: getTextColor(),
-                                      maxLines: 2,
-                                      overflow: TextOverflow.ellipsis,
                                     ),
                                   ],
                                 ),
                               ),
-                              const SizedBox(width: 8),
-                              Column(
-                                crossAxisAlignment: CrossAxisAlignment.end,
-                                mainAxisAlignment:
-                                    MainAxisAlignment.spaceBetween,
-                                children: [
-                                  // Title and Action Row
-                                  isSubscribe
-                                      ? GestureDetector(
-                                          onTap: () {
-                                            if (filteredList[index]
-                                                    .isDownloaded ??
-                                                false) {
-                                              Navigator.push(
-                                                  context,
-                                                  MaterialPageRoute(
-                                                    builder: (context) =>
-                                                        AudioPlayerPage(
-                                                      audioDescription:
-                                                          filteredList[index]
-                                                                  .description ??
-                                                              '',
-                                                      trackId:
-                                                          filteredList[index]
-                                                              .id
-                                                              .toString(),
-                                                      minutes: int.parse(
-                                                          filteredList[index]
-                                                              .duration
-                                                              .toString()),
-                                                      imgUrl:
-                                                          filteredList[index]
-                                                                  .imageUrl ??
-                                                              '',
-                                                      audioTitle:
-                                                          filteredList[index]
-                                                                  .title ??
-                                                              '',
-                                                      filePath:
-                                                          filteredList[index]
-                                                                  .filePath ??
-                                                              '',
-                                                    ),
-                                                  )).then(
-                                                (value) async {
-                                                  getInitialFav();
-                                                  isSubscribe =
-                                                      PreferenceHelper.getBool(
-                                                          PreferenceHelper
-                                                              .isSubscribe);
-                                                  setState(() {});
-                                                },
-                                              );
-                                            } else {
-                                              callDownloadAudioApi(
-                                                  homeProvider,
-                                                  filteredList[index]
-                                                          .trackUrl ??
-                                                      '',
-                                                  filteredList[index]);
-                                            }
-                                          },
-                                          child: ValueListenableBuilder(
-                                            valueListenable: filteredList[index]
-                                                    .downloadProgress ??
-                                                ValueNotifier(0.0),
-                                            builder: (context, value, child) {
-                                              return Container(
-                                                height: 35,
-                                                width: 35,
-                                                // padding: const EdgeInsets.all(4),
-                                                decoration: BoxDecoration(
-                                                  color: getTipIconColor(),
-                                                  borderRadius:
-                                                      const BorderRadius.all(
-                                                          Radius.circular(4)),
-                                                ),
-                                                child: filteredList[index]
-                                                            .isDownloading ??
-                                                        false
-                                                    ? Padding(
-                                                        padding:
-                                                            const EdgeInsets
-                                                                .all(2),
-                                                        child: Center(
-                                                          child: AppUtils
-                                                              .commonTextWidget(
-                                                            text:
-                                                                "${filteredList[index].downloadProgress?.value.toStringAsFixed(0).padLeft(2, '0')}%",
-                                                            textColor: AppColors
-                                                                .blackColor,
-                                                            fontWeight:
-                                                                FontWeight.w600,
-                                                            fontSize: 11,
-                                                          ),
-                                                        ),
-                                                      )
-                                                    : Padding(
-                                                        padding: EdgeInsets.all(
-                                                            filteredList[index]
-                                                                        .isDownloaded ??
-                                                                    false
-                                                                ? 10
-                                                                : 9),
-                                                        child: Image.asset(
-                                                          filteredList[index]
-                                                                      .isDownloaded ??
-                                                                  false
-                                                              ? icPlay
-                                                              : icDownload,
-                                                          color: AppColors
-                                                              .blackColor,
-                                                        ),
-                                                      ),
-                                              );
-                                            },
-                                          ),
-                                        )
-                                      : GestureDetector(
-                                          onTap: () {
-                                            if (filteredList[index].isPaid ==
-                                                false) {
-                                              if (filteredList[index]
-                                                      .isDownloaded ??
-                                                  false) {
-                                                Navigator.push(
-                                                    context,
-                                                    MaterialPageRoute(
-                                                      builder: (context) =>
-                                                          AudioPlayerPage(
-                                                        audioDescription:
-                                                            filteredList[index]
-                                                                    .description ??
-                                                                '',
-                                                        trackId:
-                                                            filteredList[index]
-                                                                .id
-                                                                .toString(),
-                                                        minutes: int.parse(
-                                                            filteredList[index]
-                                                                .duration
-                                                                .toString()),
-                                                        imgUrl:
-                                                            filteredList[index]
-                                                                    .imageUrl ??
-                                                                '',
-                                                        audioTitle:
-                                                            filteredList[index]
-                                                                    .title ??
-                                                                '',
-                                                        filePath:
-                                                            filteredList[index]
-                                                                    .filePath ??
-                                                                '',
-                                                      ),
-                                                    )).then(
-                                                  (value) async {
-                                                    print("value$value");
-                                                    getInitialFav();
-                                                    isSubscribe =
-                                                        PreferenceHelper.getBool(
-                                                            PreferenceHelper
-                                                                .isSubscribe);
-                                                    setState(() {});
-                                                  },
-                                                );
-                                              } else {
-                                                callDownloadAudioApi(
-                                                    homeProvider,
-                                                    filteredList[index]
-                                                            .trackUrl ??
-                                                        '',
-                                                    filteredList[index]);
-                                              }
-                                            } else {
-                                              Navigator.push(
-                                                  context,
-                                                  MaterialPageRoute(
-                                                    builder: (context) =>
-                                                        SubscriptionScreen(),
-                                                  )).then(
-                                                (value) {
-                                                  isSubscribe =
-                                                      PreferenceHelper.getBool(
-                                                          PreferenceHelper
-                                                              .isSubscribe);
-                                                  setState(() {});
-                                                },
-                                              );
-                                            }
-                                          },
-                                          child: ValueListenableBuilder(
-                                            valueListenable: filteredList[index]
-                                                    .downloadProgress ??
-                                                ValueNotifier(0.0),
-                                            builder: (context, value, child) {
-                                              return Container(
-                                                height: 35,
-                                                width: 35,
-                                                decoration: BoxDecoration(
-                                                  color: getTipIconColor(),
-                                                  borderRadius:
-                                                      const BorderRadius.all(
-                                                    Radius.circular(4),
-                                                  ),
-                                                ),
-                                                child: filteredList[index]
-                                                            .isPaid ==
-                                                        false
-                                                    ? (filteredList[index]
-                                                                .isDownloading ??
-                                                            false)
-                                                        ? Padding(
-                                                            padding:
-                                                                const EdgeInsets
-                                                                    .all(2),
-                                                            child: Center(
-                                                              child: AppUtils
-                                                                  .commonTextWidget(
-                                                                text:
-                                                                    "${filteredList[index].downloadProgress?.value.toStringAsFixed(0).padLeft(2, '0')}%",
-                                                                textColor: AppColors
-                                                                    .blackColor,
-                                                                fontWeight:
-                                                                    FontWeight
-                                                                        .w600,
-                                                                fontSize: 11,
-                                                              ),
-                                                            ),
-                                                          )
-                                                        : Padding(
-                                                            padding:
-                                                                EdgeInsets.all(
-                                                              filteredList[index]
-                                                                          .isDownloaded ??
-                                                                      false
-                                                                  ? 10
-                                                                  : 9,
-                                                            ),
-                                                            child: Image.asset(
-                                                              filteredList[index]
-                                                                          .isDownloaded ??
-                                                                      false
-                                                                  ? icPlay
-                                                                  : icDownload,
-                                                              color: AppColors
-                                                                  .blackColor,
-                                                            ),
-                                                          )
-                                                    : Padding(
-                                                        padding:
-                                                            const EdgeInsets
-                                                                .all(8.5),
-                                                        child: Image.asset(
-                                                          premiumIcon,
-                                                          color: AppColors
-                                                              .premiumAudioIconColor,
-                                                        ),
-                                                      ),
-                                              );
-                                            },
-                                          ),
-                                        ),
-                                  const SizedBox(height: 5),
-                                  Container(
-                                    height: 35,
-                                    width: 35,
-                                    child: GestureDetector(
-                                      onTap: () {
-                                        toggleFavorite(index);
-                                      },
-                                      child: Icon(
-                                        Icons.favorite,
-                                        color:
-                                            filteredList[index].isFav ?? false
-                                                ? getPrimaryColor()
-                                                : AppColors.darkGreyColor,
-                                        size: 24,
-                                      ),
-                                    ),
-                                  )
-                                ],
-                              ),
-                            ],
-                          ),
-                        ),
-                      );
+                            );
                     },
-                    childCount:
-                        filteredList.length, // Adjust as per your requirement
+                    childCount: filteredList.length,
                   ),
                 ),
-                const SliverToBoxAdapter(
-                  child: SizedBox(height: 12),
-                ),
+                if (filteredList.length > 3 && filteredList.length < 6)
+                  filteredList.length == 4
+                      ? const SliverToBoxAdapter(
+                          child: SizedBox(
+                            height: 200,
+                            width: double.infinity,
+                          ),
+                        )
+                      : filteredList.length == 5
+                          ? const SliverToBoxAdapter(
+                              child: SizedBox(
+                                height: 100,
+                                width: double.infinity,
+                              ),
+                            )
+                          : const SliverToBoxAdapter(
+                              child: SizedBox(
+                                height: 20,
+                                width: double.infinity,
+                              ),
+                            )
               ],
             ),
     );
   }
+
+  int count = 5;
 
   List<String> options = [
     'A to Z',

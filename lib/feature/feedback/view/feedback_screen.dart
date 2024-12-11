@@ -11,14 +11,16 @@ import 'package:meditationapp/core/image_path.dart';
 import 'package:meditationapp/core/storage/preference_helper.dart';
 import 'package:meditationapp/core/theme/theme_manager.dart';
 import 'package:meditationapp/feature/feedback/view/thankyou_for_tip_screen.dart';
+import 'package:meditationapp/feature/home/provider/home_provider.dart';
 import 'package:meditationapp/feature/home/view/home_screen.dart';
 import 'package:meditationapp/feature/subscription/view/subscription_screen.dart';
 import 'package:meditationapp/service/adMobService.dart';
 import 'package:onepref/onepref.dart';
+import 'package:provider/provider.dart';
 
 class FeedbackScreen extends StatefulWidget {
   String titleName;
-  String trackId;
+  int trackId;
 
   FeedbackScreen({super.key, required this.trackId, required this.titleName});
 
@@ -28,6 +30,8 @@ class FeedbackScreen extends StatefulWidget {
 
 class _FeedbackScreenState extends State<FeedbackScreen> {
   late StreamSubscription feedbackStream;
+
+  late HomeProvider homeProvider;
 
   // BannerAd? bannerAd;
 
@@ -47,6 +51,12 @@ class _FeedbackScreenState extends State<FeedbackScreen> {
   void initState() {
     // TODO: implement initState
     super.initState();
+    WidgetsBinding.instance.addPostFrameCallback(
+          (timeStamp) {
+        homeProvider = Provider.of<HomeProvider>(context, listen: false);
+        // callHomeApi(homeProvider);
+      },
+    );
 
     feedbackStream = iApEngine.inAppPurchase.purchaseStream.listen(
       (list) {
@@ -160,6 +170,7 @@ class _FeedbackScreenState extends State<FeedbackScreen> {
 
   @override
   Widget build(BuildContext context) {
+    homeProvider = Provider.of<HomeProvider>(context);
     final size = MediaQuery.of(context).size;
     return WillPopScope(
       onWillPop: () {
@@ -409,31 +420,34 @@ class _FeedbackScreenState extends State<FeedbackScreen> {
                                 left: 0, right: 0, top: 20, bottom: 24),
                             child: TextField(
                               maxLines: 4,
+                              controller: homeProvider.feedBackController,
+                              cursorColor: getTextColor(),
                               decoration: InputDecoration(
+
                                 enabled: true,
                                 fillColor: AppColors.textFieldColor,
-                                // Use your defined grey color
                                 filled: true,
-                                // This makes the background color visible
                                 enabledBorder: OutlineInputBorder(
                                   borderRadius: BorderRadius.circular(8),
-                                  // Rounded corners
                                   borderSide: BorderSide.none, // No border
                                 ),
                                 focusedBorder: OutlineInputBorder(
                                   borderRadius: BorderRadius.circular(8),
-                                  // Keep the same corners
                                   borderSide:
-                                      BorderSide.none, // No border on focus
+                                  BorderSide.none, // No border on focus
                                 ),
                                 hintText: "Type here..",
-                                // Optional hint text
                                 hintStyle: TextStyle(
                                     fontWeight: FontWeight.w400,
-                                    color:
-                                        AppColors.feedBackTextFieldHintColor),
+                                    fontFamily: fontFamily,
+                                    color: getTextColor()),
                               ),
+                              style: TextStyle(
+                                  fontWeight: FontWeight.w400,
+                                  fontFamily: fontFamily,
+                                  color: getTextColor()),
                             ),
+
                           ),
                           AppUtils.commonElevatedButton(
                             bottomMargin: 30,
@@ -445,9 +459,9 @@ class _FeedbackScreenState extends State<FeedbackScreen> {
                             text: "Submit",
                             onPressed: () {
                               //submit
-
-                              //close pop
+                              homeProvider.callFeedBackApi(selectedRating.toInt(), widget.trackId);
                               Navigator.of(context).pop();
+
                             },
                           )
                         ],

@@ -30,10 +30,12 @@ class AppUtils {
   static void snackBarFnc({required BuildContext ctx, String? contentText}) {
     if (contentText != null && contentText != '') {
       ScaffoldMessenger.of(ctx).showSnackBar(SnackBar(
-        duration: const Duration(milliseconds: 1000),
-        content: Text(
-          contentText ?? '',
-          style: TextStyle(fontFamily: fontFamily),
+        duration: const Duration(milliseconds: 3000),
+        backgroundColor: getPrimaryColor(),
+        content: AppUtils.commonTextWidget(
+          text : contentText ?? '',
+          fontSize: 14,
+          fontWeight: FontWeight.w400
         ),
       ));
     }
@@ -197,6 +199,29 @@ class AppUtils {
       }
     }
     return parseDate;
+  }
+
+  static noDataFound({String? error, Function()? onTap,String? buttonString}){
+    return Column(
+        crossAxisAlignment: CrossAxisAlignment.center,
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          AppUtils.commonTextWidget(
+            text: error ?? "No Categories Found",
+            fontSize: 20,
+            fontWeight: FontWeight.w600,
+          ),
+
+          AppUtils.commonElevatedButton(
+            text: buttonString ?? "Try Again",
+            fontWeight: FontWeight.w500,
+            onPressed: onTap,
+            buttonWidth: double.infinity,
+            topMargin: 10,
+            leftMargin: 140,
+            rightMargin: 140,
+          )
+        ]);
   }
 
   static commonElevatedButton({

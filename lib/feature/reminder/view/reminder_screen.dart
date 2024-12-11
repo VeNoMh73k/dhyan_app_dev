@@ -44,8 +44,7 @@ class _ReminderScreenState extends State<ReminderScreen> {
         print("reminderModel reminderTime: ${reminderModel.reminderTime}");
 
         // Map `selectedDays` to a list of booleans (ensure valid values)
-        List<bool> selectedDays =
-            (reminderModel.selectedDays ?? []).map((e) => e == true).toList();
+        List<bool> selectedDays = (reminderModel.selectedDays ?? []).map((e) => e == true).toList();
         print("selectedDays: $selectedDays");
 
         // Return the updated ReminderModel
@@ -53,6 +52,7 @@ class _ReminderScreenState extends State<ReminderScreen> {
           reminderTime: reminderModel.reminderTime,
           isReminderOn: reminderModel.isReminderOn,
           selectedDays: selectedDays,
+          dayUuidMap: reminderModel.dayUuidMap
         );
       }).toList();
 
@@ -72,17 +72,29 @@ class _ReminderScreenState extends State<ReminderScreen> {
   }
 
   Future<void> toggleReminder(int index, bool value) async {
+    Map<int,String> dayUuidMap ={};
     // Toggle the isReminderOn property of the selected reminder
     reminders[index].isReminderOn = value;
 
-    List<String> serializedReminders =
-        reminders.map((reminder) => jsonEncode(reminder.toJson())).toList();
+    List<String> serializedReminders = reminders.map((reminder) => jsonEncode(reminder.toJson())).toList();
 
-    // Save the serialized reminders list to SharedPreferences
+    ReminderModel reminderModel = ReminderModel.fromJson(jsonDecode(serializedReminders[index]));
+
+    dayUuidMap = reminderModel.dayUuidMap ?? {};
+
+    print("reminderDayUUId${reminderModel.dayUuidMap}");
+
     await PreferenceHelper.setStringList('reminder', serializedReminders);
     if (value == false) {
-      print("index$index");
-      NotificationService().cancelNotifications(index + 1);
+      for(var weekDayUUId  in dayUuidMap.entries){
+        int weekday = weekDayUUId.key;
+        String uuid = weekDayUUId.value;
+        print("uuid$uuid");
+        print("weekday$weekday");
+        NotificationService().cancelNotifications(uuid);
+
+      }
+
     } else {
       Navigator.push(
           context,
@@ -91,13 +103,12 @@ class _ReminderScreenState extends State<ReminderScreen> {
               index: index,
             ),
           )).then(
-        (value) {
+            (value) {
           _loadReminders();
         },
       );
     }
   }
-
   @override
   void initState() {
     // TODO: implement initState
