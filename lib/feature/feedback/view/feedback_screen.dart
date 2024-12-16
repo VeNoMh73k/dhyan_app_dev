@@ -148,7 +148,7 @@ class _FeedbackScreenState extends State<FeedbackScreen> {
 
   goBack() {
     // Navigator.pop(context);
-    Navigator.pop(context,savedFavVar);
+    Navigator.pop(context, savedFavVar);
   }
 
   @override
@@ -262,7 +262,7 @@ class _FeedbackScreenState extends State<FeedbackScreen> {
                                 ),
                               ),
                               onPressed: () {
-                                shoFeedBackPopUpView();
+                                showFeedBackPopUpView();
                               },
                               child: Padding(
                                 padding:
@@ -295,7 +295,7 @@ class _FeedbackScreenState extends State<FeedbackScreen> {
                                     : AppColors.greyColor)),
                         const SizedBox(height: 4),
                         AppUtils.commonTextWidget(
-                          text: "Favorites",
+                          text: "Favorite",
                           fontWeight: FontWeight.w400,
                           fontSize: 14,
                           textColor: getTextColor(),
@@ -339,7 +339,7 @@ class _FeedbackScreenState extends State<FeedbackScreen> {
     );
   }
 
-  shoFeedBackPopUpView() {
+  showFeedBackPopUpView() {
     double selectedRating = 3.0;
     homeProvider.feedBackController.clear();
     return showDialog(
@@ -395,13 +395,15 @@ class _FeedbackScreenState extends State<FeedbackScreen> {
                           const SizedBox(height: 12),
                           AppUtils.commonTextWidget(
                             text: "Provide your feedback so we can improve it.",
-                            fontSize: 14,
+                            fontSize: 13.5,
+                            textAlign: TextAlign.center,
                             fontWeight: FontWeight.w400,
                           ),
                           const SizedBox(height: 18),
                           StarRating(
                               rating: selectedRating,
-                              size: 60,
+                              size: MediaQuery.of(context).size.width / 7,
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
                               allowHalfRating: false,
                               filledIcon: Icons.star_rounded,
                               // halfFilledIcon: Icons.favorite_border,
