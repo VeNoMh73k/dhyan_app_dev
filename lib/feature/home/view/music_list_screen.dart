@@ -10,6 +10,7 @@ import 'package:meditationapp/core/image_path.dart';
 import 'package:meditationapp/core/storage/preference_helper.dart';
 import 'package:meditationapp/core/theme/icon_path.dart';
 import 'package:meditationapp/core/theme/theme_manager.dart';
+import 'package:meditationapp/feature/feedback/view/feedback_screen.dart';
 import 'package:meditationapp/feature/home/models/get_all_category_and_track.dart';
 import 'package:meditationapp/feature/home/provider/home_provider.dart';
 import 'package:meditationapp/feature/home/view/audio_player_page.dart';
@@ -385,20 +386,23 @@ class _MusicListScreenState extends State<MusicListScreen> {
                   child: SizedBox(height: 20),
                 ),
                 filteredList == null ||
-                    filteredList.length == 0 ||
-                    filteredList.isEmpty
-                    ?SliverToBoxAdapter(
-                  child: SizedBox(height: height/2,child: AppUtils.noDataFound(
-                    error: "No Tracks Found",
-                    onTap: () {
-                      getTracksAccordingToCategoryId();
-                    },
-                  ),),
-                )
+                        filteredList.length == 0 ||
+                        filteredList.isEmpty
+                    ? SliverToBoxAdapter(
+                        child: SizedBox(
+                          height: height / 2,
+                          child: AppUtils.noDataFound(
+                            error: "No Tracks Found",
+                            onTap: () {
+                              getTracksAccordingToCategoryId();
+                            },
+                          ),
+                        ),
+                      )
                     : SliverList(
-                  delegate: SliverChildBuilderDelegate(
-                    (context, index) {
-                      return IntrinsicHeight(
+                        delegate: SliverChildBuilderDelegate(
+                          (context, index) {
+                            return IntrinsicHeight(
                               child: Container(
                                 margin: const EdgeInsets.only(
                                     left: 16, right: 16, bottom: 12),
@@ -591,6 +595,33 @@ class _MusicListScreenState extends State<MusicListScreen> {
                                                                         index]
                                                                     .filePath ??
                                                                 '',
+                                                            moveToFeedbackFnc:
+                                                                () {
+                                                              Navigator.push(
+                                                                  context,
+                                                                  MaterialPageRoute(
+                                                                    builder:
+                                                                        (context) =>
+                                                                            FeedbackScreen(
+                                                                      titleName:
+                                                                          filteredList[index].title ??
+                                                                              '',
+                                                                      trackId:
+                                                                          filteredList[index].id ??
+                                                                              0,
+                                                                    ),
+                                                                  )).then(
+                                                                (value) async {
+                                                                  getInitialFav();
+                                                                  isSubscribe =
+                                                                      PreferenceHelper.getBool(
+                                                                          PreferenceHelper
+                                                                              .isSubscribe);
+                                                                  setState(
+                                                                      () {});
+                                                                },
+                                                              );
+                                                            },
                                                           ),
                                                         )).then(
                                                       (value) async {
@@ -714,6 +745,32 @@ class _MusicListScreenState extends State<MusicListScreen> {
                                                                           index]
                                                                       .filePath ??
                                                                   '',
+                                                              moveToFeedbackFnc:
+                                                                  () {
+                                                                Navigator.push(
+                                                                    context,
+                                                                    MaterialPageRoute(
+                                                                      builder:
+                                                                          (context) =>
+                                                                              FeedbackScreen(
+                                                                        titleName:
+                                                                            filteredList[index].title ??
+                                                                                '',
+                                                                        trackId:
+                                                                            filteredList[index].id ??
+                                                                                0,
+                                                                      ),
+                                                                    )).then(
+                                                                  (value) async {
+                                                                    getInitialFav();
+                                                                    isSubscribe =
+                                                                        PreferenceHelper.getBool(
+                                                                            PreferenceHelper.isSubscribe);
+                                                                    setState(
+                                                                        () {});
+                                                                  },
+                                                                );
+                                                              },
                                                             ),
                                                           )).then(
                                                         (value) async {
@@ -856,10 +913,10 @@ class _MusicListScreenState extends State<MusicListScreen> {
                                 ),
                               ),
                             );
-                    },
-                    childCount: filteredList.length,
-                  ),
-                ),
+                          },
+                          childCount: filteredList.length,
+                        ),
+                      ),
                 if (filteredList.length > 3 && filteredList.length < 6)
                   filteredList.length == 4
                       ? const SliverToBoxAdapter(

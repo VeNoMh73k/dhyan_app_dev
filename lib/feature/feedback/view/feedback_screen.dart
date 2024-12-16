@@ -14,6 +14,7 @@ import 'package:meditationapp/feature/feedback/view/thankyou_for_tip_screen.dart
 import 'package:meditationapp/feature/home/provider/home_provider.dart';
 import 'package:meditationapp/feature/home/view/home_screen.dart';
 import 'package:meditationapp/feature/subscription/view/subscription_screen.dart';
+import 'package:meditationapp/main.dart';
 import 'package:meditationapp/service/adMobService.dart';
 import 'package:onepref/onepref.dart';
 import 'package:provider/provider.dart';
@@ -52,7 +53,7 @@ class _FeedbackScreenState extends State<FeedbackScreen> {
     // TODO: implement initState
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback(
-          (timeStamp) {
+      (timeStamp) {
         homeProvider = Provider.of<HomeProvider>(context, listen: false);
         // callHomeApi(homeProvider);
       },
@@ -69,8 +70,6 @@ class _FeedbackScreenState extends State<FeedbackScreen> {
     getTipData();
     // createBannerAd();
   }
-
-
 
   listenPurchaseStream(List<PurchaseDetails> listenPurchaseDetails) {
     if (listenPurchaseDetails.isNotEmpty) {
@@ -108,10 +107,10 @@ class _FeedbackScreenState extends State<FeedbackScreen> {
     });
 
     iApEngine.getIsAvailable().then(
-          (value) {
+      (value) {
         if (value) {
           iApEngine.queryProducts(productId).then(
-                (res) {
+            (res) {
               print("responseData${res.productDetails.length}");
               setState(() {
                 inAppProductList = res.productDetails;
@@ -119,7 +118,7 @@ class _FeedbackScreenState extends State<FeedbackScreen> {
               });
             },
           );
-        }else{
+        } else {
           setState(() {
             isLoading = false;
           });
@@ -148,8 +147,8 @@ class _FeedbackScreenState extends State<FeedbackScreen> {
   }
 
   goBack() {
-    Navigator.pop(context);
-    Navigator.pop(context);
+    // Navigator.pop(context);
+    Navigator.pop(context,savedFavVar);
   }
 
   @override
@@ -205,7 +204,7 @@ class _FeedbackScreenState extends State<FeedbackScreen> {
                     //             child: AdWidget(ad: bannerAd!)),
                     //       ),
 
-               ClipRRect(
+                    ClipRRect(
                       borderRadius: BorderRadius.circular(10),
                       child: Image.asset(
                         adImage,
@@ -245,7 +244,8 @@ class _FeedbackScreenState extends State<FeedbackScreen> {
                             const SizedBox(height: 20),
                             TextButton(
                               onPressed: () {
-                                Navigator.pop(context,savedFavVar);
+                                // Navigator.pop(context, savedFavVar);
+                                Navigator.pop(context, savedFavVar);
                               },
                               child: AppUtils.commonTextWidget(
                                 text: "Start New Track",
@@ -309,24 +309,25 @@ class _FeedbackScreenState extends State<FeedbackScreen> {
                                 text: "Tip${inAppProductList.first.price}",
                                 onPressed: () {
                                   showTipDialogBox(context, inAppProductList);
-
                                 },
                               ),
                             ),
-                            const SizedBox(width: 10),
-                            Expanded(
-                              child: AppUtils.commonElevatedButton(
-                                text: "Get Subscription",
-                                onPressed: () {
-                                  Navigator.pushReplacement(
-                                      context,
-                                      MaterialPageRoute(
-                                        builder: (context) =>
-                                            SubscriptionScreen(),
-                                      ));
-                                },
-                              ),
-                            ),
+                            SizedBox(width: isSubscribe ? 0 : 10),
+                            isSubscribe
+                                ? const SizedBox()
+                                : Expanded(
+                                    child: AppUtils.commonElevatedButton(
+                                      text: "Get Subscription",
+                                      onPressed: () {
+                                        Navigator.pushReplacement(
+                                            context,
+                                            MaterialPageRoute(
+                                              builder: (context) =>
+                                                  SubscriptionScreen(),
+                                            ));
+                                      },
+                                    ),
+                                  ),
                           ],
                         ),
                       ],
@@ -423,7 +424,6 @@ class _FeedbackScreenState extends State<FeedbackScreen> {
                               controller: homeProvider.feedBackController,
                               cursorColor: getTextColor(),
                               decoration: InputDecoration(
-
                                 enabled: true,
                                 fillColor: AppColors.textFieldColor,
                                 filled: true,
@@ -434,7 +434,7 @@ class _FeedbackScreenState extends State<FeedbackScreen> {
                                 focusedBorder: OutlineInputBorder(
                                   borderRadius: BorderRadius.circular(8),
                                   borderSide:
-                                  BorderSide.none, // No border on focus
+                                      BorderSide.none, // No border on focus
                                 ),
                                 hintText: "Type here..",
                                 hintStyle: TextStyle(
@@ -447,7 +447,6 @@ class _FeedbackScreenState extends State<FeedbackScreen> {
                                   fontFamily: fontFamily,
                                   color: getTextColor()),
                             ),
-
                           ),
                           AppUtils.commonElevatedButton(
                             bottomMargin: 30,
@@ -459,9 +458,9 @@ class _FeedbackScreenState extends State<FeedbackScreen> {
                             text: "Submit",
                             onPressed: () {
                               //submit
-                              homeProvider.callFeedBackApi(selectedRating.toInt(), widget.trackId);
+                              homeProvider.callFeedBackApi(
+                                  selectedRating.toInt(), widget.trackId);
                               Navigator.of(context).pop();
-
                             },
                           )
                         ],
@@ -480,12 +479,13 @@ class _FeedbackScreenState extends State<FeedbackScreen> {
     return showDialog(
       context: context,
       builder: (context) {
-        return TipDialogBox(subscriptionList: subscriptionList, onSubmit: onSubmit);
+        return TipDialogBox(
+            subscriptionList: subscriptionList, onSubmit: onSubmit);
       },
     );
   }
 
-  onSubmit(ProductDetails productDetails){
+  onSubmit(ProductDetails productDetails) {
     iApEngine.handlePurchase(productDetails, productId);
   }
 }

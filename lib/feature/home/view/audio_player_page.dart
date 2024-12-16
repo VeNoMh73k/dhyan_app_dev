@@ -15,11 +15,13 @@ class AudioPlayerPage extends StatefulWidget {
   final String audioTitle;
   final int trackId;
   final String audioDescription;
+  final Function moveToFeedbackFnc;
 
   final num minutes;
 
   const AudioPlayerPage(
       {super.key,
+      required this.moveToFeedbackFnc,
       required this.imgUrl,
       required this.trackId,
       required this.filePath,
@@ -77,14 +79,16 @@ class _AudioPlayerPageState extends State<AudioPlayerPage> {
             saveMinutesInPref();
             saveSessionCompleted();
             pauseAudio();
-            Navigator.push(
-                context,
-                MaterialPageRoute(
-                  builder: (context) => FeedbackScreen(
-                    trackId: widget.trackId,
-                    titleName: widget.audioTitle,
-                  ),
-                ));
+            Navigator.pop(context,savedFavVar);
+            widget.moveToFeedbackFnc();
+            // Navigator.push(
+            //     context,
+            //     MaterialPageRoute(
+            //       builder: (context) => FeedbackScreen(
+            //         trackId: widget.trackId,
+            //         titleName: widget.audioTitle,
+            //       ),
+            //     ));
           }
         }
       },
@@ -119,7 +123,7 @@ class _AudioPlayerPageState extends State<AudioPlayerPage> {
     PreferenceHelper.setInt("totalPlayedTime", int.parse(totalTime.toString()));
   }
 
-  saveSessionCompleted(){
+  saveSessionCompleted() {
     int savedSessionCount = PreferenceHelper.getInt("sessionCount") ?? 0;
     int totalSession = savedSessionCount + 1;
     PreferenceHelper.setInt("sessionCount", totalSession);
@@ -173,15 +177,17 @@ class _AudioPlayerPageState extends State<AudioPlayerPage> {
   @override
   Widget build(BuildContext context) {
     return WillPopScope(
-      onWillPop: () async{
-        Navigator.push(
-            context,
-            MaterialPageRoute(
-              builder: (context) => FeedbackScreen(
-                trackId: widget.trackId,
-                titleName: widget.audioTitle,
-              ),
-            ));
+      onWillPop: () async {
+        Navigator.pop(context, savedFavVar);
+        widget.moveToFeedbackFnc();
+        // Navigator.push(
+        //     context,
+        //     MaterialPageRoute(
+        //       builder: (context) => FeedbackScreen(
+        //         trackId: widget.trackId,
+        //         titleName: widget.audioTitle,
+        //       ),
+        //     ));
         return false;
       },
       child: Scaffold(
@@ -197,16 +203,19 @@ class _AudioPlayerPageState extends State<AudioPlayerPage> {
             color: AppColors.whiteColor,
             onTap: () {
               pauseAudio();
-              Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (context) => FeedbackScreen(
-                      titleName: widget.audioTitle,
-                      trackId: widget.trackId,
-                    ),
-                  ));
+              Navigator.pop(context, savedFavVar);
+              widget.moveToFeedbackFnc();
+              // Navigator.push(
+              //     context,
+              //     MaterialPageRoute(
+              //       builder: (context) => FeedbackScreen(
+              //         titleName: widget.audioTitle,
+              //         trackId: widget.trackId,
+              //       ),
+              //     ));
             },
-          ), /*GestureDetector(
+          ),
+          /*GestureDetector(
             onTap: () {
               pauseAudio();
               Navigator.push(
@@ -273,8 +282,8 @@ class _AudioPlayerPageState extends State<AudioPlayerPage> {
                   children: [
                     // Left Column: Text and Slider
                     Padding(
-                      padding:
-                          const EdgeInsets.only(left: 16, right: 16, bottom: 30),
+                      padding: const EdgeInsets.only(
+                          left: 16, right: 16, bottom: 30),
                       child: Row(
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
@@ -331,10 +340,11 @@ class _AudioPlayerPageState extends State<AudioPlayerPage> {
                                         edgeLabelPlacement:
                                             EdgeLabelPlacement.inside,
                                         min: 0.0,
-                                        max:
-                                            audioDuration?.inSeconds.toDouble() ??
-                                                1.0,
-                                        value: sliderValueNotifier.value.inSeconds
+                                        max: audioDuration?.inSeconds
+                                                .toDouble() ??
+                                            1.0,
+                                        value: sliderValueNotifier
+                                            .value.inSeconds
                                             .toDouble()
                                             .clamp(
                                                 0.0,
@@ -345,7 +355,8 @@ class _AudioPlayerPageState extends State<AudioPlayerPage> {
                                         labelFormatterCallback: (dynamic value,
                                             String formattedText) {
                                           if (value == 0) return '00:00';
-                                          if (value == audioDuration?.inSeconds) {
+                                          if (value ==
+                                              audioDuration?.inSeconds) {
                                             return _formatDuration(
                                                 audioDuration!);
                                           }
