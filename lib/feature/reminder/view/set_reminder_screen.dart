@@ -154,6 +154,7 @@ class _SetReminderScreenState extends State<SetReminderScreen> {
         automaticallyImplyLeading: false,
         centerTitle: true,
         leading: AppUtils.backButton(
+          color: getTextColor(),
             onTap: () {
               Navigator.pop(context);
             },

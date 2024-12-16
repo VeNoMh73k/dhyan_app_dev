@@ -389,7 +389,7 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
       preferredSize: const Size.fromHeight(70),
       child: Container(
         decoration: BoxDecoration(
-          color: getScaffoldColor(),
+          color: getHomeAppBarColor(),
           borderRadius: const BorderRadius.only(
             bottomLeft: Radius.circular(16),
             bottomRight: Radius.circular(16),
@@ -418,7 +418,7 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
                 _advancedDrawerController.showDrawer();
               },
               child: AppUtils.commonContainer(
-                color: getScaffoldColor(),
+                color: getHomeAppBarColor(),
                 child: Icon(
                   Icons.menu,
                   size: 30,
@@ -443,7 +443,7 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
               },
               child: AppUtils.commonContainer(
                 padding: const EdgeInsets.all(8),
-                color: getScaffoldColor(),
+                color: getHomeAppBarColor(),
                 margin: const EdgeInsets.only(right: 16),
                 child: Image.asset(
                   tipIcon,

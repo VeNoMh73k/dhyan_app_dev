@@ -37,6 +37,16 @@ import 'package:meditationapp/main.dart';
     return AppColors.blackColor;
   }
 
+getHomeAppBarColor() {
+  if (currentTheme == ThemeData.dark()) {
+    return AppColors.blackThemeBackgroundColor; // Dark theme text color
+  } else if (currentTheme == ThemeData.light()) {
+    return AppColors.whiteColor; // Light theme text color
+  }
+  // Default text color if theme is not specified or invalid
+  return AppColors.blackColor;
+}
+
   getElevationColor(){
     if (currentTheme == ThemeData.dark()) {
       return AppColors.whiteColor.withOpacity(0.1); // Dark theme text color
@@ -62,6 +72,16 @@ getPrimaryColor() {
     return AppColors.secondaryColor; // Dark theme text color
   } else if (currentTheme == ThemeData.light()) {
     return AppColors.primaryColor; // Light theme text color
+  }
+  // Default text color if theme is not specified or invalid
+  return AppColors.blackColor;
+}
+
+getSubscriptionPriceColor() {
+  if (currentTheme == ThemeData.dark()) {
+    return AppColors.primaryColor; // Dark theme text color
+  } else if (currentTheme == ThemeData.light()) {
+    return AppColors.secondaryColor; // Light theme text color
   }
   // Default text color if theme is not specified or invalid
   return AppColors.blackColor;
@@ -189,6 +209,17 @@ getSetReminderContainerColor() {
 getLifeTimePurchaseColorManager() {
   if (currentTheme == ThemeData.dark()) {
     return AppColors.greyColor; // Dark theme text color
+  } else if (currentTheme == ThemeData.light()) {
+    return AppColors.textFieldColor; // Light theme text color
+  }
+  // Default text color if theme is not specified or invalid
+  return AppColors.blackColor;
+}
+
+
+getFeedbackPopUpTetFieldColor() {
+  if (currentTheme == ThemeData.dark()) {
+    return AppColors.lightBlackColor; // Dark theme text color
   } else if (currentTheme == ThemeData.light()) {
     return AppColors.textFieldColor; // Light theme text color
   }

@@ -393,7 +393,7 @@ class _SubscriptionScreenState extends State<SubscriptionScreen>
                               "${product.price} / $title",
                               fontWeight: FontWeight.w700,
                               fontSize: 16,
-                              textColor: AppColors.primaryColor,
+                              textColor: getSubscriptionPriceColor(),
                             ),
                           ],
                         ),
@@ -414,24 +414,7 @@ class _SubscriptionScreenState extends State<SubscriptionScreen>
                           backgroundColor: getLifeTimePurchaseColorManager(),
                           text: "Subscribed",
                           onPressed: () async {
-                            //this code is only for testing
-                            // if (Platform.isAndroid && purchaseDetails != null) {
-                            //   final InAppPurchaseAndroidPlatformAddition
-                            //       androidPlatformAddition = iApEngine.inAppPurchase
-                            //           .getPlatformAddition<
-                            //               InAppPurchaseAndroidPlatformAddition>();
-                            //
-                            //   await androidPlatformAddition.consumePurchase(purchaseDetails!).then(
-                            //     (value) {
-                            //       // subscriptionId = purchaseDetails?.productID ?? '';
-                            //       print("subscription$subscriptionId");
-                            //       updateSubscriptionStatus(
-                            //         false,
-                            //       );
-                            //       getSubscriptionList();
-                            //     },
-                            //   );
-                            // }
+
                           },
                           buttonWidth: double.infinity,
                           leftMargin: 80,

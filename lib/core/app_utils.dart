@@ -127,8 +127,10 @@ class AppUtils {
     EdgeInsets? padding,
     Widget? child,
     Color? color,
+    Key? key
   }) {
     return Container(
+      key: key,
       height: height,
       width: width,
       alignment: alignment,

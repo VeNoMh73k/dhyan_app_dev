@@ -340,15 +340,15 @@ class _FeedbackScreenState extends State<FeedbackScreen> {
   }
 
   shoFeedBackPopUpView() {
-    double selectedRating = 3.0; // Default rating
-
+    double selectedRating = 3.0;
+    homeProvider.feedBackController.clear();
     return showDialog(
         context: context,
         builder: (context) {
           return StatefulBuilder(builder: (context, setState) {
             return AlertDialog(
               backgroundColor: getPopUpColor(),
-              insetPadding: const EdgeInsets.symmetric(horizontal: 0),
+              insetPadding: const EdgeInsets.symmetric(horizontal: 16),
               contentPadding: EdgeInsets.zero,
               shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(8),
@@ -425,7 +425,7 @@ class _FeedbackScreenState extends State<FeedbackScreen> {
                               cursorColor: getTextColor(),
                               decoration: InputDecoration(
                                 enabled: true,
-                                fillColor: AppColors.textFieldColor,
+                                fillColor: getFeedbackPopUpTetFieldColor(),
                                 filled: true,
                                 enabledBorder: OutlineInputBorder(
                                   borderRadius: BorderRadius.circular(8),
